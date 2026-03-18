@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
-import { Checkbox } from "primereact/checkbox";
 import { Message } from "primereact/message";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
@@ -13,7 +12,6 @@ import "../styles/login.css";
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -67,27 +65,29 @@ const Login: React.FC = () => {
               <span className="brand-name">PurchaseBridge</span>
             </div>
             <h1 className="brand-headline">
-              Financial <br />
-              Precision & <br />
-              Editorial Clarity.
+              Importación y <br />
+              escaneo de <br />
+              facturas.
             </h1>
             <p className="brand-description">
-              Bridging the gap between raw XML data and architectural ledger
-              accuracy. Experience the new standard in ERP synchronization.
+              Optimice su flujo de trabajo con nuestra avanzada tecnología de
+              procesamiento de documentos. Transforme sus datos XML en registros
+              contables precisos con un solo clic.
             </p>
           </div>
           <div className="brand-footer">
             <div className="security-badge">
               <span className="material-symbols-outlined">security</span>
               <div>
-                <p className="security-title">Enterprise Grade Security</p>
+                <p className="security-title">Seguridad de Grado Empresarial</p>
                 <p className="security-subtitle">
-                  Multi-factor authentication and end-to-end encryption active.
+                  Autenticación de múltiples factores y cifrado de extremo a
+                  extremo activos.
                 </p>
               </div>
             </div>
             <p className="copyright">
-              © 2024 PurchaseBridge ERP Precision System
+              © 2024 ZambranoSoft - Sistema de Precisión ERP | v1.0.0
             </p>
           </div>
         </div>
@@ -102,27 +102,27 @@ const Login: React.FC = () => {
           </div>
 
           <div className="form-header">
-            <h2 className="form-title">Welcome Back</h2>
+            <h2 className="form-title">Bienvenido de nuevo</h2>
             <p className="form-subtitle">
-              Enter your credentials to access the ledger.
+              Ingrese sus credenciales para acceder al sistema.
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="login-form">
-            {/* Field: Username/Email */}
+            {/* Field: Username */}
             <div className="form-field">
               <label htmlFor="username" className="field-label">
-                Username or Email
+                Nombre de usuario
               </label>
               <div className="input-with-icon">
                 <span className="material-symbols-outlined input-icon">
-                  alternate_email
+                  person
                 </span>
                 <InputText
                   id="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="name@company.com"
+                  placeholder="usuario@empresa.com"
                   required
                   className="login-input"
                 />
@@ -131,14 +131,9 @@ const Login: React.FC = () => {
 
             {/* Field: Password */}
             <div className="form-field">
-              <div className="label-row">
-                <label htmlFor="password" className="field-label">
-                  Password
-                </label>
-                <a href="#" className="forgot-password">
-                  Forgot Password?
-                </a>
-              </div>
+              <label htmlFor="password" className="field-label">
+                Contraseña
+              </label>
               <div className="input-with-icon">
                 <span className="material-symbols-outlined input-icon">
                   lock
@@ -156,19 +151,6 @@ const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* Remember Me */}
-            <div className="remember-me">
-              <Checkbox
-                inputId="remember"
-                checked={remember}
-                onChange={(e) => setRemember(e.checked || false)}
-                className="remember-checkbox"
-              />
-              <label htmlFor="remember" className="remember-label">
-                Stay logged in for 30 days
-              </label>
-            </div>
-
             {error && (
               <Message severity="error" text={error} className="error-msg" />
             )}
@@ -179,28 +161,10 @@ const Login: React.FC = () => {
               loading={loading}
               className="submit-button"
             >
-              <span>Sign In to PurchaseBridge</span>
+              <span>Ingresar</span>
               <span className="material-symbols-outlined">arrow_forward</span>
             </Button>
           </form>
-
-          {/* Footer / Support */}
-          <div className="form-footer">
-            <div className="footer-links">
-              <a href="#" className="footer-link">
-                Privacy Policy
-              </a>
-              <a href="#" className="footer-link">
-                Support
-              </a>
-            </div>
-            <div className="secure-badge">
-              <span className="material-symbols-outlined secure-icon">
-                verified_user
-              </span>
-              <span className="secure-text">Secure Link</span>
-            </div>
-          </div>
         </div>
       </div>
 
