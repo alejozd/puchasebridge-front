@@ -26,8 +26,8 @@ const Login: React.FC = () => {
 
     try {
       const response = await axiosClient.post("/auth/login", {
-        username,
-        password,
+        usuario: username,
+        clave: password,
       });
 
       const { user, company, token } = response.data;

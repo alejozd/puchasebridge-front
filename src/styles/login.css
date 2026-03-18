@@ -3,9 +3,45 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  backgroundColor: var(--color-bg);
+  background-color: var(--color-bg);
 }
 
 .login-card {
   width: 400px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-3 {
+  gap: 1rem;
+}
+
+.mt-4 {
+  margin-top: 1.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.login-card .p-card-body {
+  padding: 2rem;
+}
+
+.login-card form .p-inputtext {
+  width: 100%;
+}
+
+.login-card form .p-password {
+  width: 100%;
 }
