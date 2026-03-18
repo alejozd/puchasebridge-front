@@ -121,7 +121,7 @@ const MainLayout: React.FC = () => {
           </div>
         </header>
 
-        <main className="layout-main">
+        <main className="layout-main" style={{ display: 'flex', flexDirection: 'column' }}>
           <Outlet />
         </main>
       </div>

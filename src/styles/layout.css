@@ -263,3 +263,13 @@
   background-color: var(--color-surface-container-highest);
   margin: 0 0.5rem;
 }
+
+/* Dashboard Grid Adjustments */
+@media (max-width: 1400px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .queue-card, .alerts-column {
+    grid-column: span 1 !important;
+  }
+}

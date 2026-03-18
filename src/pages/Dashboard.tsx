@@ -67,7 +67,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="dashboard-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', flex: 1 }}>
       <header>
         <h2 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.025em', margin: 0 }}>Dashboard</h2>
         <p style={{ color: 'var(--color-secondary)', marginTop: '0.25rem' }}>Real-time overview of your ERP bridge health and processing queue.</p>
@@ -123,8 +123,8 @@ const Dashboard: React.FC = () => {
         </Card>
       </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
-        <Card style={{ borderRadius: 'var(--radius-xl)', padding: '0.5rem' }}>
+      <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', alignItems: 'start' }}>
+        <Card className="queue-card" style={{ borderRadius: 'var(--radius-xl)', padding: '0.5rem', minWidth: '0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Active Processing Queue</h3>
             <Button label="View full registry" icon="pi pi-arrow-right" iconPos="right" text size="small" style={{ fontWeight: 600 }} />
@@ -138,7 +138,7 @@ const Dashboard: React.FC = () => {
           </DataTable>
         </Card>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className="alerts-column" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div style={{ background: 'linear-gradient(to bottom right, var(--color-primary), var(--color-primary-dim))', padding: '2rem', borderRadius: 'var(--radius-xl)', color: 'var(--color-on-primary)', position: 'relative', overflow: 'hidden' }}>
             <h4 style={{ fontSize: '0.875rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.8, margin: '0 0 1rem 0' }}>Bridge Uptime</h4>
             <div style={{ fontSize: '2.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>99.98%</div>
