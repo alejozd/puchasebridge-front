@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import MainLayout from "../layout/MainLayout";
 import Login from "../pages/Login";
+import Dashboard from "../pages/Dashboard";
 import { createBrowserRouter } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -19,7 +20,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: <div>Dashboard (Proximamente)</div>,
+            element: <Dashboard />,
           },
           {
             path: "xml",

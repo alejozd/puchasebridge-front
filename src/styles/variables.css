@@ -2,29 +2,50 @@
 
 :root {
   /* Primary */
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
+  --color-primary: #4059aa;
+  --color-primary-dim: #334d9d;
+  --color-primary-container: #dce1ff;
+  --color-on-primary: #f8f7ff;
+  --color-on-primary-container: #334c9d;
 
-  /* Background */
-  --color-bg: #f5f7fa;
-  --color-surface: #ffffff;
+  /* Secondary */
+  --color-secondary: #526074;
+  --color-secondary-container: #d5e3fc;
+  --color-on-secondary-container: #455367;
+
+  /* Tertiary */
+  --color-tertiary: #625b77;
+  --color-tertiary-container: #e8ddff;
+  --color-on-tertiary-container: #554e69;
+
+  /* Background & Surface */
+  --color-bg: #f7f9fb;
+  --color-surface: #f7f9fb;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f0f4f7;
+  --color-surface-container: #e8eff3;
+  --color-surface-container-high: #e1e9ee;
+  --color-surface-container-highest: #d9e4ea;
 
   /* Text */
-  --color-text: #111827;
-  --color-text-secondary: #6b7280;
-
-  /* Border */
-  --color-border: #e5e7eb;
+  --color-on-surface: #2a3439;
+  --color-on-surface-variant: #566166;
+  --color-outline: #717c82;
 
   /* States */
   --color-success: #16a34a;
   --color-warning: #f59e0b;
-  --color-error: #dc2626;
+  --color-error: #9e3f4e;
+  --color-error-container: #ff8b9a;
   --color-info: #0ea5e9;
 
   /* Radius */
-  --radius: 10px;
+  --radius: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem;
 
   /* Shadow */
   --shadow: 0 2px 8px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
