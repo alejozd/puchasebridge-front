@@ -1,13 +1,13 @@
 import React from "react";
-import { Outlet, useNavigate, Link } from "react-router-dom";
+import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { Button } from "primereact/button";
 import "../styles/layout.css";
 
 const MainLayout: React.FC = () => {
   const logout = useAuthStore((state) => state.logout);
   const usuario = useAuthStore((state) => state.usuario);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
@@ -15,49 +15,92 @@ const MainLayout: React.FC = () => {
   };
 
   const menuItems = [
-    { label: "Bandeja XML", icon: "pi pi-file", to: "/app/xml" },
-    { label: "Homologación", icon: "pi pi-sync", to: "/app/homologacion" },
+    { label: "Dashboard", icon: "pi pi-th-large", to: "/app" },
+    { label: "Bandeja XML", icon: "pi pi-file-import", to: "/app/xml" },
+    { label: "Homologación", icon: "pi pi-share-alt", to: "/app/homologacion" },
     { label: "Procesamiento", icon: "pi pi-cog", to: "/app/procesamiento" },
   ];
 
+  const footerMenuItems = [
+    { label: "Settings", icon: "pi pi-cog", to: "/app/settings" },
+    { label: "Support", icon: "pi pi-question-circle", to: "/app/support" },
+  ];
+
+  const isActive = (path: string) => {
+    if (path === "/app") {
+      return location.pathname === "/app" || location.pathname === "/app/";
+    }
+    return location.pathname.startsWith(path);
+  };
+
   return (
     <div className="layout-wrapper">
-      <div className="layout-topbar">
-        <div className="topbar-left">
-          <span className="topbar-logo">PurchaseBridge</span>
+      <aside className="layout-sidebar">
+        <div className="sidebar-header">
+          <div className="sidebar-logo-icon">
+            <i className="pi pi-link" style={{ fontSize: '1.2rem' }}></i>
+          </div>
+          <div className="sidebar-logo-text">
+            <h1>PurchaseBridge</h1>
+            <p>ERP Precision</p>
+          </div>
         </div>
-        <div className="topbar-right">
-          <span className="user-name">
-            {usuario?.nombre || "Usuario Demo"}
-          </span>
-          <Button
-            icon="pi pi-sign-out"
-            rounded
-            text
-            severity="danger"
-            onClick={handleLogout}
-            tooltip="Cerrar Sesión"
-          />
-        </div>
-      </div>
 
-      <div className="layout-sidebar">
-        <ul className="layout-menu">
+        <button className="btn-new-entry">
+          <i className="pi pi-plus"></i>
+          <span>New Entry</span>
+        </button>
+
+        <nav className="layout-menu">
           {menuItems.map((item) => (
-            <li key={item.to}>
-              <Link to={item.to} className="menu-item">
-                <i className={item.icon}></i>
-                <span>{item.label}</span>
-              </Link>
-            </li>
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`menu-item ${isActive(item.to) ? "active" : ""}`}
+            >
+              <i className={item.icon}></i>
+              <span>{item.label}</span>
+            </Link>
           ))}
-        </ul>
-      </div>
+        </nav>
+
+        <div className="sidebar-footer">
+          {footerMenuItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`menu-item ${isActive(item.to) ? "active" : ""}`}
+            >
+              <i className={item.icon}></i>
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      </aside>
 
       <div className="layout-main-container">
-        <div className="layout-main">
+        <header className="layout-topbar">
+          <div className="topbar-left">
+          </div>
+          <div className="topbar-right">
+            <div className="user-profile" onClick={handleLogout} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className="user-info" style={{ textAlign: 'right' }}>
+                <span className="name" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600 }}>{usuario?.nombre || "ADMINISTRADOR"}</span>
+                <span className="role" style={{ display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>ADMIN</span>
+              </div>
+              <img
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3DGRkht9ozWaKYPbp55fmeoeovFCkw1KxEpJnGIEAVzWlqYY__Oxdl2dvSYxDKKhg2joEImCho1Q_CF8SWj-y79aX8Up8ObKweThRfp0d3yCzxLiFbB8aSr9o-6vWd_XVxUnxYtn41G8n1YAcbOWGGKbcXj0OXlVlZS5Fsgdb0auslApJALRnMUyMO7ddxRyWyR9IcrRLe7S6YmutEz4aYlpy4bpmr7UTcP9vaH09jwdeiL-dxIRTqC6eh4mJh3uCToCuizMW1Drt"
+                alt="User"
+                className="user-avatar"
+                style={{ width: '2.5rem', height: '2.5rem' }}
+              />
+            </div>
+          </div>
+        </header>
+
+        <main className="layout-main" style={{ display: 'flex', flexDirection: 'column' }}>
           <Outlet />
-        </div>
+        </main>
       </div>
     </div>
   );
