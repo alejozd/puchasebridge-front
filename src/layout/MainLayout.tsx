@@ -15,15 +15,15 @@ const MainLayout: React.FC = () => {
   };
 
   const menuItems = [
-    { label: "Dashboard", icon: "pi pi-th-large", to: "/app" },
+    { label: "Panel de Control", icon: "pi pi-th-large", to: "/app" },
     { label: "Bandeja XML", icon: "pi pi-file-import", to: "/app/xml" },
     { label: "Homologación", icon: "pi pi-share-alt", to: "/app/homologacion" },
     { label: "Procesamiento", icon: "pi pi-cog", to: "/app/procesamiento" },
   ];
 
   const footerMenuItems = [
-    { label: "Settings", icon: "pi pi-cog", to: "/app/settings" },
-    { label: "Support", icon: "pi pi-question-circle", to: "/app/support" },
+    { label: "Configuración", icon: "pi pi-cog", to: "/app/settings" },
+    { label: "Soporte", icon: "pi pi-question-circle", to: "/app/support" },
   ];
 
   const isActive = (path: string) => {
@@ -48,7 +48,7 @@ const MainLayout: React.FC = () => {
 
         <button className="btn-new-entry">
           <i className="pi pi-plus"></i>
-          <span>New Entry</span>
+          <span>Nueva Entrada</span>
         </button>
 
         <nav className="layout-menu">
@@ -75,6 +75,11 @@ const MainLayout: React.FC = () => {
               <span>{item.label}</span>
             </Link>
           ))}
+          <div className="sidebar-info">
+            <div className="company">ZambranoSoft</div>
+            <div className="date">{new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</div>
+            <div className="version">v0.0.0</div>
+          </div>
         </div>
       </aside>
 
@@ -83,7 +88,7 @@ const MainLayout: React.FC = () => {
           <div className="topbar-left">
           </div>
           <div className="topbar-right">
-            <div className="user-profile" onClick={handleLogout} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div className="user-info" style={{ textAlign: 'right' }}>
                 <span className="name" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600 }}>{usuario?.nombre || "ADMINISTRADOR"}</span>
                 <span className="role" style={{ display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>ADMIN</span>
@@ -95,6 +100,9 @@ const MainLayout: React.FC = () => {
                 style={{ width: '2.5rem', height: '2.5rem' }}
               />
             </div>
+            <button className="btn-logout" onClick={handleLogout} title="Cerrar Sesión">
+              <i className="pi pi-sign-out"></i>
+            </button>
           </div>
         </header>
 
