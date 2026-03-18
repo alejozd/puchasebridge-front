@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
-import { Card } from "primereact/card";
 import { Message } from "primereact/message";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
@@ -54,41 +53,126 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
-      <Card title="PurchaseBridge Login" className="login-card">
-        <form onSubmit={handleLogin} className="flex flex-column gap-3">
-          <div className="flex flex-column gap-2">
-            <label htmlFor="username">Usuario</label>
-            <InputText
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+    <div className="login-wrapper">
+      <div className="login-card-container">
+        {/* Brand Narrative Side */}
+        <div className="brand-side">
+          <div className="brand-header">
+            <div className="brand-logo-container">
+              <span className="material-symbols-outlined brand-logo-icon">
+                account_balance
+              </span>
+              <span className="brand-name">PurchaseBridge</span>
+            </div>
+            <h1 className="brand-headline">
+              Importación y <br />
+              escaneo de <br />
+              facturas.
+            </h1>
+            <p className="brand-description">
+              Optimice su flujo de trabajo con nuestra avanzada tecnología de
+              procesamiento de documentos. Transforme sus datos XML en registros
+              contables precisos con un solo clic.
+            </p>
           </div>
-          <div className="flex flex-column gap-2">
-            <label htmlFor="password">Contraseña</label>
-            <Password
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              feedback={false}
-              toggleMask
-              required
-            />
+          <div className="brand-footer">
+            <div className="security-badge">
+              <span className="material-symbols-outlined">security</span>
+              <div>
+                <p className="security-title">Seguridad de Grado Empresarial</p>
+                <p className="security-subtitle">
+                  Autenticación de múltiples factores y cifrado de extremo a
+                  extremo activos.
+                </p>
+              </div>
+            </div>
+            <p className="copyright">
+              © 2024 ZambranoSoft - Sistema de Precisión ERP | v1.0.0
+            </p>
           </div>
-          {error && (
-            <Message severity="error" text={error} className="mt-2 w-full" />
-          )}
-          <Button
-            label="Iniciar Sesión"
-            icon="pi pi-sign-in"
-            type="submit"
-            loading={loading}
-            className="mt-4"
-          />
-        </form>
-      </Card>
+        </div>
+
+        {/* Login Form Side */}
+        <div className="form-side">
+          <div className="mobile-brand-header">
+            <span className="material-symbols-outlined mobile-logo-icon">
+              account_balance
+            </span>
+            <span className="mobile-brand-name">PurchaseBridge</span>
+          </div>
+
+          <div className="form-header">
+            <h2 className="form-title">Bienvenido de nuevo</h2>
+            <p className="form-subtitle">
+              Ingrese sus credenciales para acceder al sistema.
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="login-form">
+            {/* Field: Username */}
+            <div className="form-field">
+              <label htmlFor="username" className="field-label">
+                Nombre de usuario
+              </label>
+              <div className="input-with-icon">
+                <span className="material-symbols-outlined input-icon">
+                  person
+                </span>
+                <InputText
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="usuario@empresa.com"
+                  required
+                  className="login-input"
+                />
+              </div>
+            </div>
+
+            {/* Field: Password */}
+            <div className="form-field">
+              <label htmlFor="password" className="field-label">
+                Contraseña
+              </label>
+              <div className="input-with-icon">
+                <span className="material-symbols-outlined input-icon">
+                  lock
+                </span>
+                <Password
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  feedback={false}
+                  toggleMask
+                  required
+                  className="login-input"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <Message severity="error" text={error} className="error-msg" />
+            )}
+
+            {/* Action Button */}
+            <Button
+              type="submit"
+              loading={loading}
+              className="submit-button"
+            >
+              <span>Ingresar</span>
+              <span className="material-symbols-outlined">arrow_forward</span>
+            </Button>
+          </form>
+        </div>
+      </div>
+
+      {/* Decorative Minimalist Background Elements */}
+      <div className="background-decor">
+        <div className="decor-circle decor-top"></div>
+        <div className="decor-circle decor-bottom"></div>
+      </div>
     </div>
   );
 };

@@ -31,6 +31,7 @@
   --color-on-surface: #2a3439;
   --color-on-surface-variant: #566166;
   --color-outline: #717c82;
+  --color-outline-variant: #a9b4b9;
 
   /* States */
   --color-success: #16a34a;
@@ -48,4 +49,11 @@
   /* Shadow */
   --shadow: 0 2px 8px rgba(0,0,0,0.05);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  /* Fonts */
+  --font-headline: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* Gradients */
+  --login-gradient: linear-gradient(135deg, #4059aa 0%, #334d9d 100%);
 }
