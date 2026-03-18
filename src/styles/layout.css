@@ -28,49 +28,6 @@
   gap: 1.5rem;
 }
 
-.topbar-search {
-  position: relative;
-  max-width: 400px;
-  width: 100%;
-}
-
-.topbar-search i {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-outline);
-}
-
-.topbar-search input {
-  width: 100%;
-  background-color: var(--color-surface-container-low);
-  border: none;
-  border-radius: var(--radius-xl);
-  padding: 0.5rem 1rem 0.5rem 2.5rem;
-  font-size: 0.875rem;
-  outline: none;
-}
-
-.topbar-nav {
-  display: flex;
-  gap: 1.5rem;
-  margin-left: 1.5rem;
-}
-
-.topbar-nav a {
-  text-decoration: none;
-  color: var(--color-on-surface-variant);
-  font-size: 0.875rem;
-  transition: color 0.2s;
-}
-
-.topbar-nav a.active {
-  color: var(--color-primary);
-  font-weight: 700;
-  border-bottom: 2px solid var(--color-primary);
-  padding-bottom: 0.25rem;
-}
 
 .layout-sidebar {
   position: fixed;
@@ -195,16 +152,18 @@
   padding-top: 1rem;
 }
 
+.topbar-right {
+  display: flex;
+  align-items: center;
+}
+
 .user-profile {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem 1rem 0;
 }
 
 .user-avatar {
-  width: 2rem;
-  height: 2rem;
   border-radius: 50%;
   border: 1px solid var(--color-surface-container-highest);
 }
@@ -215,53 +174,11 @@
 }
 
 .user-info .name {
-  font-size: 0.75rem;
-  font-weight: 600;
   color: var(--color-on-surface);
 }
 
 .user-info .role {
-  font-size: 0.625rem;
-  text-transform: uppercase;
   color: var(--color-on-surface-variant);
-}
-
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.topbar-icon-btn {
-  position: relative;
-  background: none;
-  border: none;
-  color: var(--color-on-surface-variant);
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: var(--radius-lg);
-  transition: background-color 0.2s;
-}
-
-.topbar-icon-btn:hover {
-  background-color: var(--color-surface-container-low);
-}
-
-.notification-badge {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 0.5rem;
-  height: 0.5rem;
-  background-color: var(--color-error);
-  border-radius: 50%;
-}
-
-.divider-v {
-  width: 1px;
-  height: 2rem;
-  background-color: var(--color-surface-container-highest);
-  margin: 0 0.5rem;
 }
 
 /* Dashboard Grid Adjustments */

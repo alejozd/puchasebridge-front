@@ -75,49 +75,26 @@ const MainLayout: React.FC = () => {
               <span>{item.label}</span>
             </Link>
           ))}
-
-          <div className="user-profile" onClick={handleLogout} style={{ cursor: 'pointer' }}>
-            <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3DGRkht9ozWaKYPbp55fmeoeovFCkw1KxEpJnGIEAVzWlqYY__Oxdl2dvSYxDKKhg2joEImCho1Q_CF8SWj-y79aX8Up8ObKweThRfp0d3yCzxLiFbB8aSr9o-6vWd_XVxUnxYtn41G8n1YAcbOWGGKbcXj0OXlVlZS5Fsgdb0auslApJALRnMUyMO7ddxRyWyR9IcrRLe7S6YmutEz4aYlpy4bpmr7UTcP9vaH09jwdeiL-dxIRTqC6eh4mJh3uCToCuizMW1Drt"
-              alt="User"
-              className="user-avatar"
-            />
-            <div className="user-info">
-              <span className="name">{usuario?.nombre || "Alex Rivera"}</span>
-              <span className="role">Admin</span>
-            </div>
-          </div>
         </div>
       </aside>
 
       <div className="layout-main-container">
         <header className="layout-topbar">
           <div className="topbar-left">
-            <div className="topbar-search">
-              <i className="pi pi-search"></i>
-              <input type="text" placeholder="Search invoices, XMLs, or partners..." />
-            </div>
-            <nav className="topbar-nav">
-              <Link to="/app" className={isActive("/app") ? "active" : ""}>Dashboard</Link>
-              <Link to="/app/reports">Reports</Link>
-              <Link to="/app/history">History</Link>
-            </nav>
           </div>
           <div className="topbar-right">
-            <button className="topbar-icon-btn">
-              <i className="pi pi-bell"></i>
-              <span className="notification-badge"></span>
-            </button>
-            <button className="topbar-icon-btn">
-              <i className="pi pi-question-circle"></i>
-            </button>
-            <div className="divider-v"></div>
-            <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvl0UXF4rWTFhTsbbOEmAA_qdzXUAysSMcKda24H85IHCSgXdfAJCRv2fccTDHtalmkS8u8aqZbPM2F1fV0c3OHuSh9OUNSaNWi65YMDp2ZiWN4OgDjyQ4W8uq9PlW026RDHXJ_FdPeahS1uGcmebT9IClukwDjXYnHBjpdDLp-KFBFH9xZ-zfvIx1I-fx5Hb1eqQu1nQB1TtgpW6ETNdqMz4eqb_S57YpsngsmewiOv_Gk0SDRZhAyI5bR-Hw0loBnphUv6f3SyB-"
-              alt="Profile"
-              className="user-avatar"
-              style={{ cursor: 'pointer' }}
-            />
+            <div className="user-profile" onClick={handleLogout} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className="user-info" style={{ textAlign: 'right' }}>
+                <span className="name" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600 }}>{usuario?.nombre || "ADMINISTRADOR"}</span>
+                <span className="role" style={{ display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>ADMIN</span>
+              </div>
+              <img
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3DGRkht9ozWaKYPbp55fmeoeovFCkw1KxEpJnGIEAVzWlqYY__Oxdl2dvSYxDKKhg2joEImCho1Q_CF8SWj-y79aX8Up8ObKweThRfp0d3yCzxLiFbB8aSr9o-6vWd_XVxUnxYtn41G8n1YAcbOWGGKbcXj0OXlVlZS5Fsgdb0auslApJALRnMUyMO7ddxRyWyR9IcrRLe7S6YmutEz4aYlpy4bpmr7UTcP9vaH09jwdeiL-dxIRTqC6eh4mJh3uCToCuizMW1Drt"
+                alt="User"
+                className="user-avatar"
+                style={{ width: '2.5rem', height: '2.5rem' }}
+              />
+            </div>
           </div>
         </header>
 
