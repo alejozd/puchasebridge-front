@@ -10,6 +10,16 @@
   width: 400px;
 }
 
+.login-card .p-card-body {
+  padding: 2rem;
+}
+
+.login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .flex {
   display: flex;
 }
@@ -30,18 +40,16 @@
   margin-top: 1.5rem;
 }
 
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
 .w-full {
   width: 100%;
 }
 
-.login-card .p-card-body {
-  padding: 2rem;
-}
-
-.login-card form .p-inputtext {
-  width: 100%;
-}
-
-.login-card form .p-password {
+.login-card form .p-inputtext,
+.login-card form .p-password,
+.login-card form .p-password-input {
   width: 100%;
 }

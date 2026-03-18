@@ -25,13 +25,22 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      const response = await axiosClient.post("/auth/login", {
-        usuario: username,
-        clave: password,
-      });
+      const response = await axiosClient.post(
+        "/auth/login",
+        {
+          usuario: username,
+          clave: password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        },
+      );
 
-      const { user, company, token } = response.data;
-      login(user, company, token);
+      const { usuario, empresa, token } = response.data;
+      login(usuario, empresa, token);
       navigate("/app");
     } catch (err: unknown) {
       let errorMessage = "Error al iniciar sesión";

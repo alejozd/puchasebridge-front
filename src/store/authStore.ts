@@ -1,16 +1,17 @@
+import { create } from "zustand";
+
 export interface User {
-  id: number;
-  username: string;
+  codigo: number;
   nombre: string;
-  email: string;
 }
 
 export interface Company {
-  id: number;
+  codigo: number;
   nombre: string;
+  identidad: string;
+  anoActual: number;
+  tarifaReteCree: number;
 }
-
-import { create } from "zustand";
 
 interface AuthState {
   usuario: User | null;
