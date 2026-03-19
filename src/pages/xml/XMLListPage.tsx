@@ -5,7 +5,12 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import { FileUpload } from 'primereact/fileupload';
+import {
+    FileUpload,
+    type FileUploadSelectEvent,
+    type FileUploadHeaderTemplateOptions,
+    type FileUploadHandlerEvent
+} from 'primereact/fileupload';
 import { useXMLStore } from '../../store/xmlStore';
 import type { XMLFile } from '../../types/xml';
 import '../../styles/xml-list.css';
@@ -14,13 +19,14 @@ const XMLListPage: React.FC = () => {
     const { xmlList, loading, fetchXMLList, uploadXML } = useXMLStore();
     const [displayUploadModal, setDisplayUploadModal] = useState(false);
     const toast = useRef<Toast>(null);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const fileUploadRef = useRef<FileUpload>(null);
+    const [files, setFiles] = useState<File[]>([]);
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 await fetchXMLList();
-            } catch (error) {
+            } catch {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -77,7 +83,7 @@ const XMLListPage: React.FC = () => {
                 detail: 'La bandeja de XML se ha actualizado correctamente.',
                 life: 3000
             });
-        } catch (error) {
+        } catch {
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -91,41 +97,125 @@ const XMLListPage: React.FC = () => {
         setDisplayUploadModal(true);
     };
 
-    const handleFileSelect = (e: any) => {
-        if (e.files && e.files.length > 0) {
-            setSelectedFile(e.files[0]);
-        }
-    };
+    const onTemplateSelect = (e: FileUploadSelectEvent) => {
+        const selectedFiles = Array.from(e.files);
+        const hasInvalidFile = selectedFiles.some(file => !file.name.toLowerCase().endsWith('.xml'));
 
-    const handleUploadSubmit = async () => {
-        if (!selectedFile) {
+        if (hasInvalidFile) {
             toast.current?.show({
-                severity: 'warn',
-                summary: 'Atención',
-                detail: 'Por favor selecciona un archivo.',
+                severity: 'error',
+                summary: 'Archivo no válido',
+                detail: 'Solo se permiten archivos XML.',
                 life: 3000
             });
-            return;
+            // We can't easily filter out files here because they are already in the internal state of FileUpload
+            // but for single upload multiple={false} it should be fine as it replaces the selection.
         }
+        setFiles(e.files);
+    };
+
+    const onTemplateClear = () => {
+        setFiles([]);
+    };
+
+    const onTemplateRemove = (file: File, callback: (event: React.SyntheticEvent) => void) => {
+        setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
+        callback({} as React.SyntheticEvent);
+    };
+
+    const handleUploadSubmit = async (e: FileUploadHandlerEvent) => {
+        const file = e.files[0];
+        if (!file) return;
 
         try {
-            await uploadXML(selectedFile);
+            await uploadXML(file);
             setDisplayUploadModal(false);
-            setSelectedFile(null);
+            setFiles([]);
+            fileUploadRef.current?.clear();
             toast.current?.show({
                 severity: 'success',
                 summary: 'Éxito',
                 detail: 'Archivos subidos correctamente.',
                 life: 3000
             });
-        } catch (error) {
+        } catch (error: unknown) {
+            let errorMessage = 'No se pudo subir el archivo.';
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'No se pudo subir el archivo.',
+                detail: errorMessage,
                 life: 3000
             });
         }
+    };
+
+    const headerTemplate = (options: FileUploadHeaderTemplateOptions) => {
+        const { className, chooseButton, uploadButton, cancelButton } = options;
+        const hasFiles = files.length > 0;
+
+        const uploadBtn = uploadButton as React.ReactElement<{ disabled?: boolean; loading?: boolean }>;
+        const cancelBtn = cancelButton as React.ReactElement<{ disabled?: boolean }>;
+
+        return (
+            <div className={className} style={{ backgroundColor: 'transparent', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {chooseButton}
+                {React.cloneElement(uploadBtn, { disabled: !hasFiles || loading, loading: loading })}
+                {React.cloneElement(cancelBtn, { disabled: !hasFiles || loading })}
+            </div>
+        );
+    };
+
+    interface ItemTemplateOptions {
+        onRemove(event: React.SyntheticEvent): void;
+        previewElement: React.ReactNode;
+        fileNameElement: React.ReactNode;
+        sizeElement: React.ReactNode;
+        removeElement: React.ReactNode;
+        formatSize: string;
+        files: File[];
+        index: number;
+        element: React.ReactNode;
+        props: object;
+    }
+
+    const itemTemplate = (file: object, options: ItemTemplateOptions) => {
+        const f = file as File;
+        return (
+            <div className="upload-item-container">
+                <div className="upload-item-info">
+                    <i className="pi pi-file upload-item-icon"></i>
+                    <div className="upload-item-details">
+                        <span className="upload-item-name">{f.name}</span>
+                        <span className="upload-item-size">{options.formatSize}</span>
+                    </div>
+                </div>
+                <Tag value="Pendiente" severity="warning" className="upload-item-status" />
+                <Button
+                    type="button"
+                    icon="pi pi-times"
+                    onClick={() => onTemplateRemove(f, options.onRemove)}
+                    text
+                    rounded
+                    severity="danger"
+                    className="upload-item-remove"
+                />
+            </div>
+        );
+    };
+
+    const emptyTemplate = () => {
+        return (
+            <div className="upload-empty-area">
+                <div className="upload-icon-container">
+                    <i className="pi pi-cloud-upload"></i>
+                </div>
+                <p className="upload-text-main">Arrastra tu archivo XML aquí</p>
+                <p className="upload-text-sub">Solo se permiten archivos con extensión .xml</p>
+            </div>
+        );
     };
 
     return (
@@ -198,46 +288,32 @@ const XMLListPage: React.FC = () => {
                 }
                 visible={displayUploadModal}
                 className="upload-dialog"
-                onHide={() => setDisplayUploadModal(false)}
+                onHide={() => {
+                    setDisplayUploadModal(false);
+                    setFiles([]);
+                    fileUploadRef.current?.clear();
+                }}
                 draggable={false}
                 resizable={false}
             >
                 <div className="modal-body-wrapper">
                     <FileUpload
+                        ref={fileUploadRef}
                         name="file"
-                        auto
                         multiple={false}
-                        accept=".xml,.zip"
+                        accept=".xml"
                         maxFileSize={10000000}
                         customUpload
-                        onSelect={handleFileSelect}
                         uploadHandler={handleUploadSubmit}
-                        emptyTemplate={
-                            <div className="upload-area">
-                                <div className="upload-icon-container">
-                                    <i className="pi pi-cloud-upload"></i>
-                                </div>
-                                <p className="upload-text-main">Arrastra tus archivos aquí</p>
-                                <p className="upload-text-sub">Soporta formatos XML comprimidos en .zip</p>
-                                <Button
-                                    label="Seleccionar archivo"
-                                    text
-                                    className="mt-3 btn-select-file"
-                                />
-                            </div>
-                        }
-                        chooseLabel="Seleccionar"
+                        onSelect={onTemplateSelect}
+                        onClear={onTemplateClear}
+                        headerTemplate={headerTemplate}
+                        itemTemplate={itemTemplate}
+                        emptyTemplate={emptyTemplate}
+                        chooseOptions={{ icon: 'pi pi-plus', label: 'Seleccionar', className: 'btn-upload-choose' }}
+                        uploadOptions={{ icon: 'pi pi-cloud-upload', label: 'Subir', className: 'btn-upload-submit' }}
+                        cancelOptions={{ icon: 'pi pi-times', label: 'Cancelar', className: 'btn-upload-cancel' }}
                     />
-
-                    <div className="modal-footer">
-                        <Button label="Cancelar" text severity="secondary" onClick={() => setDisplayUploadModal(false)} className="btn-modal-cancel" />
-                        <Button
-                            label="Subir"
-                            onClick={handleUploadSubmit}
-                            className="btn-modal-submit"
-                            loading={loading}
-                        />
-                    </div>
                 </div>
             </Dialog>
         </div>

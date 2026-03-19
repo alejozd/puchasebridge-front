@@ -261,21 +261,105 @@
     padding: 1rem 0;
 }
 
-.btn-select-file {
-    font-size: 0.75rem !important;
+.btn-upload-choose,
+.btn-upload-submit,
+.btn-upload-cancel {
+    font-size: 0.875rem !important;
     font-weight: 700 !important;
-    color: var(--color-primary) !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: var(--radius-md) !important;
+    transition: all 0.2s !important;
+}
+
+.btn-upload-choose {
+    background-color: var(--color-primary) !important;
+    border: 1px solid var(--color-primary) !important;
+    color: white !important;
+}
+
+.btn-upload-submit {
+    background-color: #0d9488 !important; /* Teal for upload */
+    border: 1px solid #0d9488 !important;
+    color: white !important;
+}
+
+.btn-upload-submit:disabled {
+    background-color: var(--color-surface-container-high) !important;
+    border-color: var(--color-outline-variant) !important;
+    color: var(--color-outline) !important;
+    opacity: 0.6;
+}
+
+.btn-upload-cancel {
+    background-color: transparent !important;
     border: 1px solid var(--color-outline-variant) !important;
+    color: var(--color-secondary) !important;
 }
 
-.btn-modal-cancel {
-    font-weight: 600 !important;
+.btn-upload-cancel:disabled {
+    opacity: 0.6;
 }
 
-.btn-modal-submit {
-    background: linear-gradient(to right, var(--color-primary), var(--color-primary-dim)) !important;
-    border: none !important;
+/* Custom Item Template Styles */
+.upload-item-container {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--color-surface-container-lowest);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-lg);
+    margin-top: 1rem;
+    gap: 1rem;
+}
+
+.upload-item-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.upload-item-icon {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+}
+
+.upload-item-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.upload-item-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-on-surface);
+}
+
+.upload-item-size {
+    font-size: 0.75rem;
+    color: var(--color-secondary);
+}
+
+.upload-item-status {
+    font-size: 0.625rem !important;
     font-weight: 700 !important;
-    padding: 0.75rem 2.5rem !important;
-    box-shadow: var(--shadow-lg) !important;
+}
+
+/* Custom Empty Template Styles */
+.upload-empty-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    border: 2px dashed var(--color-outline-variant);
+    border-radius: var(--radius-xl);
+    background-color: var(--color-surface-container-low);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.upload-empty-area:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-container);
 }

@@ -6,7 +6,7 @@ export const getXMLList = async (): Promise<XMLFile[]> => {
   return response.data;
 };
 
-export const uploadXML = async (file: File): Promise<any> => {
+export const uploadXML = async (file: File): Promise<unknown> => {
   const formData = new FormData();
   formData.append("file", file);
   const response = await axiosClient.post("/xml/upload", formData, {
