@@ -2,6 +2,7 @@ import { Navigate } from "react-router-dom";
 import MainLayout from "../layout/MainLayout";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
+import XMLListPage from "../pages/xml/XMLListPage";
 import { createBrowserRouter } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -28,7 +29,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "xml",
-            element: <div>Bandeja de XML (Proximamente)</div>,
+            element: <XMLListPage />,
           },
           {
             path: "validacion",
