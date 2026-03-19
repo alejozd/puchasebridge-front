@@ -13,7 +13,7 @@
     font-family: var(--font-headline);
     font-size: 2rem;
     font-weight: 800;
-    color: #1e3a8a;
+    color: var(--color-on-primary-fixed-variant, #1e3a8a);
     margin: 0;
 }
 
@@ -50,6 +50,13 @@
     align-items: center;
     justify-content: center;
     border-left: 2px dashed var(--color-outline-variant);
+}
+
+.stat-config-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-outline);
+    text-align: center;
 }
 
 .stat-label {
@@ -118,6 +125,41 @@
     gap: 0.5rem;
 }
 
+.xml-table .col-header {
+    font-size: 0.6875rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.05em;
+}
+
+.xml-table .col-header-actions {
+    text-align: right;
+}
+
+.xml-table .col-filename {
+}
+
+.xml-table .col-date {
+    font-size: 0.875rem;
+    color: var(--color-secondary);
+}
+
+.xml-table .col-status {
+}
+
+.xml-table .col-provider {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.xml-table .col-total {
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.xml-table .col-actions {
+    text-align: right;
+}
+
 .btn-refresh {
     color: var(--color-primary) !important;
     border-color: rgba(64, 89, 170, 0.2) !important;
@@ -174,6 +216,12 @@
     color: var(--color-secondary);
 }
 
+.modal-header-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
 .modal-header-icon {
     width: 2.5rem;
     height: 2.5rem;
@@ -187,7 +235,7 @@
 
 .modal-header-title {
     margin: 0;
-    color: #1e3a8a;
+    color: var(--color-on-primary-fixed-variant, #1e3a8a);
     font-weight: 800;
 }
 
@@ -198,6 +246,25 @@
     margin-top: 2rem;
     padding-top: 1rem;
     border-top: 1px solid var(--color-surface-container-high);
+}
+
+.upload-dialog {
+    width: 500px;
+}
+
+.modal-body-wrapper {
+    padding: 1rem 0;
+}
+
+.btn-select-file {
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    color: var(--color-primary) !important;
+    border: 1px solid var(--color-outline-variant) !important;
+}
+
+.btn-modal-cancel {
+    font-weight: 600 !important;
 }
 
 .btn-modal-submit {

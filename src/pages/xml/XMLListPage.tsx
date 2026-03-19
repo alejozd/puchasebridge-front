@@ -5,7 +5,7 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import { FileUpload, FileUploadHandlerEvent } from 'primereact/fileupload';
+import { FileUpload } from 'primereact/fileupload';
 import '../../styles/xml-list.css';
 
 interface XMLDocument {
@@ -83,7 +83,7 @@ const XMLListPage: React.FC = () => {
         setDisplayUploadModal(true);
     };
 
-    const handleFileUpload = (e?: FileUploadHandlerEvent) => {
+    const handleFileUpload = (e?: any) => {
         if (e) {
             // Logic for file handling would go here later
         }
@@ -141,7 +141,7 @@ const XMLListPage: React.FC = () => {
                     </div>
                 </div>
                 <div className="stat-card config">
-                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-outline)', textAlign: 'center' }}>
+                    <p className="stat-config-text">
                         Configurar alertas automáticas
                     </p>
                 </div>
@@ -153,22 +153,22 @@ const XMLListPage: React.FC = () => {
                     loading={loading}
                     paginator
                     rows={10}
-                    className="p-datatable-sm"
+                    className="p-datatable-sm xml-table"
                     rowHover
                     tableStyle={{ minWidth: '50rem' }}
                 >
-                    <Column field="nombreArchivo" header="NOMBRE DEL ARCHIVO" body={fileNameBodyTemplate} sortable headerStyle={{ fontSize: '0.6875rem', color: 'var(--color-secondary)', letterSpacing: '0.05em' }} />
-                    <Column field="fechaCarga" header="FECHA DE CARGA" sortable style={{ fontSize: '0.875rem', color: 'var(--color-secondary)' }} headerStyle={{ fontSize: '0.6875rem', color: 'var(--color-secondary)', letterSpacing: '0.05em' }} />
-                    <Column field="estado" header="ESTADO" body={statusBodyTemplate} sortable headerStyle={{ fontSize: '0.6875rem', color: 'var(--color-secondary)', letterSpacing: '0.05em' }} />
-                    <Column field="proveedor" header="PROVEEDOR" sortable style={{ fontSize: '0.875rem', fontWeight: 500 }} headerStyle={{ fontSize: '0.6875rem', color: 'var(--color-secondary)', letterSpacing: '0.05em' }} />
-                    <Column field="totalFactura" header="TOTAL FACTURA" sortable style={{ fontSize: '0.875rem', fontWeight: 700 }} headerStyle={{ fontSize: '0.6875rem', color: 'var(--color-secondary)', letterSpacing: '0.05em' }} />
-                    <Column header="ACCIONES" body={actionBodyTemplate} headerStyle={{ textAlign: 'right', fontSize: '0.6875rem', color: 'var(--color-secondary)', letterSpacing: '0.05em' }} bodyStyle={{ textAlign: 'right' }} />
+                    <Column field="nombreArchivo" header="NOMBRE DEL ARCHIVO" body={fileNameBodyTemplate} sortable className="col-filename" headerClassName="col-header" />
+                    <Column field="fechaCarga" header="FECHA DE CARGA" sortable className="col-date" headerClassName="col-header" />
+                    <Column field="estado" header="ESTADO" body={statusBodyTemplate} sortable className="col-status" headerClassName="col-header" />
+                    <Column field="proveedor" header="PROVEEDOR" sortable className="col-provider" headerClassName="col-header" />
+                    <Column field="totalFactura" header="TOTAL FACTURA" sortable className="col-total" headerClassName="col-header" />
+                    <Column header="ACCIONES" body={actionBodyTemplate} className="col-actions" headerClassName="col-header col-header-actions" />
                 </DataTable>
             </div>
 
             <Dialog
                 header={
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div className="modal-header-container">
                         <div className="modal-header-icon">
                             <i className="pi pi-upload"></i>
                         </div>
@@ -176,12 +176,12 @@ const XMLListPage: React.FC = () => {
                     </div>
                 }
                 visible={displayUploadModal}
-                style={{ width: '500px' }}
+                className="upload-dialog"
                 onHide={() => setDisplayUploadModal(false)}
                 draggable={false}
                 resizable={false}
             >
-                <div style={{ padding: '1rem 0' }}>
+                <div className="modal-body-wrapper">
                     <FileUpload
                         name="demo[]"
                         auto
@@ -200,8 +200,7 @@ const XMLListPage: React.FC = () => {
                                 <Button
                                     label="Seleccionar archivo"
                                     text
-                                    className="mt-3"
-                                    style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-primary)', border: '1px solid var(--color-outline-variant)' }}
+                                    className="mt-3 btn-select-file"
                                 />
                             </div>
                         }
@@ -209,7 +208,7 @@ const XMLListPage: React.FC = () => {
                     />
 
                     <div className="modal-footer">
-                        <Button label="Cancelar" text severity="secondary" onClick={() => setDisplayUploadModal(false)} style={{ fontWeight: 600 }} />
+                        <Button label="Cancelar" text severity="secondary" onClick={() => setDisplayUploadModal(false)} className="btn-modal-cancel" />
                         <Button
                             label="Subir"
                             onClick={() => handleFileUpload()}
