@@ -15,22 +15,19 @@ const MainLayout: React.FC = () => {
   };
 
   const menuItems = [
-    { label: "Panel de Control", icon: "pi pi-th-large", to: "/app" },
-    { label: "Bandeja XML", icon: "pi pi-file-import", to: "/app/xml" },
+    { label: "Dashboard", icon: "pi pi-th-large", to: "/app/dashboard" },
+    { label: "Bandeja de XML", icon: "pi pi-file-import", to: "/app/xml" },
+    { label: "Validación", icon: "pi pi-check-square", to: "/app/validacion" },
     { label: "Homologación", icon: "pi pi-share-alt", to: "/app/homologacion" },
     { label: "Procesamiento", icon: "pi pi-cog", to: "/app/procesamiento" },
   ];
 
   const footerMenuItems = [
-    { label: "Configuración", icon: "pi pi-cog", to: "/app/settings" },
-    { label: "Soporte", icon: "pi pi-question-circle", to: "/app/support" },
+    { label: "Configuración", icon: "pi pi-cog", to: "/app/configuracion" },
   ];
 
   const isActive = (path: string) => {
-    if (path === "/app") {
-      return location.pathname === "/app" || location.pathname === "/app/";
-    }
-    return location.pathname.startsWith(path);
+    return location.pathname === path;
   };
 
   return (
