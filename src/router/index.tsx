@@ -20,11 +20,19 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "",
+            element: <Navigate to="dashboard" replace />,
+          },
+          {
+            path: "dashboard",
             element: <Dashboard />,
           },
           {
             path: "xml",
-            element: <div>Bandeja XML (Proximamente)</div>,
+            element: <div>Bandeja de XML (Proximamente)</div>,
+          },
+          {
+            path: "validacion",
+            element: <div>Validación (Proximamente)</div>,
           },
           {
             path: "homologacion",
@@ -33,6 +41,10 @@ export const router = createBrowserRouter([
           {
             path: "procesamiento",
             element: <div>Procesamiento (Proximamente)</div>,
+          },
+          {
+            path: "configuracion",
+            element: <div>Configuración (Proximamente)</div>,
           },
         ],
       },
