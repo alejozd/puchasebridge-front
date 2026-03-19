@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -6,30 +6,34 @@ import { Tag } from 'primereact/tag';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { FileUpload } from 'primereact/fileupload';
+import { useXMLStore } from '../../store/xmlStore';
+import type { XMLFile } from '../../types/xml';
 import '../../styles/xml-list.css';
 
-interface XMLDocument {
-    id: string;
-    nombreArchivo: string;
-    fechaCarga: string;
-    estado: 'Pendiente' | 'Validado' | 'Error' | 'Procesado';
-    proveedor: string;
-    totalFactura: string;
-}
-
 const XMLListPage: React.FC = () => {
-    const [documents] = useState<XMLDocument[]>([
-        { id: '1', nombreArchivo: 'FAC_2023_001.xml', fechaCarga: '24 Oct 2023, 10:30', estado: 'Procesado', proveedor: 'TechSolutions S.A.', totalFactura: 'USD 12,450.00' },
-        { id: '2', nombreArchivo: 'NOMINA_OCT_V2.xml', fechaCarga: '24 Oct 2023, 09:15', estado: 'Validado', proveedor: 'Logistics Corp', totalFactura: 'USD 8,200.50' },
-        { id: '3', nombreArchivo: 'SERV_CLOUD_INV.xml', fechaCarga: '23 Oct 2023, 16:45', estado: 'Error', proveedor: 'Cloud Infrastructure', totalFactura: 'USD 1,200.00' },
-        { id: '4', nombreArchivo: 'TRANS_33291.xml', fechaCarga: '23 Oct 2023, 14:20', estado: 'Pendiente', proveedor: 'Global Freight', totalFactura: 'USD 540.00' },
-    ]);
-
-    const [loading, setLoading] = useState(false);
+    const { xmlList, loading, fetchXMLList, uploadXML } = useXMLStore();
     const [displayUploadModal, setDisplayUploadModal] = useState(false);
     const toast = useRef<Toast>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-    const getStatusSeverity = (status: string) => {
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                await fetchXMLList();
+            } catch (error) {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se pudo cargar la lista de XML.',
+                    life: 3000
+                });
+            }
+        };
+        loadData();
+    }, [fetchXMLList]);
+
+    const getStatusSeverity = (status?: string) => {
+        if (!status) return 'info';
         switch (status) {
             case 'Pendiente': return 'secondary';
             case 'Validado': return 'info';
@@ -39,24 +43,24 @@ const XMLListPage: React.FC = () => {
         }
     };
 
-    const statusBodyTemplate = (rowData: XMLDocument) => {
+    const statusBodyTemplate = (rowData: XMLFile) => {
         return (
             <Tag
-                value={rowData.estado.toUpperCase()}
+                value={rowData.estado?.toUpperCase() || 'N/A'}
                 severity={getStatusSeverity(rowData.estado)}
                 className="status-tag"
             />
         );
     };
 
-    const fileNameBodyTemplate = (rowData: XMLDocument) => {
+    const fileNameBodyTemplate = (rowData: XMLFile) => {
         return (
             <div className="filename-cell">
                 <i
                     className="pi pi-file"
                     style={{ color: rowData.estado === 'Error' ? 'var(--color-error)' : 'var(--color-primary)' }}
                 ></i>
-                <span className="filename-text">{rowData.nombreArchivo}</span>
+                <span className="filename-text">{rowData.fileName}</span>
             </div>
         );
     };
@@ -71,24 +75,64 @@ const XMLListPage: React.FC = () => {
         );
     };
 
-    const onRefresh = () => {
-        setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-            toast.current?.show({ severity: 'success', summary: 'Actualizado', detail: 'La bandeja de XML se ha actualizado correctamente.', life: 3000 });
-        }, 1000);
+    const onRefresh = async () => {
+        try {
+            await fetchXMLList();
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Actualizado',
+                detail: 'La bandeja de XML se ha actualizado correctamente.',
+                life: 3000
+            });
+        } catch (error) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo actualizar la lista.',
+                life: 3000
+            });
+        }
     };
 
     const onUploadClick = () => {
         setDisplayUploadModal(true);
     };
 
-    const handleFileUpload = (e?: any) => {
-        if (e) {
-            // Logic for file handling would go here later
+    const handleFileSelect = (e: any) => {
+        if (e.files && e.files.length > 0) {
+            setSelectedFile(e.files[0]);
         }
-        setDisplayUploadModal(false);
-        toast.current?.show({ severity: 'success', summary: 'Éxito', detail: 'Archivos subidos correctamente.', life: 3000 });
+    };
+
+    const handleUploadSubmit = async () => {
+        if (!selectedFile) {
+            toast.current?.show({
+                severity: 'warn',
+                summary: 'Atención',
+                detail: 'Por favor selecciona un archivo.',
+                life: 3000
+            });
+            return;
+        }
+
+        try {
+            await uploadXML(selectedFile);
+            setDisplayUploadModal(false);
+            setSelectedFile(null);
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Archivos subidos correctamente.',
+                life: 3000
+            });
+        } catch (error) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo subir el archivo.',
+                life: 3000
+            });
+        }
     };
 
     return (
@@ -149,7 +193,7 @@ const XMLListPage: React.FC = () => {
 
             <div className="xml-table-card">
                 <DataTable
-                    value={documents}
+                    value={xmlList}
                     loading={loading}
                     paginator
                     rows={10}
@@ -157,11 +201,11 @@ const XMLListPage: React.FC = () => {
                     rowHover
                     tableStyle={{ minWidth: '50rem' }}
                 >
-                    <Column field="nombreArchivo" header="NOMBRE DEL ARCHIVO" body={fileNameBodyTemplate} sortable className="col-filename" headerClassName="col-header" />
-                    <Column field="fechaCarga" header="FECHA DE CARGA" sortable className="col-date" headerClassName="col-header" />
+                    <Column field="fileName" header="NOMBRE DEL ARCHIVO" body={fileNameBodyTemplate} sortable className="col-filename" headerClassName="col-header" />
+                    <Column field="fecha" header="FECHA DE CARGA" sortable className="col-date" headerClassName="col-header" />
                     <Column field="estado" header="ESTADO" body={statusBodyTemplate} sortable className="col-status" headerClassName="col-header" />
                     <Column field="proveedor" header="PROVEEDOR" sortable className="col-provider" headerClassName="col-header" />
-                    <Column field="totalFactura" header="TOTAL FACTURA" sortable className="col-total" headerClassName="col-header" />
+                    <Column field="total" header="TOTAL FACTURA" sortable className="col-total" headerClassName="col-header" />
                     <Column header="ACCIONES" body={actionBodyTemplate} className="col-actions" headerClassName="col-header col-header-actions" />
                 </DataTable>
             </div>
@@ -183,13 +227,14 @@ const XMLListPage: React.FC = () => {
             >
                 <div className="modal-body-wrapper">
                     <FileUpload
-                        name="demo[]"
+                        name="file"
                         auto
-                        multiple
+                        multiple={false}
                         accept=".xml,.zip"
                         maxFileSize={10000000}
                         customUpload
-                        uploadHandler={handleFileUpload}
+                        onSelect={handleFileSelect}
+                        uploadHandler={handleUploadSubmit}
                         emptyTemplate={
                             <div className="upload-area">
                                 <div className="upload-icon-container">
@@ -211,8 +256,9 @@ const XMLListPage: React.FC = () => {
                         <Button label="Cancelar" text severity="secondary" onClick={() => setDisplayUploadModal(false)} className="btn-modal-cancel" />
                         <Button
                             label="Subir"
-                            onClick={() => handleFileUpload()}
+                            onClick={handleUploadSubmit}
                             className="btn-modal-submit"
+                            loading={loading}
                         />
                     </div>
                 </div>
