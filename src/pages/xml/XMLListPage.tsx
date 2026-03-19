@@ -153,17 +153,26 @@ const XMLListPage: React.FC = () => {
     };
 
     const headerTemplate = (options: FileUploadHeaderTemplateOptions) => {
-        const { className, chooseButton, uploadButton, cancelButton } = options;
+        const { chooseButton, uploadButton, cancelButton } = options;
         const hasFiles = files.length > 0;
 
-        const uploadBtn = uploadButton as React.ReactElement<{ disabled?: boolean; loading?: boolean }>;
-        const cancelBtn = cancelButton as React.ReactElement<{ disabled?: boolean }>;
+        const uploadBtn = uploadButton as React.ReactElement<{ disabled?: boolean; loading?: boolean; label?: string; icon?: string }>;
+        const cancelBtn = cancelButton as React.ReactElement<{ disabled?: boolean; label?: string; icon?: string }>;
 
         return (
-            <div className={className} style={{ backgroundColor: 'transparent', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="upload-buttons-container">
                 {chooseButton}
-                {React.cloneElement(uploadBtn, { disabled: !hasFiles || loading, loading: loading })}
-                {React.cloneElement(cancelBtn, { disabled: !hasFiles || loading })}
+                {React.cloneElement(uploadBtn, {
+                    disabled: !hasFiles || loading,
+                    loading: loading,
+                    label: 'Subir',
+                    icon: 'pi pi-upload'
+                } as object)}
+                {React.cloneElement(cancelBtn, {
+                    disabled: !hasFiles || loading,
+                    label: 'Limpiar',
+                    icon: 'pi pi-times'
+                } as object)}
             </div>
         );
     };
@@ -198,9 +207,9 @@ const XMLListPage: React.FC = () => {
                     icon="pi pi-times"
                     onClick={() => onTemplateRemove(f, options.onRemove)}
                     text
-                    rounded
-                    severity="danger"
-                    className="upload-item-remove"
+                    severity="secondary"
+                    className="p-p-0"
+                    style={{ width: 'auto', height: 'auto', padding: '0.25rem' }}
                 />
             </div>
         );
@@ -209,11 +218,7 @@ const XMLListPage: React.FC = () => {
     const emptyTemplate = () => {
         return (
             <div className="upload-empty-area">
-                <div className="upload-icon-container">
-                    <i className="pi pi-cloud-upload"></i>
-                </div>
-                <p className="upload-text-main">Arrastra tu archivo XML aquí</p>
-                <p className="upload-text-sub">Solo se permiten archivos con extensión .xml</p>
+                <span className="upload-empty-text">Arrastra tu archivo aquí para importarlo.</span>
             </div>
         );
     };
@@ -293,6 +298,19 @@ const XMLListPage: React.FC = () => {
                     setFiles([]);
                     fileUploadRef.current?.clear();
                 }}
+                footer={
+                    <div className="flex justify-content-end pt-3">
+                        <Button
+                            label="Cerrar"
+                            onClick={() => {
+                                setDisplayUploadModal(false);
+                                setFiles([]);
+                                fileUploadRef.current?.clear();
+                            }}
+                            className="btn-dialog-close"
+                        />
+                    </div>
+                }
                 draggable={false}
                 resizable={false}
             >
@@ -310,9 +328,9 @@ const XMLListPage: React.FC = () => {
                         headerTemplate={headerTemplate}
                         itemTemplate={itemTemplate}
                         emptyTemplate={emptyTemplate}
-                        chooseOptions={{ icon: 'pi pi-plus', label: 'Seleccionar', className: 'btn-upload-choose' }}
+                        chooseOptions={{ icon: 'pi pi-plus', label: 'Seleccionar archivo', className: 'btn-upload-choose' }}
                         uploadOptions={{ icon: 'pi pi-cloud-upload', label: 'Subir', className: 'btn-upload-submit' }}
-                        cancelOptions={{ icon: 'pi pi-times', label: 'Cancelar', className: 'btn-upload-cancel' }}
+                        cancelOptions={{ icon: 'pi pi-times', label: 'Limpiar', className: 'btn-upload-cancel' }}
                     />
                 </div>
             </Dialog>
