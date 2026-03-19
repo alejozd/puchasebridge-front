@@ -138,6 +138,11 @@
 .xml-table .col-filename {
 }
 
+.xml-table .col-size {
+    font-size: 0.875rem;
+    color: var(--color-secondary);
+}
+
 .xml-table .col-date {
     font-size: 0.875rem;
     color: var(--color-secondary);

@@ -32,22 +32,19 @@ const XMLListPage: React.FC = () => {
         loadData();
     }, [fetchXMLList]);
 
-    const getStatusSeverity = (status?: string) => {
-        if (!status) return 'info';
-        switch (status) {
-            case 'Pendiente': return 'secondary';
-            case 'Validado': return 'info';
-            case 'Error': return 'danger';
-            case 'Procesado': return 'success';
-            default: return 'info';
-        }
+    const formatSize = (bytes: number) => {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
-    const statusBodyTemplate = (rowData: XMLFile) => {
+    const statusBodyTemplate = () => {
         return (
             <Tag
-                value={rowData.estado?.toUpperCase() || 'N/A'}
-                severity={getStatusSeverity(rowData.estado)}
+                value="PENDIENTE"
+                severity="secondary"
                 className="status-tag"
             />
         );
@@ -56,10 +53,7 @@ const XMLListPage: React.FC = () => {
     const fileNameBodyTemplate = (rowData: XMLFile) => {
         return (
             <div className="filename-cell">
-                <i
-                    className="pi pi-file"
-                    style={{ color: rowData.estado === 'Error' ? 'var(--color-error)' : 'var(--color-primary)' }}
-                ></i>
+                <i className="pi pi-file" style={{ color: 'var(--color-primary)' }}></i>
                 <span className="filename-text">{rowData.fileName}</span>
             </div>
         );
@@ -69,8 +63,7 @@ const XMLListPage: React.FC = () => {
         return (
             <div className="actions-cell">
                 <Button icon="pi pi-eye" text rounded severity="secondary" size="small" tooltip="Ver detalle" />
-                <Button icon="pi pi-verified" text rounded severity="secondary" size="small" tooltip="Validar" />
-                <Button icon="pi pi-trash" text rounded severity="danger" size="small" tooltip="Eliminar" />
+                <Button icon="pi pi-download" text rounded severity="secondary" size="small" tooltip="Descargar" />
             </div>
         );
     };
@@ -162,34 +155,18 @@ const XMLListPage: React.FC = () => {
                 </div>
             </div>
 
+            {/* Placeholder for future stats cards */}
+            {/*
             <div className="stats-grid">
                 <div className="stat-card">
                     <p className="stat-label">Total Procesados</p>
                     <div className="stat-value-container">
-                        <h3 className="stat-value">1,284</h3>
-                        <span className="stat-change positive">+12%</span>
+                        <h3 className="stat-value">---</h3>
                     </div>
                 </div>
-                <div className="stat-card pendientes">
-                    <p className="stat-label">Pendientes</p>
-                    <div className="stat-value-container">
-                        <h3 className="stat-value">42</h3>
-                        <span className="stat-change neutral">Bajo revisión</span>
-                    </div>
-                </div>
-                <div className="stat-card errores">
-                    <p className="stat-label">Errores</p>
-                    <div className="stat-value-container">
-                        <h3 className="stat-value">5</h3>
-                        <span className="stat-change negative">Acción requerida</span>
-                    </div>
-                </div>
-                <div className="stat-card config">
-                    <p className="stat-config-text">
-                        Configurar alertas automáticas
-                    </p>
-                </div>
+                ...
             </div>
+            */}
 
             <div className="xml-table-card">
                 <DataTable
@@ -200,12 +177,12 @@ const XMLListPage: React.FC = () => {
                     className="p-datatable-sm xml-table"
                     rowHover
                     tableStyle={{ minWidth: '50rem' }}
+                    emptyMessage="No se encontraron archivos XML."
                 >
-                    <Column field="fileName" header="NOMBRE DEL ARCHIVO" body={fileNameBodyTemplate} sortable className="col-filename" headerClassName="col-header" />
-                    <Column field="fecha" header="FECHA DE CARGA" sortable className="col-date" headerClassName="col-header" />
-                    <Column field="estado" header="ESTADO" body={statusBodyTemplate} sortable className="col-status" headerClassName="col-header" />
-                    <Column field="proveedor" header="PROVEEDOR" sortable className="col-provider" headerClassName="col-header" />
-                    <Column field="total" header="TOTAL FACTURA" sortable className="col-total" headerClassName="col-header" />
+                    <Column field="fileName" header="NOMBRE ARCHIVO" body={fileNameBodyTemplate} sortable className="col-filename" headerClassName="col-header" />
+                    <Column field="size" header="TAMAÑO" body={(rowData: XMLFile) => formatSize(rowData.size)} sortable className="col-size" headerClassName="col-header" />
+                    <Column field="lastModified" header="FECHA CARGA" sortable className="col-date" headerClassName="col-header" />
+                    <Column field="estado" header="ESTADO" body={statusBodyTemplate} className="col-status" headerClassName="col-header" />
                     <Column header="ACCIONES" body={actionBodyTemplate} className="col-actions" headerClassName="col-header col-header-actions" />
                 </DataTable>
             </div>

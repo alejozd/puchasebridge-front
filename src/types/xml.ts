@@ -1,7 +1,8 @@
 export interface XMLFile {
   fileName: string;
-  fecha?: string;
+  size: number;
+  lastModified: string;
   estado?: string;
-  proveedor?: string;
-  total?: number;
+  tipoDocumento?: string;
+  erroresValidacion?: string[];
 }
