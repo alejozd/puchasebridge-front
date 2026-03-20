@@ -54,7 +54,7 @@
 
 .actions-cell {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 0.5rem;
 }
 
@@ -65,7 +65,7 @@
 }
 
 .xml-table .col-header-actions {
-    text-align: right;
+    text-align: center;
 }
 
 .xml-table .col-filename {
@@ -95,7 +95,7 @@
 }
 
 .xml-table .col-actions {
-    text-align: right;
+    text-align: center;
 }
 
 .btn-refresh {
@@ -334,4 +334,38 @@
     color: #475569;
     font-size: 1rem;
     font-weight: 500;
+}
+
+/* XML Detail Dialog Styles */
+.detail-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-primary-container);
+}
+
+.detail-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.detail-value {
+    display: block;
+    font-size: 0.9375rem;
+    color: var(--color-on-surface);
+    font-weight: 500;
+}
+
+.bg-slate-50 {
+    background-color: #f8fafc;
+}
+
+.detail-dialog .p-dialog-content {
+    padding: 1.5rem;
 }

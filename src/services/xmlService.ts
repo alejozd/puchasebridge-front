@@ -1,5 +1,5 @@
 import axiosClient from "../api/axiosClient";
-import type { XMLFile, ValidationResult } from "../types/xml";
+import type { XMLFile, ValidationResult, XmlDetalle } from "../types/xml";
 
 export const getXMLList = async (): Promise<XMLFile[]> => {
   const response = await axiosClient.get<XMLFile[]>("/xml/list");
@@ -13,6 +13,13 @@ export const uploadXML = async (file: File): Promise<unknown> => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+  });
+  return response.data;
+};
+
+export const parseXML = async (fileName: string): Promise<XmlDetalle> => {
+  const response = await axiosClient.post<XmlDetalle>("/xml/parse", {
+    fileName,
   });
   return response.data;
 };
