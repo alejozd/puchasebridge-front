@@ -53,9 +53,11 @@
 }
 
 .actions-cell {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
 }
 
 .xml-table .col-header {
@@ -65,10 +67,7 @@
 }
 
 .xml-table .col-header-actions {
-    text-align: right;
-}
-
-.xml-table .col-filename {
+    text-align: center !important;
 }
 
 .xml-table .col-size {
@@ -81,21 +80,8 @@
     color: var(--color-secondary);
 }
 
-.xml-table .col-status {
-}
-
-.xml-table .col-provider {
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.xml-table .col-total {
-    font-size: 0.875rem;
-    font-weight: 700;
-}
-
 .xml-table .col-actions {
-    text-align: right;
+    text-align: center !important;
 }
 
 .btn-refresh {
@@ -177,15 +163,6 @@
     font-weight: 800;
 }
 
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--color-surface-container-high);
-}
-
 .upload-dialog {
     width: 750px;
 }
@@ -195,7 +172,7 @@
 }
 
 .upload-buttons-container {
-    background-color: #eff6ff; /* Very light blue */
+    background-color: #eff6ff;
     border: 1px solid #dbeafe;
     border-radius: var(--radius-lg);
     padding: 1.5rem;
@@ -225,7 +202,7 @@
 }
 
 .btn-upload-submit {
-    background-color: #93c5fd !important; /* Lighter blue as in reference */
+    background-color: #93c5fd !important;
     border: 1px solid #93c5fd !important;
     color: white !important;
 }
@@ -261,7 +238,7 @@
 }
 
 .btn-dialog-close {
-    background-color: #64748b !important; /* Slate color as in reference */
+    background-color: #64748b !important;
     border: none !important;
     font-weight: 700 !important;
     padding: 0.5rem 1.5rem !important;
@@ -319,7 +296,7 @@
     align-items: center;
     justify-content: center;
     padding: 2.5rem 1.5rem;
-    border: 2px dashed #3b82f6; /* Blue dashed as in reference */
+    border: 2px dashed #3b82f6;
     border-radius: var(--radius-lg);
     background-color: #f8fafc;
     transition: all 0.2s;
@@ -334,4 +311,232 @@
     color: #475569;
     font-size: 1rem;
     font-weight: 500;
+}
+
+/* Detail Modal V2 Styles */
+.detail-dialog-v2 .p-dialog-header {
+    border-bottom: 1px solid #f1f5f9;
+    padding: 1.5rem 2rem;
+}
+
+.detail-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.doc-type-tag {
+    background-color: #f3e8ff;
+    color: #7c3aed;
+    font-weight: 700;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+}
+
+.detail-modal-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e3a8a;
+}
+
+.detail-dialog-v2 .p-dialog-content {
+    background-color: #f8fafc;
+    padding: 2rem;
+}
+
+.detail-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.section-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #1e3a8a;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+}
+
+.section-title i {
+    font-size: 1.25rem;
+}
+
+.provider-info-card {
+    background-color: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 2fr;
+    gap: 2rem;
+}
+
+.info-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-group label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+}
+
+.info-group span {
+    font-size: 1rem;
+    color: #1e293b;
+}
+
+/* Products Table V2 Styles */
+.products-detail-table {
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: white;
+}
+
+.products-detail-table .table-header-v2 {
+    background-color: white !important;
+    color: #94a3b8 !important;
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.1em !important;
+    padding: 1rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.products-detail-table .p-datatable-tbody > tr > td {
+    padding: 1rem !important;
+    border-bottom: 1px solid #f8fafc !important;
+    font-size: 0.875rem;
+    color: #334155;
+}
+
+.products-detail-table .col-desc {
+    font-weight: 500;
+}
+
+.products-detail-table .col-ref {
+    color: #64748b;
+}
+
+.products-detail-table .col-total {
+    color: #000;
+}
+
+/* Totals Section V2 */
+.totals-section-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.totals-header-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.section-title.totals {
+    color: #1e3a8a;
+}
+
+.totals-content-wrapper {
+    width: 300px;
+}
+
+.totals-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.totals-row.highlight {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.totals-label {
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.totals-row.highlight .totals-label {
+    color: #1e3a8a;
+    font-weight: 800;
+}
+
+.totals-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.totals-row.highlight .totals-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e3a8a;
+}
+
+/* Footer V2 */
+.detail-dialog-v2 .p-dialog-footer {
+    padding: 1.5rem 2rem;
+    background-color: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+}
+
+.detail-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.integrity-hash {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+.footer-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-download-xml {
+    color: #1e3a8a !important;
+    border-color: #cbd5e1 !important;
+    font-weight: 700 !important;
+    background-color: transparent !important;
+}
+
+.btn-approve-conciliate {
+    background-color: #1e3a8a !important;
+    border: none !important;
+    font-weight: 700 !important;
+    padding: 0.75rem 1.5rem !important;
 }
