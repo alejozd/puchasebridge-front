@@ -297,6 +297,7 @@ const XMLListPage: React.FC = () => {
                     paginator
                     rows={10}
                     className="p-datatable-sm xml-table"
+                    style={{ width: '100%' }}
                     rowHover
                     tableStyle={{ minWidth: '50rem' }}
                     emptyMessage="No se encontraron archivos XML."

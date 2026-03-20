@@ -307,6 +307,7 @@ const HomologacionPage: React.FC = () => {
                 <DataTable
                     value={filteredItems}
                     className="p-datatable-sm items-table"
+                    style={{ width: '100%' }}
                     rowHover
                     rowClassName={(data) => ({ 'row-pending': data.estado === 'pendiente' })}
                     emptyMessage="No se encontraron productos para homologar."

@@ -209,6 +209,7 @@ const XMLValidationPage: React.FC = () => {
                     paginator
                     rows={10}
                     className="p-datatable-sm validation-table"
+                    style={{ width: '100%' }}
                     emptyMessage="No hay archivos XML para validar."
                     rowHover
                 >

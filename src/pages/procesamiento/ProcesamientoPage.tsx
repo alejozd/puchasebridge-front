@@ -258,6 +258,7 @@ const ProcesamientoPage: React.FC = () => {
                     onSelectionChange={(e) => setSelectedDocumentos(e.value as DocumentoProcesamiento[])}
                     dataKey="id"
                     className="procesamiento-table"
+                    style={{ width: '100%' }}
                     rowHover
                     selectionMode="multiple"
                     emptyMessage="No hay documentos disponibles para procesar."
