@@ -5,17 +5,11 @@ export const procesarDocumentos = async (ids: number[]): Promise<void> => {
   return new Promise((resolve, reject) => {
     setTimeout(async () => {
       try {
-        // We still make the call to the client for when the backend is ready
-        // But for mock purposes we'll resolve
-        // await axiosClient.post("/documentos/procesar", { ids });
-
-        // Simulating random success/error
-        if (Math.random() > 0.1) {
-            resolve();
-        } else {
-            reject(new Error("Simulated backend error"));
-        }
+        // We make the call to the client
+        await axiosClient.post("/documentos/procesar", { ids });
+        resolve();
       } catch (error) {
+        // Fallback or specific error handling can go here
         reject(error);
       }
     }, 1500);

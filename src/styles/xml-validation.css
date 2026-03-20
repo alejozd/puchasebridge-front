@@ -1,5 +1,5 @@
 .validation-page-container {
-    padding: 2rem;
+    padding: 0;
     min-height: calc(100vh - 4rem);
     background-color: var(--color-surface);
 }
@@ -7,17 +7,10 @@
 .validation-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 2.5rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
 }
 
-.header-info h1 {
-    font-family: var(--font-headline);
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin: 0.5rem 0;
-    color: var(--color-on-surface);
-}
 
 .header-info .subtitle {
     font-size: 0.75rem;
@@ -26,10 +19,12 @@
     color: var(--color-primary);
 }
 
-.header-info p {
+.header-info p, .header-description {
     color: var(--color-secondary);
     max-width: 600px;
     margin: 0;
+    font-size: 0.875rem;
+    margin-top: -0.25rem;
 }
 
 .btn-validate-bulk {
@@ -41,47 +36,6 @@
     box-shadow: var(--shadow-lg) !important;
 }
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.stat-card {
-    background-color: var(--color-surface-container-lowest);
-    padding: 1.25rem;
-    border-left: 4px solid #cbd5e1;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-card.pendiente { border-left-color: #94a3b8; }
-.stat-card.validado { border-left-color: var(--color-success); }
-.stat-card.homologacion { border-left-color: var(--color-warning); }
-.stat-card.error { border-left-color: var(--color-error); }
-
-.stat-label {
-    font-size: 0.6875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-secondary);
-}
-
-.stat-value {
-    font-size: 1.875rem;
-    font-weight: 800;
-    margin-top: 0.25rem;
-}
-
-.stat-desc {
-    font-size: 0.625rem;
-    color: var(--color-outline);
-    margin-top: 0.5rem;
-}
 
 .table-card {
     background-color: var(--color-surface-container-lowest);

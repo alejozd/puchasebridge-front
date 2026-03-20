@@ -7,6 +7,7 @@ import { Toast } from 'primereact/toast';
 import { AutoComplete, type AutoCompleteCompleteEvent, type AutoCompleteChangeEvent } from 'primereact/autocomplete';
 import { Dropdown, type DropdownChangeEvent } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
+import PageTitle from '../../components/common/PageTitle';
 import type { ProductoHomologacion, ProductoHelisa } from '../../types/homologacion';
 import '../../styles/homologacion.css';
 
@@ -227,8 +228,8 @@ const HomologacionPage: React.FC = () => {
 
             <div className="homologacion-header">
                 <div className="title-area">
-                    <h2>Homologación de Productos</h2>
-                    <p>Vincule los items recibidos del XML con el catálogo maestro de Helisa.</p>
+                    <PageTitle title="Homologación de Productos" />
+                    <p className="header-description">Vincule los items recibidos del XML con el catálogo maestro de Helisa.</p>
                 </div>
                 <div className="header-actions">
                     <Button
@@ -306,6 +307,7 @@ const HomologacionPage: React.FC = () => {
                 <DataTable
                     value={filteredItems}
                     className="p-datatable-sm items-table"
+                    style={{ width: '100%' }}
                     rowHover
                     rowClassName={(data) => ({ 'row-pending': data.estado === 'pendiente' })}
                     emptyMessage="No se encontraron productos para homologar."

@@ -5,6 +5,7 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
+import PageTitle from '../../components/common/PageTitle';
 import {
     FileUpload,
     type FileUploadSelectEvent,
@@ -229,8 +230,8 @@ const XMLListPage: React.FC = () => {
 
             <div className="xml-list-header">
                 <div className="xml-list-title-area">
-                    <h2>Bandeja de XML</h2>
-                    <p>Gestión y procesamiento centralizado de facturación electrónica.</p>
+                    <PageTitle title="Bandeja de XML" />
+                    <p className="header-description">Gestión y procesamiento centralizado de facturación electrónica.</p>
                 </div>
                 <div className="xml-list-actions">
                     <Button
@@ -250,18 +251,44 @@ const XMLListPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Placeholder for future stats cards */}
-            {/*
-            <div className="stats-grid">
-                <div className="stat-card">
-                    <p className="stat-label">Total Procesados</p>
-                    <div className="stat-value-container">
-                        <h3 className="stat-value">---</h3>
+            <div className="metric-cards-grid">
+                <div className="metric-card primary">
+                    <div className="metric-icon-container">
+                        <i className="pi pi-folder-open"></i>
+                    </div>
+                    <div className="metric-details">
+                        <p className="metric-label">Total Archivos</p>
+                        <div className="metric-value-wrapper">
+                            <h3 className="metric-value">{xmlList.length}</h3>
+                            <span className="metric-badge">Carpeta Local</span>
+                        </div>
                     </div>
                 </div>
-                ...
+                <div className="metric-card success">
+                    <div className="metric-icon-container">
+                        <i className="pi pi-check-circle"></i>
+                    </div>
+                    <div className="metric-details">
+                        <p className="metric-label">Validados</p>
+                        <div className="metric-value-wrapper">
+                            <h3 className="metric-value">0</h3>
+                            <span className="metric-badge success">+0%</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="metric-card info">
+                    <div className="metric-icon-container">
+                        <i className="pi pi-sync"></i>
+                    </div>
+                    <div className="metric-details">
+                        <p className="metric-label">Procesados</p>
+                        <div className="metric-value-wrapper">
+                            <h3 className="metric-value">0</h3>
+                            <span className="metric-badge info">En Cola</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            */}
 
             <div className="xml-table-card">
                 <DataTable
@@ -270,6 +297,7 @@ const XMLListPage: React.FC = () => {
                     paginator
                     rows={10}
                     className="p-datatable-sm xml-table"
+                    style={{ width: '100%' }}
                     rowHover
                     tableStyle={{ minWidth: '50rem' }}
                     emptyMessage="No se encontraron archivos XML."
