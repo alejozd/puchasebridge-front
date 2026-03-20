@@ -4,6 +4,7 @@ import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import XMLListPage from "../pages/xml/XMLListPage";
 import XMLValidationPage from "../pages/xml/XMLValidationPage";
+import HomologacionPage from "../pages/homologacion/HomologacionPage";
 import { createBrowserRouter } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -38,7 +39,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "homologacion",
-            element: <div>Homologación (Proximamente)</div>,
+            element: <HomologacionPage />,
           },
           {
             path: "procesamiento",
