@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -62,14 +62,13 @@ const XML_FILES_MOCK = [
 
 const HomologacionPage: React.FC = () => {
     const [items, setItems] = useState<ProductoHomologacion[]>(INITIAL_ITEMS_MOCK);
-    const [filteredItems, setFilteredItems] = useState<ProductoHomologacion[]>(INITIAL_ITEMS_MOCK);
     const [selectedXml, setSelectedXml] = useState<string | null>(null);
     const [statusFilter, setStatusFilter] = useState<'todos' | 'pendiente' | 'homologado'>('todos');
     const [globalFilter, setGlobalFilter] = useState('');
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const toast = useRef<Toast>(null);
 
-    useEffect(() => {
+    const filteredItems = React.useMemo(() => {
         let result = items;
 
         if (selectedXml) {
@@ -89,7 +88,7 @@ const HomologacionPage: React.FC = () => {
             );
         }
 
-        setFilteredItems(result);
+        return result;
     }, [items, selectedXml, statusFilter, globalFilter]);
 
     const searchProduct = (event: AutoCompleteCompleteEvent) => {
