@@ -3,6 +3,7 @@ import MainLayout from "../layout/MainLayout";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import XMLListPage from "../pages/xml/XMLListPage";
+import XMLValidationPage from "../pages/xml/XMLValidationPage";
 import { createBrowserRouter } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -33,7 +34,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "validacion",
-            element: <div>Validación (Proximamente)</div>,
+            element: <XMLValidationPage />,
           },
           {
             path: "homologacion",
