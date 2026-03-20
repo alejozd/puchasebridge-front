@@ -380,82 +380,70 @@ const XMLListPage: React.FC = () => {
                         <p className="text-sm text-gray-400 mt-2">Estamos procesando la información del archivo.</p>
                     </div>
                 ) : xmlDetail ? (
-                    <div className="xml-detail-content">
-                        {/* Summary Header Cards */}
-                        <div className="grid mb-4">
-                            <div className="col-12 md:col-4">
-                                <div className="info-summary-card">
-                                    <div className="info-icon nit">
-                                        <i className="pi pi-id-card"></i>
-                                    </div>
-                                    <div className="info-data">
-                                        <span className="info-label">NIT / Identificación</span>
-                                        <span className="info-value font-bold">{xmlDetail.proveedor.nit}</span>
-                                    </div>
+                    <div className="xml-mini-summary">
+                        {/* Section 1: Header / Provider info */}
+                        <div className="summary-section summary-header-section p-4 border-round-xl mb-3">
+                            <div className="flex align-items-center gap-3 mb-3">
+                                <div className="section-icon-container">
+                                    <i className="pi pi-building text-2xl"></i>
                                 </div>
+                                <h4 className="m-0 text-xl font-bold">Información del Proveedor</h4>
                             </div>
-                            <div className="col-12 md:col-8">
-                                <div className="info-summary-card">
-                                    <div className="info-icon provider">
-                                        <i className="pi pi-building"></i>
-                                    </div>
-                                    <div className="info-data">
-                                        <span className="info-label">Proveedor / Razón Social</span>
-                                        <span className="info-value font-bold">{xmlDetail.proveedor.nombre}</span>
-                                    </div>
+                            <div className="grid">
+                                <div className="col-12 md:col-3">
+                                    <label className="summary-label">NIT / Identificación</label>
+                                    <span className="summary-value font-bold">{xmlDetail.proveedor.nit}</span>
                                 </div>
-                            </div>
-                            <div className="col-12 mt-3">
-                                <div className="info-summary-card address-card">
-                                    <div className="info-icon address">
-                                        <i className="pi pi-map-marker"></i>
-                                    </div>
-                                    <div className="info-data">
-                                        <span className="info-label">Dirección de Entrega / Fiscal</span>
-                                        <span className="info-value">{xmlDetail.proveedor.direccion}</span>
-                                    </div>
+                                <div className="col-12 md:col-5">
+                                    <label className="summary-label">Razón Social</label>
+                                    <span className="summary-value font-bold">{xmlDetail.proveedor.nombre}</span>
+                                </div>
+                                <div className="col-12 md:col-4">
+                                    <label className="summary-label">Dirección Fiscal</label>
+                                    <span className="summary-value">{xmlDetail.proveedor.direccion}</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Products Table */}
-                        <div className="detail-section products-info mb-4">
-                            <div className="section-header mb-3">
-                                <h4 className="detail-section-title">
-                                    <i className="pi pi-box mr-2"></i>
-                                    Productos y Servicios
-                                </h4>
-                                <span className="text-xs text-secondary font-medium uppercase tracking-wider">
-                                    {xmlDetail.productos.length} items encontrados
+                        {/* Section 2: Products table */}
+                        <div className="summary-section summary-products-section p-4 border-round-xl mb-3">
+                            <div className="flex align-items-center justify-content-between mb-3">
+                                <div className="flex align-items-center gap-3">
+                                    <div className="section-icon-container products">
+                                        <i className="pi pi-box text-2xl"></i>
+                                    </div>
+                                    <h4 className="m-0 text-xl font-bold">Detalle de Productos</h4>
+                                </div>
+                                <span className="p-badge p-badge-info font-bold px-3 py-2 border-round-lg">
+                                    {xmlDetail.productos.length} items
                                 </span>
                             </div>
 
-                            <div className="table-wrapper border-round overflow-hidden border-1 border-gray-200">
+                            <div className="table-container border-round-lg overflow-hidden border-1 border-gray-200 bg-white">
                                 <DataTable
                                     value={xmlDetail.productos}
                                     className="p-datatable-sm"
                                     scrollable
-                                    scrollHeight="350px"
+                                    scrollHeight="300px"
                                     tableStyle={{ minWidth: '60rem' }}
                                     stripedRows
-                                    rowHover
                                 >
-                                    <Column field="descripcion" header="DESCRIPCIÓN" headerClassName="detail-table-header" bodyStyle={{ fontSize: '0.8125rem', fontWeight: '500' }} />
-                                    <Column field="referencia" header="REFERENCIA" headerClassName="detail-table-header" bodyStyle={{ fontSize: '0.8125rem' }} />
-                                    <Column field="cantidad" header="CANT." headerClassName="detail-table-header" align="center" bodyStyle={{ fontWeight: '600' }} />
+                                    <Column field="descripcion" header="DESCRIPCIÓN" headerClassName="summary-table-header" bodyStyle={{ fontSize: '0.8125rem', fontWeight: '500' }} />
+                                    <Column field="referencia" header="REF." headerClassName="summary-table-header" align="center" bodyStyle={{ fontSize: '0.8125rem' }} />
+                                    <Column field="cantidad" header="CANT." headerClassName="summary-table-header" align="center" bodyStyle={{ fontWeight: '600' }} />
                                     <Column
                                         field="valorUnitario"
-                                        header="VALOR UNITARIO"
+                                        header="VALOR UNIT."
                                         align="right"
-                                        headerClassName="detail-table-header text-right"
+                                        headerClassName="summary-table-header text-right"
                                         body={(rowData) => rowData.valorUnitario.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
                                         bodyStyle={{ fontSize: '0.8125rem' }}
                                     />
                                     <Column
                                         field="impuesto"
-                                        header="IMPUESTO"
+                                        header="IMP."
                                         align="right"
-                                        headerClassName="detail-table-header text-right"
+                                        headerClassName="summary-table-header text-right"
                                         body={(rowData) => rowData.impuesto.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
                                         bodyStyle={{ fontSize: '0.8125rem', color: '#dc2626' }}
                                     />
@@ -463,7 +451,7 @@ const XMLListPage: React.FC = () => {
                                         field="valorTotal"
                                         header="TOTAL"
                                         align="right"
-                                        headerClassName="detail-table-header text-right"
+                                        headerClassName="summary-table-header text-right"
                                         body={(rowData) => rowData.valorTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
                                         bodyStyle={{ fontSize: '0.8125rem', fontWeight: '700', color: 'var(--color-primary)' }}
                                     />
@@ -471,25 +459,28 @@ const XMLListPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Totals Section */}
-                        <div className="detail-footer-summary mt-5">
-                            <div className="grid justify-content-end">
-                                <div className="col-12 md:col-4">
-                                    <div className="totals-container p-4 border-round-xl">
-                                        <div className="total-row subtotal">
-                                            <span className="total-label">Subtotal</span>
-                                            <span className="total-value">{xmlDetail.totales.subtotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</span>
-                                        </div>
-                                        <div className="total-row taxes">
-                                            <span className="total-label">Total Impuestos (19%)</span>
-                                            <span className="total-value">{xmlDetail.totales.impuestoTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</span>
-                                        </div>
-                                        <div className="total-divider my-3"></div>
-                                        <div className="total-row final-total">
-                                            <span className="total-label-main">Valor Total Neto</span>
-                                            <span className="total-value-main">{xmlDetail.totales.total.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</span>
-                                        </div>
-                                        <p className="text-right text-xs text-gray-500 mt-2 italic">Valores expresados en Pesos Colombianos (COP)</p>
+                        {/* Section 3: Totals summary */}
+                        <div className="summary-section summary-totals-section p-4 border-round-xl">
+                            <div className="flex align-items-center gap-3 mb-4">
+                                <div className="section-icon-container totals">
+                                    <i className="pi pi-calculator text-2xl"></i>
+                                </div>
+                                <h4 className="m-0 text-xl font-bold">Resumen Financiero</h4>
+                            </div>
+
+                            <div className="flex justify-content-end">
+                                <div className="totals-card p-4 border-round-lg shadow-1 w-full md:w-4 bg-white border-1 border-gray-100">
+                                    <div className="flex justify-content-between py-2 border-bottom-1 border-gray-100 mb-2">
+                                        <span className="text-secondary font-medium">Subtotal</span>
+                                        <span className="font-bold">{xmlDetail.totales.subtotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</span>
+                                    </div>
+                                    <div className="flex justify-content-between py-2 border-bottom-1 border-gray-100 mb-2">
+                                        <span className="text-secondary font-medium">Total Impuestos</span>
+                                        <span className="font-bold text-red-600">{xmlDetail.totales.impuestoTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</span>
+                                    </div>
+                                    <div className="flex justify-content-between py-3 bg-blue-50 border-round-lg px-3 mt-3">
+                                        <span className="text-blue-800 font-extrabold text-lg uppercase tracking-wider">Total Factura</span>
+                                        <span className="text-blue-800 font-black text-2xl">{xmlDetail.totales.total.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</span>
                                     </div>
                                 </div>
                             </div>
