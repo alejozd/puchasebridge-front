@@ -13,23 +13,16 @@
     align-items: center;
 }
 
-.procesamiento-header .title-area span {
+.procesamiento-header .title-area span, .erp-bridge-core-label {
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.15em;
     color: var(--color-secondary);
     text-transform: uppercase;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.125rem;
     display: block;
 }
 
-.procesamiento-header .title-area h2 {
-    font-family: var(--font-headline);
-    font-size: 1.875rem;
-    font-weight: 800;
-    color: var(--color-on-surface);
-    margin: 0;
-}
 
 .header-actions {
     display: flex;
@@ -111,6 +104,8 @@
 .metric-badge.ready { color: var(--color-primary); }
 .metric-badge.processed { color: var(--color-success); }
 .metric-badge.error { color: var(--color-error); font-weight: 600; }
+
+.text-error { color: var(--color-error) !important; }
 
 .metric-icon-bg {
     position: absolute;

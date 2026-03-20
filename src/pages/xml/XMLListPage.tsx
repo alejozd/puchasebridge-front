@@ -231,7 +231,7 @@ const XMLListPage: React.FC = () => {
             <div className="xml-list-header">
                 <div className="xml-list-title-area">
                     <PageTitle title="Bandeja de XML" />
-                    <p style={{ color: 'var(--color-secondary)', fontSize: '0.875rem', marginTop: '-0.25rem' }}>Gestión y procesamiento centralizado de facturación electrónica.</p>
+                    <p className="header-description">Gestión y procesamiento centralizado de facturación electrónica.</p>
                 </div>
                 <div className="xml-list-actions">
                     <Button

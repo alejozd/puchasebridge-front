@@ -13,17 +13,11 @@
     align-items: center;
 }
 
-.homologacion-header .title-area h2 {
-    font-family: var(--font-headline);
-    font-size: 1.875rem;
-    font-weight: 800;
-    color: var(--color-on-surface);
-    margin: 0;
-}
 
-.homologacion-header .title-area p {
+.homologacion-header .title-area p, .header-description {
     color: var(--color-secondary);
     font-size: 0.875rem;
+    margin-top: -0.25rem;
 }
 
 .header-actions {

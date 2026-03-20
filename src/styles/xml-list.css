@@ -9,16 +9,11 @@
     margin-bottom: 1rem;
 }
 
-.xml-list-title-area h2 {
-    font-family: var(--font-headline);
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--color-on-primary-fixed-variant, #1e3a8a);
-    margin: 0;
-}
 
-.xml-list-title-area p {
+.xml-list-title-area p, .header-description {
     color: var(--color-secondary);
+    font-size: 0.875rem;
+    margin-top: -0.25rem;
 }
 
 .xml-list-actions {

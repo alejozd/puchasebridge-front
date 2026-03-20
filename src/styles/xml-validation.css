@@ -11,13 +11,6 @@
     margin-bottom: 1.5rem;
 }
 
-.header-info h1 {
-    font-family: var(--font-headline);
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin: 0.5rem 0;
-    color: var(--color-on-surface);
-}
 
 .header-info .subtitle {
     font-size: 0.75rem;
@@ -26,10 +19,12 @@
     color: var(--color-primary);
 }
 
-.header-info p {
+.header-info p, .header-description {
     color: var(--color-secondary);
     max-width: 600px;
     margin: 0;
+    font-size: 0.875rem;
+    margin-top: -0.25rem;
 }
 
 .btn-validate-bulk {
@@ -44,15 +39,15 @@
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .stat-card {
     background-color: var(--color-surface-container-lowest);
-    padding: 1.25rem;
+    padding: 1rem;
     border-left: 4px solid #cbd5e1;
-    border-radius: var(--radius);
+    border-radius: var(--radius-xl);
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
@@ -72,7 +67,7 @@
 }
 
 .stat-value {
-    font-size: 1.875rem;
+    font-size: 1.5rem;
     font-weight: 800;
     margin-top: 0.25rem;
 }

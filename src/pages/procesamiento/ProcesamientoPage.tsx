@@ -189,7 +189,7 @@ const ProcesamientoPage: React.FC = () => {
 
             <div className="procesamiento-header">
                 <div className="title-area">
-                    <span style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.15em', color: 'var(--color-secondary)', textTransform: 'uppercase', marginBottom: '0.125rem', display: 'block' }}>ERP BRIDGE CORE</span>
+                    <span className="erp-bridge-core-label">ERP BRIDGE CORE</span>
                     <PageTitle title="Procesamiento de Documentos" />
                 </div>
                 <div className="header-actions">
@@ -240,7 +240,7 @@ const ProcesamientoPage: React.FC = () => {
                     <div className="metric-content">
                         <p className="metric-label">Procesados con error</p>
                         <div className="metric-value-container">
-                            <span className="metric-value" style={{ color: 'var(--color-error)' }}>{metrics.error}</span>
+                            <span className="metric-value text-error">{metrics.error}</span>
                             <span className="metric-badge error">Crítico</span>
                         </div>
                     </div>

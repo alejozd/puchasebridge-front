@@ -46,10 +46,11 @@ const Dashboard: React.FC = () => {
   };
 
   const priorityBodyTemplate = (rowData: ProcessingItem) => {
-    const color = rowData.priority === "Alta" ? "var(--color-error)" : rowData.priority === "Media" ? "var(--color-secondary)" : "var(--color-outline)";
+    const colorClass = rowData.priority === "Alta" ? "text-error" : rowData.priority === "Media" ? "text-secondary" : "text-outline";
+    const bgClass = rowData.priority === "Alta" ? "bg-error" : rowData.priority === "Media" ? "bg-secondary" : "bg-outline";
     return (
-      <span className="priority-cell" style={{ color }}>
-        <span className="priority-dot" style={{ backgroundColor: color }}></span>
+      <span className={`priority-cell ${colorClass}`}>
+        <span className={`priority-dot ${bgClass}`}></span>
         {rowData.priority}
       </span>
     );
@@ -76,47 +77,47 @@ const Dashboard: React.FC = () => {
       </header>
 
       <section className="summary-grid">
-        <Card className="summary-card" style={{ borderLeft: '4px solid var(--color-primary)', borderRadius: 'var(--radius-xl)' }}>
+        <Card className="summary-card border-primary">
           <div className="summary-card-header">
             <div>
               <p className="summary-card-label">Estado de la Cola</p>
               <h3 className="summary-card-title">XML Pendientes</h3>
             </div>
-            <div className="summary-card-icon-container" style={{ backgroundColor: 'var(--color-primary-container)', color: 'var(--color-primary)' }}>
+            <div className="summary-card-icon-container bg-primary-container text-primary">
               <i className="pi pi-file-import"></i>
             </div>
           </div>
           <div className="summary-card-value">124</div>
           <p className="summary-card-footer">
-            <span style={{ color: 'var(--color-error)', display: 'flex', alignItems: 'center' }}><i className="pi pi-arrow-up" style={{ fontSize: '10px' }}></i> 12%</span>
+            <span className="text-error flex align-items-center"><i className="pi pi-arrow-up text-[10px]"></i> 12%</span>
             de incremento desde ayer
           </p>
         </Card>
 
-        <Card className="summary-card" style={{ borderLeft: '4px solid var(--color-tertiary)', borderRadius: 'var(--radius-xl)' }}>
+        <Card className="summary-card border-tertiary">
           <div className="summary-card-header">
             <div>
               <p className="summary-card-label">Control de Integridad</p>
               <h3 className="summary-card-title">Esperando Validación</h3>
             </div>
-            <div className="summary-card-icon-container" style={{ backgroundColor: 'var(--color-tertiary-container)', color: 'var(--color-tertiary)' }}>
+            <div className="summary-card-icon-container bg-tertiary-container text-tertiary">
               <i className="pi pi-check-square"></i>
             </div>
           </div>
           <div className="summary-card-value">42</div>
           <div className="progress-bar-container">
-            <div className="progress-bar-fill" style={{ width: '60%', backgroundColor: 'var(--color-tertiary)' }}></div>
+            <div className="progress-bar-fill w-[60%] bg-tertiary"></div>
           </div>
           <p className="summary-card-footer-small">60% de capacidad diaria alcanzada</p>
         </Card>
 
-        <Card className="summary-card" style={{ borderLeft: '4px solid #60a5fa', borderRadius: 'var(--radius-xl)' }}>
+        <Card className="summary-card border-info-alt">
           <div className="summary-card-header">
             <div>
               <p className="summary-card-label">Etapa Final</p>
               <h3 className="summary-card-title">Listo para Homologación</h3>
             </div>
-            <div className="summary-card-icon-container" style={{ backgroundColor: '#eff6ff', color: '#2563eb' }}>
+            <div className="summary-card-icon-container bg-info-alt-container text-info-alt">
               <i className="pi pi-share-alt"></i>
             </div>
           </div>

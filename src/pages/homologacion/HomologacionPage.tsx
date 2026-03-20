@@ -229,7 +229,7 @@ const HomologacionPage: React.FC = () => {
             <div className="homologacion-header">
                 <div className="title-area">
                     <PageTitle title="Homologación de Productos" />
-                    <p style={{ color: 'var(--color-secondary)', fontSize: '0.875rem', marginTop: '-0.25rem' }}>Vincule los items recibidos del XML con el catálogo maestro de Helisa.</p>
+                    <p className="header-description">Vincule los items recibidos del XML con el catálogo maestro de Helisa.</p>
                 </div>
                 <div className="header-actions">
                     <Button

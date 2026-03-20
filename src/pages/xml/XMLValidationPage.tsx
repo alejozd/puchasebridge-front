@@ -125,7 +125,7 @@ const XMLValidationPage: React.FC = () => {
                 <div className="header-info">
                     <span className="subtitle">OPERACIONES</span>
                     <PageTitle title="Validación de XML" />
-                    <p style={{ color: 'var(--color-secondary)', fontSize: '0.875rem', marginTop: '-0.25rem' }}>Gestione la integridad de sus documentos fiscales. Revise discrepancias y autorice el procesamiento hacia el ERP.</p>
+                    <p className="header-description">Gestione la integridad de sus documentos fiscales. Revise discrepancias y autorice el procesamiento hacia el ERP.</p>
                 </div>
                 <div className="header-actions">
                     <Button
