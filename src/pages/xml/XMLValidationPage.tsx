@@ -139,26 +139,54 @@ const XMLValidationPage: React.FC = () => {
                 </div>
             </section>
 
-            <div className="stats-grid">
-                <div className="stat-card pendiente">
-                    <span className="stat-label">Pendiente</span>
-                    <span className="stat-value">{stats.pendientes}</span>
-                    <span className="stat-desc">Documentos por revisar</span>
+            <div className="metric-cards-grid">
+                <div className="metric-card primary">
+                    <div className="metric-icon-container">
+                        <i className="pi pi-clock"></i>
+                    </div>
+                    <div className="metric-details">
+                        <p className="metric-label">Pendiente</p>
+                        <div className="metric-value-wrapper">
+                            <h3 className="metric-value">{stats.pendientes}</h3>
+                            <span className="metric-badge">Por revisar</span>
+                        </div>
+                    </div>
                 </div>
-                <div className="stat-card validado">
-                    <span className="stat-label">Validado</span>
-                    <span className="stat-value">{stats.validados}</span>
-                    <span className="stat-desc">Listos para puente</span>
+                <div className="metric-card success">
+                    <div className="metric-icon-container">
+                        <i className="pi pi-check-circle"></i>
+                    </div>
+                    <div className="metric-details">
+                        <p className="metric-label">Validado</p>
+                        <div className="metric-value-wrapper">
+                            <h3 className="metric-value">{stats.validados}</h3>
+                            <span className="metric-badge success">Listos</span>
+                        </div>
+                    </div>
                 </div>
-                <div className="stat-card homologacion">
-                    <span className="stat-label">Homologación</span>
-                    <span className="stat-value">{stats.homologacion}</span>
-                    <span className="stat-desc">Requieren mapeo manual</span>
+                <div className="metric-card warning">
+                    <div className="metric-icon-container">
+                        <i className="pi pi-sync"></i>
+                    </div>
+                    <div className="metric-details">
+                        <p className="metric-label">Homologación</p>
+                        <div className="metric-value-wrapper">
+                            <h3 className="metric-value">{stats.homologacion}</h3>
+                            <span className="metric-badge warning">Mapeo manual</span>
+                        </div>
+                    </div>
                 </div>
-                <div className="stat-card error">
-                    <span className="stat-label">Error</span>
-                    <span className="stat-value">{stats.errores}</span>
-                    <span className="stat-desc">Estructura inválida</span>
+                <div className="metric-card error">
+                    <div className="metric-icon-container">
+                        <i className="pi pi-exclamation-triangle"></i>
+                    </div>
+                    <div className="metric-details">
+                        <p className="metric-label">Error</p>
+                        <div className="metric-value-wrapper">
+                            <h3 className="metric-value">{stats.errores}</h3>
+                            <span className="metric-badge error">Inválido</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 

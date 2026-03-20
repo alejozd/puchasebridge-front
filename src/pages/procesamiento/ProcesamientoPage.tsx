@@ -210,41 +210,44 @@ const ProcesamientoPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="metrics-grid">
-                <div className="metric-card ready">
-                    <div className="metric-content">
+            <div className="metric-cards-grid">
+                <div className="metric-card primary">
+                    <div className="metric-icon-container">
+                        <i className="pi pi-pending_actions"></i>
+                    </div>
+                    <div className="metric-details">
                         <p className="metric-label">Listos para procesar</p>
-                        <div className="metric-value-container">
-                            <span className="metric-value">{metrics.ready}</span>
-                            <span className="metric-badge ready">
-                                <i className="pi pi-arrow-up mr-1" style={{ fontSize: '0.75rem' }}></i>
-                                +12%
-                            </span>
+                        <div className="metric-value-wrapper">
+                            <h3 className="metric-value">{metrics.ready}</h3>
+                            <span className="metric-badge">+12%</span>
                         </div>
                     </div>
-                    <i className="pi pi-pending_actions metric-icon-bg"></i>
                 </div>
 
-                <div className="metric-card processed">
-                    <div className="metric-content">
+                <div className="metric-card success">
+                    <div className="metric-icon-container">
+                        <i className="pi pi-check-circle"></i>
+                    </div>
+                    <div className="metric-details">
                         <p className="metric-label">Procesados correctamente</p>
-                        <div className="metric-value-container">
-                            <span className="metric-value">{metrics.processed}</span>
-                            <span className="metric-badge processed">99.6% Total</span>
+                        <div className="metric-value-wrapper">
+                            <h3 className="metric-value">{metrics.processed}</h3>
+                            <span className="metric-badge success">99.6%</span>
                         </div>
                     </div>
-                    <i className="pi pi-check_circle metric-icon-bg"></i>
                 </div>
 
                 <div className="metric-card error">
-                    <div className="metric-content">
+                    <div className="metric-icon-container">
+                        <i className="pi pi-report"></i>
+                    </div>
+                    <div className="metric-details">
                         <p className="metric-label">Procesados con error</p>
-                        <div className="metric-value-container">
-                            <span className="metric-value text-error">{metrics.error}</span>
+                        <div className="metric-value-wrapper">
+                            <h3 className="metric-value">{metrics.error}</h3>
                             <span className="metric-badge error">Crítico</span>
                         </div>
                     </div>
-                    <i className="pi pi-report metric-icon-bg"></i>
                 </div>
             </div>
 
