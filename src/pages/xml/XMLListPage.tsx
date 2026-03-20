@@ -344,144 +344,135 @@ const XMLListPage: React.FC = () => {
 
             <Dialog
                 header={
-                    <div className="modal-header-container">
-                        <div className="modal-header-icon">
-                            <i className="pi pi-file"></i>
-                        </div>
-                        <h3 className="modal-header-title">Detalle del XML</h3>
+                    <div className="detail-modal-header">
+                        <div className="doc-type-tag">XML DOCUMENT</div>
+                        <h2 className="detail-modal-title">Detalle del Documento XML</h2>
                     </div>
                 }
                 visible={displayDetailModal}
-                className="detail-dialog"
-                style={{ width: '70vw' }}
+                className="detail-dialog-v2"
+                style={{ width: '85vw', maxWidth: '1200px' }}
                 onHide={() => {
                     setDisplayDetailModal(false);
                     setXmlDetail(null);
                 }}
                 footer={
-                    <div className="flex justify-content-end pt-3">
-                        <Button
-                            label="Cerrar"
-                            onClick={() => {
-                                setDisplayDetailModal(false);
-                                setXmlDetail(null);
-                            }}
-                            className="btn-dialog-close"
-                        />
+                    <div className="detail-modal-footer">
+                        <div className="integrity-hash">
+                            <i className="pi pi-check-circle"></i>
+                            <span>Hash de Integridad: XML-SHA256-4921-X82</span>
+                        </div>
+                        <div className="footer-actions">
+                            <Button label="Descargar XML" outlined className="btn-download-xml" />
+                            <Button label="Aprobar y Conciliar" icon="pi pi-check-square" className="btn-approve-conciliate" />
+                        </div>
                     </div>
                 }
                 draggable={false}
                 resizable={false}
+                blockScroll
             >
                 {detailLoading ? (
                     <div className="flex flex-column justify-content-center align-items-center py-8">
                         <i className="pi pi-spin pi-spinner text-4xl mb-3" style={{ color: 'var(--color-primary)' }}></i>
                         <span className="text-xl font-medium text-secondary">Cargando detalle del XML...</span>
-                        <p className="text-sm text-gray-400 mt-2">Estamos procesando la información del archivo.</p>
                     </div>
                 ) : xmlDetail ? (
-                    <div className="xml-mini-summary">
-                        {/* Section 1: Header / Provider info */}
-                        <div className="summary-section summary-header-section p-4 border-round-xl mb-3">
-                            <div className="flex align-items-center gap-3 mb-3">
-                                <div className="section-icon-container">
-                                    <i className="pi pi-building text-2xl"></i>
-                                </div>
-                                <h4 className="m-0 text-xl font-bold">Información del Proveedor</h4>
+                    <div className="detail-modal-content">
+                        {/* Proveedor Section */}
+                        <div className="section-container">
+                            <div className="section-title">
+                                <i className="pi pi-building"></i>
+                                <span>PROVEEDOR</span>
                             </div>
-                            <div className="grid">
-                                <div className="col-12 md:col-3">
-                                    <label className="summary-label">NIT / Identificación</label>
-                                    <span className="summary-value font-bold">{xmlDetail.proveedor.nit}</span>
+                            <div className="provider-info-card">
+                                <div className="info-group">
+                                    <label>NOMBRE O RAZÓN SOCIAL</label>
+                                    <span className="font-bold">{xmlDetail.proveedor.nombre}</span>
                                 </div>
-                                <div className="col-12 md:col-5">
-                                    <label className="summary-label">Razón Social</label>
-                                    <span className="summary-value font-bold">{xmlDetail.proveedor.nombre}</span>
+                                <div className="info-group">
+                                    <label>NIT</label>
+                                    <span className="font-bold">{xmlDetail.proveedor.nit}</span>
                                 </div>
-                                <div className="col-12 md:col-4">
-                                    <label className="summary-label">Dirección Fiscal</label>
-                                    <span className="summary-value">{xmlDetail.proveedor.direccion}</span>
+                                <div className="info-group">
+                                    <label>DIRECCIÓN</label>
+                                    <span className="font-bold">{xmlDetail.proveedor.direccion}</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Section 2: Products table */}
-                        <div className="summary-section summary-products-section p-4 border-round-xl mb-3">
-                            <div className="flex align-items-center justify-content-between mb-3">
-                                <div className="flex align-items-center gap-3">
-                                    <div className="section-icon-container products">
-                                        <i className="pi pi-box text-2xl"></i>
-                                    </div>
-                                    <h4 className="m-0 text-xl font-bold">Detalle de Productos</h4>
-                                </div>
-                                <span className="p-badge p-badge-info font-bold px-3 py-2 border-round-lg">
-                                    {xmlDetail.productos.length} items
-                                </span>
+                        {/* Productos Section */}
+                        <div className="section-container">
+                            <div className="section-title">
+                                <i className="pi pi-box"></i>
+                                <span>PRODUCTOS</span>
                             </div>
-
-                            <div className="table-container border-round-lg overflow-hidden border-1 border-gray-200 bg-white">
-                                <DataTable
-                                    value={xmlDetail.productos}
-                                    className="p-datatable-sm"
-                                    scrollable
-                                    scrollHeight="300px"
-                                    tableStyle={{ minWidth: '60rem' }}
-                                    stripedRows
-                                >
-                                    <Column field="descripcion" header="DESCRIPCIÓN" headerClassName="summary-table-header" bodyStyle={{ fontSize: '0.8125rem', fontWeight: '500' }} />
-                                    <Column field="referencia" header="REF." headerClassName="summary-table-header" align="center" bodyStyle={{ fontSize: '0.8125rem' }} />
-                                    <Column field="cantidad" header="CANT." headerClassName="summary-table-header" align="center" bodyStyle={{ fontWeight: '600' }} />
-                                    <Column
-                                        field="valorUnitario"
-                                        header="VALOR UNIT."
-                                        align="right"
-                                        headerClassName="summary-table-header text-right"
-                                        body={(rowData) => rowData.valorUnitario.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
-                                        bodyStyle={{ fontSize: '0.8125rem' }}
-                                    />
-                                    <Column
-                                        field="impuesto"
-                                        header="IMP."
-                                        align="right"
-                                        headerClassName="summary-table-header text-right"
-                                        body={(rowData) => rowData.impuesto.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
-                                        bodyStyle={{ fontSize: '0.8125rem', color: '#dc2626' }}
-                                    />
-                                    <Column
-                                        field="valorTotal"
-                                        header="TOTAL"
-                                        align="right"
-                                        headerClassName="summary-table-header text-right"
-                                        body={(rowData) => rowData.valorTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
-                                        bodyStyle={{ fontSize: '0.8125rem', fontWeight: '700', color: 'var(--color-primary)' }}
-                                    />
-                                </DataTable>
-                            </div>
+                            <DataTable
+                                value={xmlDetail.productos}
+                                className="products-detail-table"
+                                scrollable
+                                scrollHeight="400px"
+                                tableStyle={{ minWidth: '60rem' }}
+                                rowHover
+                            >
+                                <Column field="descripcion" header="DESCRIPCIÓN" headerClassName="table-header-v2" className="col-desc" />
+                                <Column field="referencia" header="REFERENCIA" headerClassName="table-header-v2" className="col-ref" />
+                                <Column field="cantidad" header="CANTIDAD" align="center" headerClassName="table-header-v2" className="col-qty font-bold" />
+                                <Column
+                                    field="valorUnitario"
+                                    header="VALOR UNITARIO"
+                                    align="right"
+                                    headerClassName="table-header-v2"
+                                    className="col-price"
+                                    body={(rowData) => rowData.valorUnitario.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}
+                                />
+                                <Column
+                                    field="porcentajeImpuesto"
+                                    header="IMPUESTO %"
+                                    align="center"
+                                    headerClassName="table-header-v2"
+                                    className="col-tax-pct"
+                                    body={(rowData) => `${rowData.porcentajeImpuesto}%`}
+                                />
+                                <Column
+                                    field="impuesto"
+                                    header="IMPUESTO"
+                                    align="right"
+                                    headerClassName="table-header-v2"
+                                    className="col-tax"
+                                    body={(rowData) => rowData.impuesto.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}
+                                />
+                                <Column
+                                    field="valorTotal"
+                                    header="TOTAL"
+                                    align="right"
+                                    headerClassName="table-header-v2"
+                                    className="col-total font-bold"
+                                    body={(rowData) => rowData.valorTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}
+                                />
+                            </DataTable>
                         </div>
 
-                        {/* Section 3: Totals summary */}
-                        <div className="summary-section summary-totals-section p-4 border-round-xl">
-                            <div className="flex align-items-center gap-3 mb-4">
-                                <div className="section-icon-container totals">
-                                    <i className="pi pi-calculator text-2xl"></i>
+                        {/* Totales Section */}
+                        <div className="section-container totals-section-container">
+                            <div className="totals-header-wrapper">
+                                <div className="section-title totals">
+                                    <i className="pi pi-calculator"></i>
+                                    <span>TOTALES</span>
                                 </div>
-                                <h4 className="m-0 text-xl font-bold">Resumen Financiero</h4>
                             </div>
-
-                            <div className="flex justify-content-end">
-                                <div className="totals-card p-4 border-round-lg shadow-1 w-full md:w-4 bg-white border-1 border-gray-100">
-                                    <div className="flex justify-content-between py-2 border-bottom-1 border-gray-100 mb-2">
-                                        <span className="text-secondary font-medium">Subtotal</span>
-                                        <span className="font-bold">{xmlDetail.totales.subtotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</span>
-                                    </div>
-                                    <div className="flex justify-content-between py-2 border-bottom-1 border-gray-100 mb-2">
-                                        <span className="text-secondary font-medium">Total Impuestos</span>
-                                        <span className="font-bold text-red-600">{xmlDetail.totales.impuestoTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</span>
-                                    </div>
-                                    <div className="flex justify-content-between py-3 bg-blue-50 border-round-lg px-3 mt-3">
-                                        <span className="text-blue-800 font-extrabold text-lg uppercase tracking-wider">Total Factura</span>
-                                        <span className="text-blue-800 font-black text-2xl">{xmlDetail.totales.total.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</span>
-                                    </div>
+                            <div className="totals-content-wrapper">
+                                <div className="totals-row">
+                                    <span className="totals-label">SUBTOTAL</span>
+                                    <span className="totals-value">{xmlDetail.totales.subtotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>
+                                </div>
+                                <div className="totals-row">
+                                    <span className="totals-label">IMPUESTOS</span>
+                                    <span className="totals-value">{xmlDetail.totales.impuestoTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>
+                                </div>
+                                <div className="totals-row highlight">
+                                    <span className="totals-label">TOTAL FACTURA</span>
+                                    <span className="totals-value">{xmlDetail.totales.total.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>
                                 </div>
                             </div>
                         </div>
