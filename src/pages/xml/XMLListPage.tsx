@@ -251,18 +251,44 @@ const XMLListPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Placeholder for future stats cards */}
-            {/*
             <div className="stats-grid">
-                <div className="stat-card">
-                    <p className="stat-label">Total Procesados</p>
-                    <div className="stat-value-container">
-                        <h3 className="stat-value">---</h3>
+                <div className="stat-card total">
+                    <div className="stat-icon">
+                        <i className="pi pi-folder-open"></i>
+                    </div>
+                    <div className="stat-content">
+                        <p className="stat-label">Total Archivos</p>
+                        <div className="stat-value-container">
+                            <h3 className="stat-value">{xmlList.length}</h3>
+                            <span className="stat-badge">Carpeta Local</span>
+                        </div>
                     </div>
                 </div>
-                ...
+                <div className="stat-card validado">
+                    <div className="stat-icon">
+                        <i className="pi pi-check-circle"></i>
+                    </div>
+                    <div className="stat-content">
+                        <p className="stat-label">Validados</p>
+                        <div className="stat-value-container">
+                            <h3 className="stat-value">0</h3>
+                            <span className="stat-badge success">+0%</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="stat-card procesado">
+                    <div className="stat-icon">
+                        <i className="pi pi-sync"></i>
+                    </div>
+                    <div className="stat-content">
+                        <p className="stat-label">Procesados</p>
+                        <div className="stat-value-container">
+                            <h3 className="stat-value">0</h3>
+                            <span className="stat-badge info">En Cola</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            */}
 
             <div className="xml-table-card">
                 <DataTable
