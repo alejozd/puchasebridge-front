@@ -1,12 +1,12 @@
 .xml-list-container {
-    padding: 2rem;
+    padding: 0;
 }
 
 .xml-list-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 2rem;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
 .xml-list-title-area h2 {

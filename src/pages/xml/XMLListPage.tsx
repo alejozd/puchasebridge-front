@@ -5,6 +5,7 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
+import PageTitle from '../../components/common/PageTitle';
 import {
     FileUpload,
     type FileUploadSelectEvent,
@@ -229,8 +230,8 @@ const XMLListPage: React.FC = () => {
 
             <div className="xml-list-header">
                 <div className="xml-list-title-area">
-                    <h2>Bandeja de XML</h2>
-                    <p>Gestión y procesamiento centralizado de facturación electrónica.</p>
+                    <PageTitle title="Bandeja de XML" />
+                    <p style={{ color: 'var(--color-secondary)', fontSize: '0.875rem', marginTop: '-0.25rem' }}>Gestión y procesamiento centralizado de facturación electrónica.</p>
                 </div>
                 <div className="xml-list-actions">
                     <Button

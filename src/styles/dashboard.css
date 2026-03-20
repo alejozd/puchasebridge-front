@@ -1,0 +1,242 @@
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+}
+
+.dashboard-header-desc {
+    color: var(--color-secondary);
+    margin-top: -0.25rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.summary-card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.summary-card-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-secondary);
+    margin: 0 0 0.25rem 0;
+}
+
+.summary-card-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.summary-card-icon-container {
+    padding: 0.5rem;
+    border-radius: var(--radius-lg);
+}
+
+.summary-card-value {
+    font-size: 2.25rem;
+    font-weight: 800;
+}
+
+.summary-card-footer {
+    font-size: 0.75rem;
+    color: var(--color-secondary);
+    margin: 0.5rem 0 0 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.summary-card-footer-small {
+    font-size: 10px;
+    color: var(--color-secondary);
+    margin: 0.5rem 0 0 0;
+}
+
+.progress-bar-container {
+    height: 6px;
+    width: 100%;
+    background-color: var(--color-surface-container);
+    border-radius: 3px;
+    margin-top: 1rem;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+}
+
+.dashboard-main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+@media (max-width: 1400px) {
+    .dashboard-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.queue-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.queue-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.availability-card {
+    background: linear-gradient(to bottom right, var(--color-primary), var(--color-primary-dim));
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    color: var(--color-on-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.availability-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.8;
+    margin: 0 0 1rem 0;
+}
+
+.availability-value {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.availability-desc {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin: 0;
+}
+
+.availability-bars {
+    display: flex;
+    gap: 4px;
+    margin-top: 1.5rem;
+}
+
+.availability-bar {
+    height: 32px;
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.availability-bar.active {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.availability-decoration {
+    position: absolute;
+    bottom: -2.5rem;
+    right: -2.5rem;
+    width: 10rem;
+    height: 10rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    filter: blur(40px);
+}
+
+.alerts-card-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+}
+
+.alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.alert-item {
+    display: flex;
+    gap: 1rem;
+}
+
+.alert-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.alert-content-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.alert-content-desc {
+    font-size: 10px;
+    color: var(--color-secondary);
+    margin: 2px 0 0 0;
+}
+
+.alert-content-time {
+    font-size: 9px;
+    color: var(--color-outline);
+    text-transform: uppercase;
+    display: block;
+    margin-top: 4px;
+}
+
+/* Template styles */
+.entity-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.entity-name {
+    font-weight: 600;
+    color: var(--color-on-surface);
+}
+
+.entity-id {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant);
+    font-family: 'monospace';
+}
+
+.priority-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.priority-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.status-tag {
+    font-size: 10px;
+    font-weight: bold;
+}

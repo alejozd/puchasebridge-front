@@ -5,6 +5,7 @@ import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
+import PageTitle from '../../components/common/PageTitle';
 import type { DocumentoProcesamiento } from '../../types/procesamiento';
 import { procesarDocumentos } from '../../services/procesamientoService';
 import '../../styles/procesamiento.css';
@@ -188,8 +189,8 @@ const ProcesamientoPage: React.FC = () => {
 
             <div className="procesamiento-header">
                 <div className="title-area">
-                    <span>ERP BRIDGE CORE</span>
-                    <h2>Procesamiento de Documentos</h2>
+                    <span style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.15em', color: 'var(--color-secondary)', textTransform: 'uppercase', marginBottom: '0.125rem', display: 'block' }}>ERP BRIDGE CORE</span>
+                    <PageTitle title="Procesamiento de Documentos" />
                 </div>
                 <div className="header-actions">
                     <Button

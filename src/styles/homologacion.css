@@ -1,16 +1,16 @@
 .homologacion-container {
-    padding: 2rem;
-    max-width: 1280px;
-    margin: 0 auto;
+    padding: 0;
+    max-width: 100%;
+    margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 .homologacion-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
 }
 
 .homologacion-header .title-area h2 {

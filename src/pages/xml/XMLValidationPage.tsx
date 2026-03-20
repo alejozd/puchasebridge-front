@@ -4,6 +4,7 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
+import PageTitle from '../../components/common/PageTitle';
 import { useXMLStore } from '../../store/xmlStore';
 import type { XMLFile } from '../../types/xml';
 import '../../styles/xml-validation.css';
@@ -123,8 +124,8 @@ const XMLValidationPage: React.FC = () => {
             <section className="validation-header">
                 <div className="header-info">
                     <span className="subtitle">OPERACIONES</span>
-                    <h1>Validación de XML</h1>
-                    <p>Gestione la integridad de sus documentos fiscales. Revise discrepancias y autorice el procesamiento hacia el ERP.</p>
+                    <PageTitle title="Validación de XML" />
+                    <p style={{ color: 'var(--color-secondary)', fontSize: '0.875rem', marginTop: '-0.25rem' }}>Gestione la integridad de sus documentos fiscales. Revise discrepancias y autorice el procesamiento hacia el ERP.</p>
                 </div>
                 <div className="header-actions">
                     <Button
