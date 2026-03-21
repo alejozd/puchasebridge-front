@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import type { XMLFile } from "../types/xml";
-import { getXMLList, uploadXML, validateXMLFiles } from "../services/xmlService";
+import type { XMLFile, ValidationResult, BackendValidationResponse } from "../types/xml";
+import { getXMLList, uploadXML, validateXMLFile } from "../services/xmlService";
 
 interface XMLState {
   xmlList: XMLFile[];
@@ -54,7 +54,31 @@ export const useXMLStore = create<XMLState>((set, get) => ({
   validateFiles: async (fileNames: string[]) => {
     set({ validating: true });
     try {
-      const results = await validateXMLFiles(fileNames);
+      // Mapping function to convert backend response to internal ValidationResult
+      const mapBackendToResult = (res: BackendValidationResponse): ValidationResult => {
+        let estado: 'Validado' | 'Con errores' | 'Requiere homologación' = 'Validado';
+
+        if (!res.valido) {
+          estado = 'Con errores';
+        } else if (res.requiereHomologacion) {
+          estado = 'Requiere homologación';
+        }
+
+        return {
+          fileName: res.fileName,
+          estado,
+          resultadoValidacion: res.valido ? (res.requiereHomologacion ? 'Requiere homologación de productos' : 'Documento válido') : 'Errores en validación',
+          errores: res.errores,
+          advertencias: [] // Backend doesn't seem to differentiate warnings in the example, putting all in errores
+        };
+      };
+
+      // Perform individual validation calls in parallel
+      const backendResults = await Promise.all(
+        fileNames.map(name => validateXMLFile(name))
+      );
+
+      const results = backendResults.map(mapBackendToResult);
 
       // Update the local list with validation results
       const currentList = get().xmlList;

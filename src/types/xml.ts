@@ -51,3 +51,19 @@ export interface ValidationResult {
   errores?: string[];
   advertencias?: string[];
 }
+
+export interface BackendProductoResult {
+  referencia: string;
+  unidad: string;
+  existeEquivalencia: boolean;
+}
+
+export interface BackendValidationResponse {
+  codigoTercero: string;
+  valido: boolean;
+  requiereHomologacion: boolean;
+  proveedorExiste: boolean;
+  productos: BackendProductoResult[];
+  errores: string[];
+  fileName: string;
+}

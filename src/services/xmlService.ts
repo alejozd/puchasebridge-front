@@ -1,5 +1,5 @@
 import axiosClient from "../api/axiosClient";
-import type { XMLFile, ValidationResult, XmlDetalle } from "../types/xml";
+import type { XMLFile, XmlDetalle, BackendValidationResponse } from "../types/xml";
 
 export const getXMLList = async (): Promise<XMLFile[]> => {
   const response = await axiosClient.get<XMLFile[]>("/xml/list");
@@ -24,9 +24,9 @@ export const parseXML = async (fileName: string): Promise<XmlDetalle> => {
   return response.data;
 };
 
-export const validateXMLFiles = async (fileNames: string[]): Promise<ValidationResult[]> => {
-  const response = await axiosClient.post<ValidationResult[]>("/xml/validate", {
-    files: fileNames,
+export const validateXMLFile = async (fileName: string): Promise<BackendValidationResponse> => {
+  const response = await axiosClient.post<BackendValidationResponse>("/xml/validate", {
+    fileName,
   });
   return response.data;
 };
