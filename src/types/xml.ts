@@ -2,7 +2,7 @@ export interface XMLFile {
   fileName: string;
   size: number;
   lastModified: string;
-  estado?: 'Pendiente' | 'Validado' | 'Con errores' | 'Requiere homologación';
+  estado?: 'Pendiente' | 'Validado' | 'Con errores' | 'Requiere homologación' | 'Procesado';
   tipoDocumento?: string;
   erroresValidacion?: string[];
   advertenciasValidacion?: string[];
@@ -66,4 +66,46 @@ export interface BackendValidationResponse {
   productos: BackendProductoResult[];
   errores: string[];
   fileName: string;
+}
+
+// New interfaces for Procesamiento de XML
+export interface XMLFileItem {
+  id: number;
+  file_name: string;
+  proveedor_nombre: string;
+  fecha_documento: string;
+  estado: 'VALIDADO' | 'PENDIENTE' | 'ERROR' | 'PROCESADO';
+  fecha_carga: string;
+}
+
+export interface XMLProduct {
+  descripcion: string;
+  referencia: string;
+  cantidad: number;
+  unidad: string;
+  valor_unitario: number;
+  valor_total: number;
+  equivalencia_id?: number | string | null;
+}
+
+export interface XMLFileDetail {
+  id: number;
+  file_name: string;
+  proveedor_nombre: string;
+  proveedor_nit: string;
+  fecha_documento: string;
+  estado: string;
+  productos: XMLProduct[];
+}
+
+export interface XMLValidationResult {
+  valido: boolean;
+  errores: string[];
+  advertencias: string[];
+}
+
+export interface XMLProcesarResponse {
+  success: boolean;
+  documentoGenerado?: string;
+  mensaje?: string;
 }
