@@ -2,9 +2,10 @@ export interface XMLFile {
   fileName: string;
   size: number;
   lastModified: string;
-  estado?: 'Pendiente' | 'Validado' | 'Error' | 'Requiere homologación';
+  estado?: 'Pendiente' | 'Validado' | 'Con errores' | 'Requiere homologación';
   tipoDocumento?: string;
   erroresValidacion?: string[];
+  advertenciasValidacion?: string[];
   proveedor?: string;
   resultadoValidacion?: string;
 }
@@ -45,7 +46,8 @@ export interface XmlDetalle {
 
 export interface ValidationResult {
   fileName: string;
-  estado: 'Validado' | 'Error' | 'Requiere homologación';
+  estado: 'Validado' | 'Con errores' | 'Requiere homologación';
   resultadoValidacion: string;
   errores?: string[];
+  advertencias?: string[];
 }

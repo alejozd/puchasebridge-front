@@ -5,6 +5,7 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
+import XMLDetailDialog from '../../components/xml/XMLDetailDialog';
 import PageTitle from '../../components/common/PageTitle';
 import {
     FileUpload,
@@ -51,20 +52,30 @@ const XMLListPage: React.FC = () => {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
-    const statusBodyTemplate = () => {
+    const statusBodyTemplate = (rowData: XMLFile) => {
+        const severityMap: Record<string, "secondary" | "success" | "danger" | "info" | "warning"> = {
+            'Pendiente': 'secondary',
+            'Validado': 'success',
+            'Con errores': 'danger',
+            'Requiere homologación': 'warning'
+        };
+
+        const estado = rowData.estado || 'Pendiente';
+
         return (
             <Tag
-                value="PENDIENTE"
-                severity="secondary"
+                value={estado.toUpperCase()}
+                severity={severityMap[estado]}
                 className="status-tag"
             />
         );
     };
 
     const fileNameBodyTemplate = (rowData: XMLFile) => {
+        const isError = rowData.estado === 'Con errores';
         return (
             <div className="filename-cell">
-                <i className="pi pi-file" style={{ color: 'var(--color-primary)' }}></i>
+                <i className={`pi pi-file ${isError ? 'text-error' : 'text-primary'}`} style={{ color: isError ? 'var(--color-error)' : 'var(--color-primary)' }}></i>
                 <span className="filename-text">{rowData.fileName}</span>
             </div>
         );
@@ -342,143 +353,15 @@ const XMLListPage: React.FC = () => {
                 </DataTable>
             </div>
 
-            <Dialog
-                header={
-                    <div className="detail-modal-header">
-                        <div className="doc-type-tag">XML DOCUMENT</div>
-                        <h2 className="detail-modal-title">Detalle del Documento XML</h2>
-                    </div>
-                }
+            <XMLDetailDialog
                 visible={displayDetailModal}
-                className="detail-dialog-v2"
-                style={{ width: '85vw', maxWidth: '1200px' }}
                 onHide={() => {
                     setDisplayDetailModal(false);
                     setXmlDetail(null);
                 }}
-                footer={
-                    <div className="detail-modal-footer">
-                        <div className="integrity-hash">
-                            <i className="pi pi-check-circle"></i>
-                            <span>Hash de Integridad: XML-SHA256-4921-X82</span>
-                        </div>
-                        <div className="footer-actions">
-                            <Button label="Descargar XML" outlined className="btn-download-xml" />
-                            <Button label="Aprobar y Conciliar" icon="pi pi-check-square" className="btn-approve-conciliate" />
-                        </div>
-                    </div>
-                }
-                draggable={false}
-                resizable={false}
-                blockScroll
-            >
-                {detailLoading ? (
-                    <div className="flex flex-column justify-content-center align-items-center py-8">
-                        <i className="pi pi-spin pi-spinner text-4xl mb-3" style={{ color: 'var(--color-primary)' }}></i>
-                        <span className="text-xl font-medium text-secondary">Cargando detalle del XML...</span>
-                    </div>
-                ) : xmlDetail ? (
-                    <div className="detail-modal-content">
-                        {/* Proveedor Section */}
-                        <div className="section-container">
-                            <div className="section-title">
-                                <i className="pi pi-building"></i>
-                                <span>PROVEEDOR</span>
-                            </div>
-                            <div className="provider-info-card">
-                                <div className="info-group">
-                                    <label>NOMBRE O RAZÓN SOCIAL</label>
-                                    <span className="font-bold">{xmlDetail.proveedor.nombre}</span>
-                                </div>
-                                <div className="info-group">
-                                    <label>NIT</label>
-                                    <span className="font-bold">{xmlDetail.proveedor.nit}</span>
-                                </div>
-                                <div className="info-group">
-                                    <label>DIRECCIÓN</label>
-                                    <span className="font-bold">{xmlDetail.proveedor.direccion}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Productos Section */}
-                        <div className="section-container">
-                            <div className="section-title">
-                                <i className="pi pi-box"></i>
-                                <span>PRODUCTOS</span>
-                            </div>
-                            <DataTable
-                                value={xmlDetail.productos}
-                                className="products-detail-table"
-                                scrollable
-                                scrollHeight="400px"
-                                tableStyle={{ minWidth: '60rem' }}
-                                rowHover
-                            >
-                                <Column field="descripcion" header="DESCRIPCIÓN" headerClassName="table-header-v2" className="col-desc" />
-                                <Column field="referencia" header="REFERENCIA" headerClassName="table-header-v2" className="col-ref" />
-                                <Column field="cantidad" header="CANTIDAD" align="center" headerClassName="table-header-v2" className="col-qty font-bold" />
-                                <Column
-                                    field="valorUnitario"
-                                    header="VALOR UNITARIO"
-                                    align="right"
-                                    headerClassName="table-header-v2"
-                                    className="col-price"
-                                    body={(rowData) => rowData.valorUnitario.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}
-                                />
-                                <Column
-                                    field="porcentajeImpuesto"
-                                    header="IMPUESTO %"
-                                    align="center"
-                                    headerClassName="table-header-v2"
-                                    className="col-tax-pct"
-                                    body={(rowData) => `${rowData.porcentajeImpuesto}%`}
-                                />
-                                <Column
-                                    field="impuesto"
-                                    header="IMPUESTO"
-                                    align="right"
-                                    headerClassName="table-header-v2"
-                                    className="col-tax"
-                                    body={(rowData) => rowData.impuesto.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}
-                                />
-                                <Column
-                                    field="valorTotal"
-                                    header="TOTAL"
-                                    align="right"
-                                    headerClassName="table-header-v2"
-                                    className="col-total font-bold"
-                                    body={(rowData) => rowData.valorTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}
-                                />
-                            </DataTable>
-                        </div>
-
-                        {/* Totales Section */}
-                        <div className="section-container totals-section-container">
-                            <div className="totals-header-wrapper">
-                                <div className="section-title totals">
-                                    <i className="pi pi-calculator"></i>
-                                    <span>TOTALES</span>
-                                </div>
-                            </div>
-                            <div className="totals-content-wrapper">
-                                <div className="totals-row">
-                                    <span className="totals-label">SUBTOTAL</span>
-                                    <span className="totals-value">{xmlDetail.totales.subtotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>
-                                </div>
-                                <div className="totals-row">
-                                    <span className="totals-label">IMPUESTOS</span>
-                                    <span className="totals-value">{xmlDetail.totales.impuestoTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>
-                                </div>
-                                <div className="totals-row highlight">
-                                    <span className="totals-label">TOTAL FACTURA</span>
-                                    <span className="totals-value">{xmlDetail.totales.total.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ) : null}
-            </Dialog>
+                xmlDetail={xmlDetail}
+                loading={detailLoading}
+            />
 
             <Dialog
                 header={

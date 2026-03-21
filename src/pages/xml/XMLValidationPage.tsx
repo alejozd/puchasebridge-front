@@ -5,24 +5,63 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import PageTitle from '../../components/common/PageTitle';
+import XMLDetailDialog from '../../components/xml/XMLDetailDialog';
+import ValidationResultDialog from '../../components/xml/ValidationResultDialog';
 import { useXMLStore } from '../../store/xmlStore';
-import type { XMLFile } from '../../types/xml';
+import type { XMLFile, XmlDetalle } from '../../types/xml';
+import * as xmlService from '../../services/xmlService';
 import '../../styles/xml-validation.css';
 
 const XMLValidationPage: React.FC = () => {
     const { xmlList, loading, validating, fetchXMLList, validateFiles } = useXMLStore();
     const [selectedFiles, setSelectedFiles] = useState<XMLFile[]>([]);
+    const [displayDetailModal, setDisplayDetailModal] = useState(false);
+    const [xmlDetail, setXmlDetail] = useState<XmlDetalle | null>(null);
+    const [detailLoading, setDetailLoading] = useState(false);
+
+    const [displayValidationModal, setDisplayValidationModal] = useState(false);
+    const [validationInfo, setValidationInfo] = useState<{ fileName: string, errores?: string[], advertencias?: string[] } | null>(null);
+
     const toast = useRef<Toast>(null);
 
     useEffect(() => {
         fetchXMLList();
     }, [fetchXMLList]);
 
+    const handleViewDetail = async (fileName: string) => {
+        setDetailLoading(true);
+        setDisplayDetailModal(true);
+        try {
+            const data = await xmlService.parseXML(fileName);
+            setXmlDetail(data);
+        } catch (error: unknown) {
+            console.error('Error parsing XML:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo obtener el detalle del XML.',
+                life: 3000
+            });
+            setDisplayDetailModal(false);
+        } finally {
+            setDetailLoading(false);
+        }
+    };
+
     const onValidate = async (files: XMLFile[]) => {
         if (files.length === 0) return;
 
         try {
             await validateFiles(files.map(f => f.fileName));
+
+            // If single file validation, show issues if any
+            if (files.length === 1) {
+                const updatedFile = useXMLStore.getState().xmlList.find(f => f.fileName === files[0].fileName);
+                if (updatedFile && (updatedFile.estado === 'Con errores' || (updatedFile.advertenciasValidacion && updatedFile.advertenciasValidacion.length > 0))) {
+                    handleViewIssues(updatedFile);
+                }
+            }
+
             toast.current?.show({
                 severity: 'success',
                 summary: 'Validación completada',
@@ -44,7 +83,7 @@ const XMLValidationPage: React.FC = () => {
         const severityMap: Record<string, "secondary" | "success" | "danger" | "info" | "warning"> = {
             'Pendiente': 'secondary',
             'Validado': 'success',
-            'Error': 'danger',
+            'Con errores': 'danger',
             'Requiere homologación': 'warning'
         };
 
@@ -60,7 +99,7 @@ const XMLValidationPage: React.FC = () => {
     };
 
     const fileNameBodyTemplate = (rowData: XMLFile) => {
-        const isError = rowData.estado === 'Error';
+        const isError = rowData.estado === 'Con errores';
         return (
             <div className="filename-cell">
                 <i className={`pi pi-file ${isError ? 'text-error' : 'text-primary'}`} style={{ color: isError ? 'var(--color-error)' : 'var(--color-primary)' }}></i>
@@ -69,9 +108,18 @@ const XMLValidationPage: React.FC = () => {
         );
     };
 
+    const handleViewIssues = (file: XMLFile) => {
+        setValidationInfo({
+            fileName: file.fileName,
+            errores: file.erroresValidacion,
+            advertencias: file.advertenciasValidacion
+        });
+        setDisplayValidationModal(true);
+    };
+
     const actionBodyTemplate = (rowData: XMLFile) => {
         const isPending = rowData.estado === 'Pendiente' || !rowData.estado;
-        const isError = rowData.estado === 'Error';
+        const isError = rowData.estado === 'Con errores';
         const isHomologation = rowData.estado === 'Requiere homologación';
 
         return (
@@ -96,16 +144,25 @@ const XMLValidationPage: React.FC = () => {
                         tooltip="Homologar"
                     />
                 )}
-                {isError && (
+                {(isError || isHomologation) && (
                     <Button
                         icon="pi pi-exclamation-triangle"
                         text rounded
-                        severity="danger"
+                        severity={isError ? "danger" : "warning"}
                         size="small"
-                        tooltip="Ver errores"
+                        tooltip="Ver incidencias"
+                        onClick={() => handleViewIssues(rowData)}
                     />
                 )}
-                <Button icon="pi pi-eye" text rounded severity="secondary" size="small" tooltip="Ver detalle" />
+                <Button
+                    icon="pi pi-eye"
+                    text
+                    rounded
+                    severity="secondary"
+                    size="small"
+                    tooltip="Ver detalle"
+                    onClick={() => handleViewDetail(rowData.fileName)}
+                />
             </div>
         );
     };
@@ -114,7 +171,7 @@ const XMLValidationPage: React.FC = () => {
         pendientes: xmlList.filter(f => !f.estado || f.estado === 'Pendiente').length,
         validados: xmlList.filter(f => f.estado === 'Validado').length,
         homologacion: xmlList.filter(f => f.estado === 'Requiere homologación').length,
-        errores: xmlList.filter(f => f.estado === 'Error').length
+        errores: xmlList.filter(f => f.estado === 'Con errores').length
     };
 
     return (
@@ -226,6 +283,27 @@ const XMLValidationPage: React.FC = () => {
                     <span>Mostrando {xmlList.length} de {xmlList.length} registros</span>
                 </div>
             </div>
+
+            <XMLDetailDialog
+                visible={displayDetailModal}
+                onHide={() => {
+                    setDisplayDetailModal(false);
+                    setXmlDetail(null);
+                }}
+                xmlDetail={xmlDetail}
+                loading={detailLoading}
+            />
+
+            <ValidationResultDialog
+                visible={displayValidationModal}
+                onHide={() => {
+                    setDisplayValidationModal(false);
+                    setValidationInfo(null);
+                }}
+                fileName={validationInfo?.fileName || ''}
+                errores={validationInfo?.errores}
+                advertencias={validationInfo?.advertencias}
+            />
 
             {validating && (
                 <div className="validation-progress-bar">

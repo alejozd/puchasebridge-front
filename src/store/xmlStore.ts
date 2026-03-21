@@ -65,7 +65,8 @@ export const useXMLStore = create<XMLState>((set, get) => ({
             ...file,
             estado: result.estado,
             resultadoValidacion: result.resultadoValidacion,
-            erroresValidacion: result.errores
+            erroresValidacion: result.errores,
+            advertenciasValidacion: result.advertencias
           };
         }
         return file;
