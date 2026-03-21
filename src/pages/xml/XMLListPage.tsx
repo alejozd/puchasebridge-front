@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { DataTable } from 'primereact/datatable';
+import { DataTable, type DataTableSelectionMultipleChangeEvent } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
@@ -16,6 +16,7 @@ import {
 import { useXMLStore } from '../../store/xmlStore';
 import type { XMLFile, XmlDetalle } from '../../types/xml';
 import * as xmlService from '../../services/xmlService';
+import { fixEncoding } from '../../utils/textUtils';
 import '../../styles/xml-list.css';
 
 const XMLListPage: React.FC = () => {
@@ -503,7 +504,8 @@ const XMLListPage: React.FC = () => {
                     value={xmlList}
                     loading={loading}
                     selection={selectedFiles}
-                    onSelectionChange={(e) => setSelectedFiles(e.value as XMLFile[])}
+                    onSelectionChange={(e: DataTableSelectionMultipleChangeEvent<XMLFile[]>) => setSelectedFiles(e.value as XMLFile[])}
+                    selectionMode="multiple"
                     dataKey="fileName"
                     paginator
                     rows={10}
@@ -547,13 +549,13 @@ const XMLListPage: React.FC = () => {
                 footer={<Button label="Cerrar" onClick={() => setDisplayErrorModal(false)} className="p-button-text" />}
             >
                 <div className="py-2">
-                    <p className="mb-3 font-semibold">Archivo: <span className="text-primary">{selectedFileErrors?.name}</span></p>
+                    <p className="mb-3 font-semibold">Archivo: <span className="text-primary">{fixEncoding(selectedFileErrors?.name || "")}</span></p>
                     <ul className="p-0 m-0 list-none">
                         {selectedFileErrors?.errors && selectedFileErrors.errors.length > 0 ? (
                             selectedFileErrors.errors.map((error, index) => (
                                 <li key={index} className="flex align-items-start gap-2 mb-2 p-2 border-round surface-100">
                                     <i className="pi pi-times-circle text-red-500 mt-1"></i>
-                                    <span className="text-sm">{error}</span>
+                                    <span className="text-sm">{fixEncoding(error)}</span>
                                 </li>
                             ))
                         ) : (
