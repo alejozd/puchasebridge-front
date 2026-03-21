@@ -25,6 +25,13 @@ export const uploadXML = async (file: File): Promise<unknown> => {
   return response.data;
 };
 
+export const procesarDocumentos = async (files: string[]): Promise<XMLProcesarResponse> => {
+  const response = await axiosClient.post<XMLProcesarResponse>("/documentos/procesar", {
+    files,
+  });
+  return response.data;
+};
+
 export const parseXML = async (fileName: string): Promise<XmlDetalle> => {
   const response = await axiosClient.post<XmlDetalle>("/xml/parse", {
     fileName,

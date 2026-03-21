@@ -1,20 +1,23 @@
 import { create } from "zustand";
-import type { XMLFile, ValidationResult, BackendValidationResponse } from "../types/xml";
-import { getXMLList, uploadXML, validateXMLFile } from "../services/xmlService";
+import type { XMLFile, ValidationResult, BackendValidationResponse, XMLProcesarResponse } from "../types/xml";
+import { getXMLList, uploadXML, validateXMLFile, procesarDocumentos } from "../services/xmlService";
 
 interface XMLState {
   xmlList: XMLFile[];
   loading: boolean;
   validating: boolean;
+  processing: boolean;
   fetchXMLList: () => Promise<void>;
   uploadXML: (file: File) => Promise<void>;
   validateFiles: (fileNames: string[]) => Promise<void>;
+  processFiles: (fileNames: string[]) => Promise<XMLProcesarResponse>;
 }
 
 export const useXMLStore = create<XMLState>((set, get) => ({
   xmlList: [],
   loading: false,
   validating: false,
+  processing: false,
 
   fetchXMLList: async () => {
     set({ loading: true });
@@ -100,6 +103,32 @@ export const useXMLStore = create<XMLState>((set, get) => ({
     } catch (error) {
       console.error("Error validating XML files:", error);
       set({ validating: false });
+      throw error;
+    }
+  },
+
+  processFiles: async (fileNames: string[]) => {
+    set({ processing: true });
+    try {
+      const response = await procesarDocumentos(fileNames);
+
+      if (response.success) {
+        // Update local status if needed, or just refresh list
+        const currentList = get().xmlList;
+        const updatedList = currentList.map(file => {
+          if (fileNames.includes(file.fileName)) {
+            return { ...file, estado: 'Procesado' as const };
+          }
+          return file;
+        });
+        set({ xmlList: updatedList, processing: false });
+      } else {
+        set({ processing: false });
+      }
+      return response;
+    } catch (error) {
+      console.error("Error processing XML files:", error);
+      set({ processing: false });
       throw error;
     }
   },
