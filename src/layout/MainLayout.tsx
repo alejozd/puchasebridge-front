@@ -37,9 +37,15 @@ const MainLayout: React.FC = () => {
       <Tooltip target=".menu-item-tooltip" position="right" />
       <aside className="layout-sidebar">
         <div className="sidebar-header">
-          <div className="sidebar-logo-icon">
-            <i className="pi pi-link" style={{ fontSize: '1.2rem' }}></i>
-          </div>
+          <button
+            className="btn-toggle-sidebar"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            title={isCollapsed ? "Expandir" : "Colapsar"}
+          >
+            <div className="sidebar-logo-icon">
+              <i className={`pi ${isCollapsed ? "pi-bars" : "pi-align-left"}`} style={{ fontSize: '1.2rem' }}></i>
+            </div>
+          </button>
           <div className="sidebar-logo-text">
             <h1>PurchaseBridge</h1>
             <p>ERP Precision</p>
@@ -88,13 +94,6 @@ const MainLayout: React.FC = () => {
       <div className="layout-main-container">
         <header className="layout-topbar">
           <div className="topbar-left">
-            <button
-              className="btn-toggle-sidebar"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              title={isCollapsed ? "Expandir" : "Colapsar"}
-            >
-              <i className={`pi ${isCollapsed ? "pi-bars" : "pi-align-left"}`}></i>
-            </button>
           </div>
           <div className="topbar-right">
             <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
