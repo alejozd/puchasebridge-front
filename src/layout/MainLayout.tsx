@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { Tooltip } from "primereact/tooltip";
 import "../styles/layout.css";
 
 const MainLayout: React.FC = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const logout = useAuthStore((state) => state.logout);
   const usuario = useAuthStore((state) => state.usuario);
   const navigate = useNavigate();
@@ -31,7 +33,8 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="layout-wrapper">
+    <div className={`layout-wrapper ${isCollapsed ? "collapsed" : ""}`}>
+      <Tooltip target=".menu-item-tooltip" position="right" />
       <aside className="layout-sidebar">
         <div className="sidebar-header">
           <div className="sidebar-logo-icon">
@@ -43,7 +46,7 @@ const MainLayout: React.FC = () => {
           </div>
         </div>
 
-        <button className="btn-new-entry">
+        <button className="btn-new-entry" title={isCollapsed ? "Nueva Entrada" : ""}>
           <i className="pi pi-plus"></i>
           <span>Nueva Entrada</span>
         </button>
@@ -53,7 +56,8 @@ const MainLayout: React.FC = () => {
             <Link
               key={item.to}
               to={item.to}
-              className={`menu-item ${isActive(item.to) ? "active" : ""}`}
+              className={`menu-item ${isActive(item.to) ? "active" : ""} ${isCollapsed ? "menu-item-tooltip" : ""}`}
+              data-pr-tooltip={isCollapsed ? item.label : ""}
             >
               <i className={item.icon}></i>
               <span>{item.label}</span>
@@ -66,7 +70,8 @@ const MainLayout: React.FC = () => {
             <Link
               key={item.to}
               to={item.to}
-              className={`menu-item ${isActive(item.to) ? "active" : ""}`}
+              className={`menu-item ${isActive(item.to) ? "active" : ""} ${isCollapsed ? "menu-item-tooltip" : ""}`}
+              data-pr-tooltip={isCollapsed ? item.label : ""}
             >
               <i className={item.icon}></i>
               <span>{item.label}</span>
@@ -83,6 +88,13 @@ const MainLayout: React.FC = () => {
       <div className="layout-main-container">
         <header className="layout-topbar">
           <div className="topbar-left">
+            <button
+              className="btn-toggle-sidebar"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              title={isCollapsed ? "Expandir" : "Colapsar"}
+            >
+              <i className={`pi ${isCollapsed ? "pi-bars" : "pi-align-left"}`}></i>
+            </button>
           </div>
           <div className="topbar-right">
             <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
