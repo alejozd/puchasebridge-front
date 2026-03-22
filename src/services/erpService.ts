@@ -4,6 +4,7 @@ export interface ErpProducto {
     id: string;
     codigo: string;
     nombre: string;
+    referencia: string;
     unidadDefault?: string;
 }
 

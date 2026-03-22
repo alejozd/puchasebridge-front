@@ -151,12 +151,16 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
 
     const onErpProductSelect = (selected: ErpProducto, rowData: ProductoMapeo) => {
         const update: Partial<ProductoMapeo> = {
-            referenciaErp: selected.codigo
+            referenciaErp: selected.referencia
         };
 
-        // Bonus level: auto-select unit if suggested
+        // Auto-select unit if available in ERP product
         if (selected.unidadDefault) {
-            const matchingUnit = unidades.find(u => u.sigla === selected.unidadDefault || u.codigo === selected.unidadDefault);
+            const matchingUnit = unidades.find(u =>
+                u.sigla === selected.unidadDefault ||
+                u.codigo === selected.unidadDefault ||
+                u.nombre === selected.unidadDefault
+            );
             if (matchingUnit) {
                 update.unidadErp = matchingUnit.codigo;
             }
@@ -169,15 +173,15 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
         <div className="flex align-items-center">
             <AutoComplete
                 value={rowData.referenciaErp}
-                suggestions={rowData.erpSuggestions?.map(s => `[${s.codigo}] - ${s.nombre}`) || []}
+                suggestions={rowData.erpSuggestions?.map(s => `[${s.referencia}] - ${s.nombre}`) || []}
                 completeMethod={(e) => searchErpProducts(e, rowData)}
                 onChange={(e: AutoCompleteChangeEvent) => updateRowState(rowData.referenciaXml, { referenciaErp: e.value })}
                 onSelect={(e) => {
                     const selectedStr = e.value as string;
-                    const match = rowData.erpSuggestions?.find(s => `[${s.codigo}] - ${s.nombre}` === selectedStr);
+                    const match = rowData.erpSuggestions?.find(s => `[${s.referencia}] - ${s.nombre}` === selectedStr);
                     if (match) onErpProductSelect(match, rowData);
                 }}
-                placeholder="Buscar producto..."
+                placeholder="Buscar por referencia o nombre..."
                 className="w-full"
                 inputClassName="p-inputtext-sm w-full"
                 loadingIcon="pi pi-spin pi-spinner"
@@ -194,6 +198,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
             onChange={(e: DropdownChangeEvent) => updateRowState(rowData.referenciaXml, { unidadErp: e.value })}
             placeholder="Unidad"
             className="w-full p-inputtext-sm"
+            disabled={rowData.referenciaErp !== '' && rowData.erpSuggestions?.some(s => s.referencia === rowData.referenciaErp)}
+            tooltip={rowData.referenciaErp !== '' ? "La unidad se asigna automáticamente según el producto seleccionado" : ""}
+            tooltipOptions={{ position: 'top' }}
         />
     );
 
