@@ -7,6 +7,7 @@ import { Toast } from 'primereact/toast';
 import PageTitle from '../../components/common/PageTitle';
 import XMLDetailDialog from '../../components/xml/XMLDetailDialog';
 import ValidationResultDialog from '../../components/xml/ValidationResultDialog';
+import HomologacionModal from '../../components/xml/HomologacionModal';
 import { useXMLStore } from '../../store/xmlStore';
 import type { XMLFile, XmlDetalle } from '../../types/xml';
 import * as xmlService from '../../services/xmlService';
@@ -20,6 +21,8 @@ const XMLValidationPage: React.FC = () => {
     const [detailLoading, setDetailLoading] = useState(false);
 
     const [displayValidationModal, setDisplayValidationModal] = useState(false);
+    const [displayHomologacionModal, setDisplayHomologacionModal] = useState(false);
+    const [selectedFileName, setSelectedFileName] = useState<string>('');
     const [validationInfo, setValidationInfo] = useState<{ fileName: string, errores?: string[], advertencias?: string[] } | null>(null);
 
     const toast = useRef<Toast>(null);
@@ -117,6 +120,18 @@ const XMLValidationPage: React.FC = () => {
         setDisplayValidationModal(true);
     };
 
+    const handleHomologar = (fileName: string) => {
+        setSelectedFileName(fileName);
+        setDisplayHomologacionModal(true);
+    };
+
+    const handleHomologacionSuccess = async () => {
+        setDisplayHomologacionModal(false);
+        if (selectedFileName) {
+            await onValidate([{ fileName: selectedFileName } as XMLFile]);
+        }
+    };
+
     const actionBodyTemplate = (rowData: XMLFile) => {
         const isPending = rowData.estado === 'Pendiente' || !rowData.estado;
         const isError = rowData.estado === 'Con errores';
@@ -142,6 +157,7 @@ const XMLValidationPage: React.FC = () => {
                         severity="warning"
                         size="small"
                         tooltip="Homologar"
+                        onClick={() => handleHomologar(rowData.fileName)}
                     />
                 )}
                 {(isError || isHomologation) && (
@@ -303,6 +319,13 @@ const XMLValidationPage: React.FC = () => {
                 fileName={validationInfo?.fileName || ''}
                 errores={validationInfo?.errores}
                 advertencias={validationInfo?.advertencias}
+            />
+
+            <HomologacionModal
+                visible={displayHomologacionModal}
+                onHide={() => setDisplayHomologacionModal(false)}
+                fileName={selectedFileName}
+                onSuccess={handleHomologacionSuccess}
             />
 
             {validating && (
