@@ -22,6 +22,7 @@ interface HomologacionModalProps {
 interface ProductoMapeo extends ProductoPendiente {
     referenciaErp: string;
     unidadErp: string;
+    unidadErpLabel?: string;
     factor: number;
     loading?: boolean;
     searching?: boolean;
@@ -46,6 +47,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
                 ...p,
                 referenciaErp: '',
                 unidadErp: '',
+                unidadErpLabel: '',
                 factor: 1
             })));
             setUnidades(erpUnits);
@@ -156,13 +158,10 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
 
         // Auto-select unit if available in ERP product
         if (selected.unidadDefault) {
-            const matchingUnit = unidades.find(u =>
-                u.sigla === selected.unidadDefault ||
-                u.codigo === selected.unidadDefault ||
-                u.nombre === selected.unidadDefault
-            );
+            const matchingUnit = unidades.find(u => u.sigla === selected.unidadDefault);
             if (matchingUnit) {
                 update.unidadErp = matchingUnit.codigo;
+                update.unidadErpLabel = matchingUnit.sigla;
             }
         }
 
@@ -195,7 +194,13 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
             options={unidades}
             optionLabel="sigla"
             optionValue="codigo"
-            onChange={(e: DropdownChangeEvent) => updateRowState(rowData.referenciaXml, { unidadErp: e.value })}
+            onChange={(e: DropdownChangeEvent) => {
+                const selectedUnit = unidades.find(u => u.codigo === e.value);
+                updateRowState(rowData.referenciaXml, {
+                    unidadErp: e.value,
+                    unidadErpLabel: selectedUnit?.sigla
+                });
+            }}
             placeholder="Unidad"
             className="w-full p-inputtext-sm"
             disabled={rowData.referenciaErp !== '' && rowData.erpSuggestions?.some(s => s.referencia === rowData.referenciaErp)}
