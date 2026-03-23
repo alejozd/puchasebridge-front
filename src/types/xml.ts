@@ -79,6 +79,7 @@ export interface XMLFileItem {
   estado: string;
   fechaCarga: string;
   fecha_carga?: string;
+  size: number;
 }
 
 export interface XMLProduct {

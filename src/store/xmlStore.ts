@@ -32,9 +32,10 @@ export const useXMLStore = create<XMLState>((set, get) => ({
         proveedor: item.proveedor,
         estado: item.estado as XMLFile['estado'],
         lastModified: item.fechaCarga,
-        size: 0, // temporal
+        size: item.size,
         tipoDocumento: 'Factura'
       }));
+      console.log('[MAPPED SIZE]', processedData);
       set({ xmlList: processedData, loading: false });
     } catch (error) {
       console.error("Error fetching XML list:", error);
@@ -54,9 +55,10 @@ export const useXMLStore = create<XMLState>((set, get) => ({
         proveedor: item.proveedor,
         estado: item.estado as XMLFile['estado'],
         lastModified: item.fechaCarga,
-        size: 0, // temporal
+        size: item.size,
         tipoDocumento: 'Factura'
       }));
+      console.log('[MAPPED SIZE]', processedData);
       set({ xmlList: processedData, loading: false });
     } catch (error) {
       console.error("Error uploading XML:", error);
