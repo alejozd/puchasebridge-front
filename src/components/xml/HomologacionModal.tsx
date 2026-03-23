@@ -5,7 +5,6 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { AutoComplete, type AutoCompleteCompleteEvent, type AutoCompleteChangeEvent } from 'primereact/autocomplete';
-import { Dropdown, type DropdownChangeEvent } from 'primereact/dropdown';
 import { InputNumber, type InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import { Toast } from 'primereact/toast';
 import * as xmlService from '../../services/xmlService';
@@ -28,6 +27,7 @@ interface ProductoMapeo extends ProductoPendiente {
     loading?: boolean;
     searching?: boolean;
     erpSuggestions?: ErpProducto[];
+    isEditing?: boolean;
 }
 
 const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, fileName, onSuccess }) => {
@@ -157,72 +157,64 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
     };
 
     const onErpProductSelect = (selected: ErpProducto, rowData: ProductoMapeo) => {
-        const update: Partial<ProductoMapeo> = {
-            referenciaErp: selected.referencia
-        };
+        const matchingUnit = unidades.find(u => u.sigla === selected.unidadDefault);
 
-        // Auto-select unit if available in ERP product
-        if (selected.unidadDefault) {
-            const matchingUnit = unidades.find(u => u.sigla === selected.unidadDefault);
-            if (matchingUnit) {
-                update.unidadErp = matchingUnit.codigo;
-                update.unidadErpLabel = matchingUnit.sigla;
-            }
-        }
+        const update: Partial<ProductoMapeo> = {
+            referenciaErp: selected.referencia,
+            unidadErp: matchingUnit?.codigo || '',
+            unidadErpLabel: matchingUnit?.sigla || ''
+        };
 
         updateRowState(rowData.referenciaXML, update);
     };
 
     const statusBodyTemplate = (rowData: ProductoMapeo) => {
-        // Temporal log to check backend structure
-        console.log('Modal Row Data Info:', rowData);
-
         const estado = rowData.estado ? rowData.estado.toLowerCase() : 'pendiente';
         const severity = estado === 'homologado' ? 'success' : 'warning';
 
         return <Tag value={estado.toUpperCase()} severity={severity} />;
     };
 
-    const erpReferenceEditor = (rowData: ProductoMapeo) => (
-        <div className="flex align-items-center">
-            <AutoComplete
-                value={rowData.referenciaErp}
-                suggestions={rowData.erpSuggestions?.map(s => `[${s.referencia}] - ${s.nombre}`) || []}
-                completeMethod={(e) => searchErpProducts(e, rowData)}
-                onChange={(e: AutoCompleteChangeEvent) => updateRowState(rowData.referenciaXML, { referenciaErp: e.value })}
-                onSelect={(e) => {
-                    const selectedStr = e.value as string;
-                    const match = rowData.erpSuggestions?.find(s => `[${s.referencia}] - ${s.nombre}` === selectedStr);
-                    if (match) onErpProductSelect(match, rowData);
-                }}
-                placeholder="Buscar por referencia o nombre..."
-                className="w-full"
-                inputClassName="p-inputtext-sm w-full"
-                loadingIcon="pi pi-spin pi-spinner"
-            />
-        </div>
-    );
+    const productErpTemplate = (rowData: ProductoMapeo) => {
+        const isHomologado = rowData.estado?.toLowerCase() === 'homologado';
+        const showEditor = !isHomologado || rowData.isEditing;
 
-    const erpUnitEditor = (rowData: ProductoMapeo) => (
-        <Dropdown
-            value={rowData.unidadErp}
-            options={unidades}
-            optionLabel="sigla"
-            optionValue="codigo"
-            onChange={(e: DropdownChangeEvent) => {
-                const selectedUnit = unidades.find(u => u.codigo === e.value);
-                updateRowState(rowData.referenciaXML, {
-                    unidadErp: e.value,
-                    unidadErpLabel: selectedUnit?.sigla
-                });
-            }}
-            placeholder="Unidad"
-            className="w-full p-inputtext-sm"
-            disabled={rowData.referenciaErp !== '' && rowData.erpSuggestions?.some(s => s.referencia === rowData.referenciaErp)}
-            tooltip={rowData.referenciaErp !== '' ? "La unidad se asigna automáticamente según el producto seleccionado" : ""}
-            tooltipOptions={{ position: 'top' }}
-        />
-    );
+        if (!showEditor) {
+            return (
+                <div className="flex flex-column gap-1 py-1">
+                    <span className="text-sm font-semibold text-primary">{rowData.referenciaErp}</span>
+                    <span className="text-xs text-secondary font-medium">Unidad ERP: <span className="text-dark">{rowData.unidadErpLabel || rowData.unidadErp || '---'}</span></span>
+                </div>
+            );
+        }
+
+        return (
+            <div className="flex flex-column gap-2">
+                <AutoComplete
+                    value={rowData.referenciaErp}
+                    suggestions={rowData.erpSuggestions?.map(s => `[${s.referencia}] - ${s.nombre}`) || []}
+                    completeMethod={(e) => searchErpProducts(e, rowData)}
+                    onChange={(e: AutoCompleteChangeEvent) => updateRowState(rowData.referenciaXML, { referenciaErp: e.value })}
+                    onSelect={(e) => {
+                        const selectedStr = e.value as string;
+                        const match = rowData.erpSuggestions?.find(s => `[${s.referencia}] - ${s.nombre}` === selectedStr);
+                        if (match) onErpProductSelect(match, rowData);
+                    }}
+                    placeholder="Buscar producto..."
+                    className="w-full"
+                    inputClassName="p-inputtext-sm w-full"
+                    loadingIcon="pi pi-spin pi-spinner"
+                />
+                {rowData.referenciaErp && (
+                     <div className="px-2 py-1 bg-bluegray-50 border-round">
+                        <span className="text-xs font-bold text-secondary text-uppercase">UNIDAD ASIGNADA: </span>
+                        <span className="text-xs font-bold text-primary">{rowData.unidadErpLabel || rowData.unidadErp || 'SIN UNIDAD'}</span>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
 
     const factorEditor = (rowData: ProductoMapeo) => (
         <InputNumber
@@ -236,17 +228,67 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
         />
     );
 
-    const actionTemplate = (rowData: ProductoMapeo) => (
-        <Button
-            icon="pi pi-save"
-            text
-            rounded
-            severity="success"
-            onClick={() => handleSaveRow(rowData)}
-            loading={rowData.loading}
-            disabled={rowData.loading || rowData.searching}
-        />
-    );
+    const actionTemplate = (rowData: ProductoMapeo) => {
+        const estado = rowData.estado ? rowData.estado.toLowerCase() : 'pendiente';
+        const isHomologado = estado === 'homologado';
+        const isEditing = rowData.isEditing;
+
+        if (!isHomologado || isEditing) {
+            return (
+                <div className="actions-cell flex gap-2 justify-content-center">
+                    <Button
+                        icon="pi pi-save"
+                        text
+                        rounded
+                        severity="success"
+                        onClick={() => handleSaveRow(rowData)}
+                        loading={rowData.loading}
+                        disabled={rowData.loading || rowData.searching || !rowData.referenciaErp}
+                        tooltip="Guardar"
+                    />
+                    {isEditing && (
+                        <Button
+                            icon="pi pi-times"
+                            text
+                            rounded
+                            severity="secondary"
+                            onClick={() => updateRowState(rowData.referenciaXML, { isEditing: false })}
+                            tooltip="Cancelar"
+                        />
+                    )}
+                </div>
+            );
+        }
+
+        return (
+            <div className="actions-cell flex gap-2 justify-content-center">
+                <Button
+                    icon="pi pi-pencil"
+                    text
+                    rounded
+                    severity="info"
+                    onClick={() => updateRowState(rowData.referenciaXML, { isEditing: true })}
+                    tooltip="Editar"
+                />
+                <Button
+                    icon="pi pi-refresh"
+                    text
+                    rounded
+                    severity="danger"
+                    onClick={() => {
+                        updateRowState(rowData.referenciaXML, {
+                            referenciaErp: '',
+                            unidadErp: '',
+                            unidadErpLabel: '',
+                            estado: 'pendiente',
+                            isEditing: false
+                        });
+                    }}
+                    tooltip="Limpiar"
+                />
+            </div>
+        );
+    };
 
     return (
         <Dialog
@@ -277,14 +319,31 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
                     responsiveLayout="scroll"
                     rowHover
                 >
-                    <Column field="referenciaXML" header="REF XML" style={{ width: '12%' }} className="font-semibold text-xs" />
-                    <Column field="nombreProducto" header="NOMBRE PRODUCTO" style={{ width: '18%' }} className="text-xs" />
-                    <Column field="unidadXML" header="UND XML" style={{ width: '8%' }} align="center" className="text-xs" />
-                    <Column header="REF ERP (Buscador)" body={erpReferenceEditor} style={{ width: '22%' }} />
-                    <Column header="UND ERP" body={erpUnitEditor} style={{ width: '12%' }} />
-                    <Column header="FACTOR" body={factorEditor} style={{ width: '8%' }} />
-                    <Column field="estado" header="ESTADO" body={statusBodyTemplate} style={{ width: '10%' }} align="center" />
-                    <Column header="ACCIONES" body={actionTemplate} style={{ width: '8%' }} align="center" />
+                    <Column
+                        header="PRODUCTO XML"
+                        body={(rowData: ProductoMapeo) => (
+                            <div className="flex flex-column gap-1">
+                                <div className="font-bold text-dark">{rowData.nombreProducto}</div>
+                                <div className="text-xs text-secondary font-mono">{rowData.referenciaXML}</div>
+                            </div>
+                        )}
+                        headerClassName="table-header-cell"
+                        style={{ width: '25%' }}
+                    />
+                    <Column
+                        header="UND XML"
+                        body={(rowData: ProductoMapeo) => (
+                            <div className="text-xs font-semibold">
+                                {rowData.unidadXML} - {rowData.unidadXMLNombre}
+                            </div>
+                        )}
+                        headerClassName="table-header-cell"
+                        style={{ width: '15%' }}
+                    />
+                    <Column header="PRODUCTO EN ERP" body={productErpTemplate} style={{ width: '35%' }} headerClassName="table-header-cell" />
+                    <Column header="FACTOR" body={factorEditor} style={{ width: '8%' }} headerClassName="table-header-cell" />
+                    <Column field="estado" header="ESTADO" body={statusBodyTemplate} style={{ width: '10%' }} align="center" headerClassName="table-header-cell" />
+                    <Column header="ACCIONES" body={actionTemplate} style={{ width: '8%' }} align="center" headerClassName="table-header-cell" />
                 </DataTable>
             </div>
             <div className="flex justify-content-end mt-4 gap-2">

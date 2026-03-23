@@ -114,6 +114,7 @@ export interface ProductoPendiente {
   referenciaXML: string;
   nombreProducto: string;
   unidadXML: string;
+  unidadXMLNombre: string;
   estado: string;
 }
 

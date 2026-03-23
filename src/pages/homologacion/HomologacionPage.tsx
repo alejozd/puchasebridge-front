@@ -20,6 +20,7 @@ interface ProductoMapeoPage extends ProductoPendiente {
     unidadErp?: string;
     factor: number;
     suggestions?: ErpProducto[];
+    isEditing?: boolean;
 }
 
 const HomologacionPage: React.FC = () => {
@@ -118,22 +119,16 @@ const HomologacionPage: React.FC = () => {
     };
 
     const onProductSelect = (erpProd: ErpProducto, rowData: ProductoMapeoPage) => {
+        const matchingUnit = unidades.find(u => u.sigla === erpProd.unidadDefault);
+
         setItems(prev => prev.map(item => {
             if (item.referenciaXML === rowData.referenciaXML) {
-                const update: Partial<ProductoMapeoPage> = {
+                return {
+                    ...item,
                     productoSistema: `[${erpProd.referencia}] ${erpProd.nombre}`,
                     referenciaErp: erpProd.referencia,
-                    estado: 'homologado'
+                    unidadErp: matchingUnit?.codigo || '',
                 };
-
-                if (erpProd.unidadDefault) {
-                    const matchingUnit = unidades.find(u => u.sigla === erpProd.unidadDefault);
-                    if (matchingUnit) {
-                        update.unidadErp = matchingUnit.codigo;
-                    }
-                }
-
-                return { ...item, ...update };
             }
             return item;
         }));
@@ -196,11 +191,18 @@ const HomologacionPage: React.FC = () => {
                     productoSistema: undefined,
                     referenciaErp: undefined,
                     unidadErp: undefined,
-                    estado: 'pendiente'
+                    estado: 'pendiente',
+                    isEditing: false
                 };
             }
             return item;
         }));
+    };
+
+    const handleEdit = (referenciaXML: string) => {
+        setItems(prevItems => prevItems.map(item =>
+            item.referenciaXML === referenciaXML ? { ...item, isEditing: true } : item
+        ));
     };
 
     const handleSaveAll = () => {
@@ -213,9 +215,6 @@ const HomologacionPage: React.FC = () => {
     };
 
     const statusBodyTemplate = (rowData: ProductoMapeoPage) => {
-        // Temporal log to check backend structure
-        console.log('Row Data Info:', rowData);
-
         const estado = rowData.estado ? rowData.estado.toLowerCase() : 'pendiente';
         const severity = estado === 'homologado' ? 'success' : 'warning';
 
@@ -229,6 +228,21 @@ const HomologacionPage: React.FC = () => {
     };
 
     const productSystemTemplate = (rowData: ProductoMapeoPage) => {
+        const isHomologado = rowData.estado?.toLowerCase() === 'homologado';
+        const showEditor = !isHomologado || rowData.isEditing;
+
+        if (!showEditor) {
+            const unitLabel = unidades.find(u => u.codigo === rowData.unidadErp)?.sigla || rowData.unidadErp || '---';
+            return (
+                <div className="flex flex-column gap-1 py-1">
+                    <span className="text-sm font-semibold text-primary">{rowData.productoSistema}</span>
+                    <span className="text-xs text-secondary font-medium">Unidad ERP: <span className="text-dark">{unitLabel}</span></span>
+                </div>
+            );
+        }
+
+        const selectedUnitLabel = unidades.find(u => u.codigo === rowData.unidadErp)?.sigla || '';
+
         return (
             <div className="flex flex-column gap-2">
                 <div className="autocomplete-wrapper">
@@ -247,25 +261,16 @@ const HomologacionPage: React.FC = () => {
                             const match = rowData.suggestions?.find(s => `[${s.referencia}] ${s.nombre}` === selectedStr);
                             if (match) onProductSelect(match, rowData);
                         }}
-                        placeholder="Buscar en Helisa..."
+                        placeholder="Buscar producto en ERP..."
                         className="w-full"
                         inputClassName="product-autocomplete-input"
                     />
                 </div>
                 {rowData.referenciaErp && (
-                    <Dropdown
-                        value={rowData.unidadErp}
-                        options={unidades}
-                        optionLabel="sigla"
-                        optionValue="codigo"
-                        onChange={(e: DropdownChangeEvent) => {
-                            setItems(prev => prev.map(item =>
-                                item.referenciaXML === rowData.referenciaXML ? { ...item, unidadErp: e.value } : item
-                            ));
-                        }}
-                        placeholder="Unidad ERP"
-                        className="w-full p-inputtext-sm"
-                    />
+                    <div className="px-2 py-1 bg-bluegray-50 border-round">
+                        <span className="text-xs font-bold text-secondary">UNIDAD ASIGNADA: </span>
+                        <span className="text-xs font-bold text-primary">{selectedUnitLabel || rowData.unidadErp || 'SIN UNIDAD'}</span>
+                    </div>
                 )}
             </div>
         );
@@ -274,24 +279,55 @@ const HomologacionPage: React.FC = () => {
     const actionBodyTemplate = (rowData: ProductoMapeoPage) => {
         const estado = rowData.estado ? rowData.estado.toLowerCase() : 'pendiente';
         const isHomologado = estado === 'homologado';
+        const isEditing = rowData.isEditing;
+
+        if (!isHomologado || isEditing) {
+            return (
+                <div className="actions-cell">
+                    <Button
+                        icon="pi pi-check"
+                        text
+                        rounded
+                        severity="success"
+                        onClick={() => handleSave(rowData)}
+                        tooltip="Guardar Homologación"
+                        disabled={!rowData.referenciaErp}
+                    />
+                    {isEditing && (
+                         <Button
+                            icon="pi pi-times"
+                            text
+                            rounded
+                            severity="secondary"
+                            onClick={() => {
+                                setItems(prev => prev.map(item =>
+                                    item.referenciaXML === rowData.referenciaXML ? { ...item, isEditing: false } : item
+                                ));
+                            }}
+                            tooltip="Cancelar Edición"
+                        />
+                    )}
+                </div>
+            );
+        }
 
         return (
             <div className="actions-cell">
                 <Button
-                    icon="pi pi-check"
+                    icon="pi pi-pencil"
                     text
                     rounded
-                    onClick={() => handleSave(rowData)}
-                    tooltip="Guardar"
-                    disabled={isHomologado}
+                    severity="info"
+                    onClick={() => handleEdit(rowData.referenciaXML)}
+                    tooltip="Editar"
                 />
                 <Button
-                    icon={isHomologado ? "pi pi-pencil" : "pi pi-refresh"}
+                    icon="pi pi-refresh"
                     text
                     rounded
-                    severity="secondary"
+                    severity="danger"
                     onClick={() => handleClear(rowData.referenciaXML)}
-                    tooltip={isHomologado ? "Editar" : "Limpiar"}
+                    tooltip="Limpiar / Eliminar"
                 />
             </div>
         );
@@ -389,38 +425,39 @@ const HomologacionPage: React.FC = () => {
                     rowHover
                     rowClassName={(data) => {
                         const estado = data.estado ? data.estado.toLowerCase() : 'pendiente';
-                        return { 'row-pending': estado === 'pendiente' };
+                        return {
+                            'row-pending': estado === 'pendiente',
+                            'row-homologated': estado === 'homologado'
+                        };
                     }}
                     emptyMessage={selectedXml ? "No se encontraron productos para homologar en este archivo." : "Por favor seleccione un archivo XML."}
                 >
                     <Column
                         header="PRODUCTO XML"
                         body={(rowData: ProductoMapeoPage) => (
-                            <div className="product-xml-cell">
-                                <div className="font-bold">{rowData.nombreProducto}</div>
-                                <div className="text-[10px] text-secondary">{selectedXml}</div>
+                            <div className="flex flex-column gap-1">
+                                <div className="font-bold text-dark">{rowData.nombreProducto}</div>
+                                <div className="text-xs text-secondary font-mono">{rowData.referenciaXML}</div>
                             </div>
                         )}
                         headerClassName="table-header-cell"
+                        style={{ width: '30%' }}
                     />
                     <Column
-                        field="referenciaXML"
-                        header="CÓDIGO XML"
+                        header="UND XML"
                         body={(rowData: ProductoMapeoPage) => (
-                            <span className="font-mono text-xs text-secondary">{rowData.referenciaXML}</span>
+                            <div className="text-xs font-semibold">
+                                {rowData.unidadXML} - {rowData.unidadXMLNombre}
+                            </div>
                         )}
                         headerClassName="table-header-cell"
+                        style={{ width: '15%' }}
                     />
                     <Column
-                        field="unidadXML"
-                        header="UND XML"
-                        headerClassName="table-header-cell"
-                        align="center"
-                    />
-                    <Column
-                        header="PRODUCTO EN SISTEMA (HELISA)"
+                        header="PRODUCTO EN ERP"
                         body={productSystemTemplate}
                         headerClassName="table-header-cell"
+                        style={{ width: '35%' }}
                     />
                     <Column
                         field="estado"
