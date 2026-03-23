@@ -95,7 +95,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
             const payload: HomologarPayload = {
                 fileName,
                 referenciaXml: rowData.referenciaXml,
-                unidadXml: rowData.unidad,
+                unidadXml: rowData.unidadXml,
                 referenciaErp: rowData.referenciaErp,
                 unidadErp: rowData.unidadErp,
                 factor: rowData.factor
@@ -265,7 +265,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
                 >
                     <Column field="referenciaXml" header="REF XML" style={{ width: '12%' }} className="font-semibold text-xs" />
                     <Column field="nombre" header="NOMBRE PRODUCTO" style={{ width: '22%' }} className="text-xs" />
-                    <Column field="unidad" header="UND XML" style={{ width: '8%' }} align="center" className="text-xs" />
+                    <Column field="unidadXml" header="UND XML" style={{ width: '8%' }} align="center" className="text-xs" />
                     <Column header="REF ERP (Buscador)" body={erpReferenceEditor} style={{ width: '25%' }} />
                     <Column header="UND ERP" body={erpUnitEditor} style={{ width: '15%' }} />
                     <Column header="FACTOR" body={factorEditor} style={{ width: '10%' }} />
