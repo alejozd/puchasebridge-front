@@ -34,6 +34,7 @@ const XMLListPage: React.FC = () => {
     const [files, setFiles] = useState<File[]>([]);
 
     useEffect(() => {
+        console.log('[PAGE] XMLListPage mounted');
         const loadData = async () => {
             try {
                 await fetchXMLList();

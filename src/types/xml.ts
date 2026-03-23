@@ -71,11 +71,15 @@ export interface BackendValidationResponse {
 // New interfaces for Procesamiento de XML
 export interface XMLFileItem {
   id: number;
-  file_name: string;
-  proveedor_nombre: string;
-  fecha_documento: string;
-  estado: 'VALIDADO' | 'PENDIENTE' | 'ERROR' | 'PROCESADO';
-  fecha_carga: string;
+  fileName: string;
+  file_name?: string;
+  proveedor: string;
+  proveedor_nombre?: string;
+  fecha_documento?: string;
+  estado: string;
+  fechaCarga: string;
+  fecha_carga?: string;
+  size: number;
 }
 
 export interface XMLProduct {
@@ -114,7 +118,7 @@ export interface ProductoPendiente {
   referenciaXML: string;
   nombreProducto: string;
   unidadXML: string;
-  unidadXMLNombre: string;
+  unidadXMLNombre?: string;
   estado: string;
 }
 

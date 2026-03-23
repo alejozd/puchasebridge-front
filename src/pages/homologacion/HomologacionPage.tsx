@@ -56,7 +56,11 @@ const HomologacionPage: React.FC = () => {
             ]);
 
             setItems(pendingProducts.map(p => ({
-                ...p,
+                referenciaXML: p.referenciaXML,
+                nombreProducto: p.nombreProducto,
+                unidadXML: p.unidadXML,
+                unidadXMLNombre: p.unidadXMLNombre,
+                estado: p.estado || 'PENDIENTE',
                 factor: 1
             })));
             setUnidades(erpUnits);
@@ -188,9 +192,9 @@ const HomologacionPage: React.FC = () => {
             if (item.referenciaXML === referenciaXML) {
                 return {
                     ...item,
-                    productoSistema: undefined,
-                    referenciaErp: undefined,
-                    unidadErp: undefined,
+                    productoSistema: '',
+                    referenciaErp: '',
+                    unidadErp: '',
                     estado: 'pendiente',
                     isEditing: false
                 };
@@ -447,7 +451,7 @@ const HomologacionPage: React.FC = () => {
                         header="UND XML"
                         body={(rowData: ProductoMapeoPage) => (
                             <div className="text-xs font-semibold">
-                                {rowData.unidadXML} - {rowData.unidadXMLNombre}
+                                {rowData.unidadXML}{rowData.unidadXMLNombre ? ` - ${rowData.unidadXMLNombre}` : ''}
                             </div>
                         )}
                         headerClassName="table-header-cell"

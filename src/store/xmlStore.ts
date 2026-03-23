@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { XMLFile, ValidationResult, BackendValidationResponse, XMLProcesarResponse } from "../types/xml";
-import { getXMLList, uploadXML, validateXMLFile, procesarDocumentos } from "../services/xmlService";
+import { getXMLFiles, uploadXML, validateXMLFile, procesarDocumentos } from "../services/xmlService";
 import { fixEncoding } from "../utils/textUtils";
 
 interface XMLState {
@@ -21,14 +21,21 @@ export const useXMLStore = create<XMLState>((set, get) => ({
   processing: false,
 
   fetchXMLList: async () => {
+    console.log('[STORE] fetchXMLList ejecutado');
     set({ loading: true });
     try {
-      const data = await getXMLList();
+      const data = await getXMLFiles();
+      console.log('[STORE] response XMLList:', data);
       // Ensure default state is set if missing
-      const processedData = data.map(file => ({
-        ...file,
-        estado: file.estado || 'Pendiente'
+      const processedData: XMLFile[] = data.map(item => ({
+        fileName: item.fileName,
+        proveedor: item.proveedor,
+        estado: item.estado as XMLFile['estado'],
+        lastModified: item.fechaCarga,
+        size: item.size,
+        tipoDocumento: 'Factura'
       }));
+      console.log('[MAPPED SIZE]', processedData);
       set({ xmlList: processedData, loading: false });
     } catch (error) {
       console.error("Error fetching XML list:", error);
@@ -42,11 +49,16 @@ export const useXMLStore = create<XMLState>((set, get) => ({
     try {
       await uploadXML(file);
       // Refresh the list after successful upload
-      const data = await getXMLList();
-      const processedData = data.map(f => ({
-        ...f,
-        estado: f.estado || 'Pendiente'
+      const data = await getXMLFiles();
+      const processedData: XMLFile[] = data.map(item => ({
+        fileName: item.fileName,
+        proveedor: item.proveedor,
+        estado: item.estado as XMLFile['estado'],
+        lastModified: item.fechaCarga,
+        size: item.size,
+        tipoDocumento: 'Factura'
       }));
+      console.log('[MAPPED SIZE]', processedData);
       set({ xmlList: processedData, loading: false });
     } catch (error) {
       console.error("Error uploading XML:", error);
