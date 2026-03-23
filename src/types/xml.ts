@@ -119,6 +119,7 @@ export interface ProductoPendiente {
 export interface HomologarPayload {
   fileName: string;
   referenciaXml: string;
+  unidadXml: string;
   referenciaErp: string;
   unidadErp: string;
   factor: number;

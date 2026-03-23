@@ -95,6 +95,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
             const payload: HomologarPayload = {
                 fileName,
                 referenciaXml: rowData.referenciaXml,
+                unidadXml: rowData.unidad,
                 referenciaErp: rowData.referenciaErp,
                 unidadErp: rowData.unidadErp,
                 factor: rowData.factor
