@@ -27,12 +27,12 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       const data = await getXMLFiles();
       console.log('[STORE] response XMLList:', data);
       // Ensure default state is set if missing
-      const processedData: XMLFile[] = data.map(file => ({
-        fileName: file.file_name,
-        size: 0,
-        lastModified: file.fecha_carga,
-        estado: (file.estado.charAt(0).toUpperCase() + file.estado.slice(1).toLowerCase()) as XMLFile['estado'],
-        proveedor: file.proveedor_nombre,
+      const processedData: XMLFile[] = data.map(item => ({
+        fileName: item.fileName,
+        proveedor: item.proveedor,
+        estado: item.estado as XMLFile['estado'],
+        lastModified: item.fechaCarga,
+        size: 0, // temporal
         tipoDocumento: 'Factura'
       }));
       set({ xmlList: processedData, loading: false });
@@ -49,12 +49,12 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       await uploadXML(file);
       // Refresh the list after successful upload
       const data = await getXMLFiles();
-      const processedData: XMLFile[] = data.map(f => ({
-        fileName: f.file_name,
-        size: 0,
-        lastModified: f.fecha_carga,
-        estado: (f.estado.charAt(0).toUpperCase() + f.estado.slice(1).toLowerCase()) as XMLFile['estado'],
-        proveedor: f.proveedor_nombre,
+      const processedData: XMLFile[] = data.map(item => ({
+        fileName: item.fileName,
+        proveedor: item.proveedor,
+        estado: item.estado as XMLFile['estado'],
+        lastModified: item.fechaCarga,
+        size: 0, // temporal
         tipoDocumento: 'Factura'
       }));
       set({ xmlList: processedData, loading: false });
