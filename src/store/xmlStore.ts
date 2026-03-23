@@ -21,9 +21,11 @@ export const useXMLStore = create<XMLState>((set, get) => ({
   processing: false,
 
   fetchXMLList: async () => {
+    console.log('[STORE] fetchXMLList ejecutado');
     set({ loading: true });
     try {
       const data = await getXMLFiles();
+      console.log('[STORE] response XMLList:', data);
       // Ensure default state is set if missing
       const processedData: XMLFile[] = data.map(file => ({
         fileName: file.file_name,

@@ -28,6 +28,7 @@ const XMLValidationPage: React.FC = () => {
     const toast = useRef<Toast>(null);
 
     useEffect(() => {
+        console.log('[PAGE] XMLValidationPage mounted');
         fetchXMLList();
     }, [fetchXMLList]);
 
