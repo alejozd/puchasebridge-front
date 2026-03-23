@@ -174,8 +174,13 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
     };
 
     const statusBodyTemplate = (rowData: ProductoMapeo) => {
-        const severity = rowData.estado?.toLowerCase() === 'homologado' ? 'success' : 'warning';
-        return <Tag value={rowData.estado?.toUpperCase() || 'PENDIENTE'} severity={severity} />;
+        // Temporal log to check backend structure
+        console.log('Modal Row Data Info:', rowData);
+
+        const estado = rowData.estado ? rowData.estado.toLowerCase() : 'pendiente';
+        const severity = estado === 'homologado' ? 'success' : 'warning';
+
+        return <Tag value={estado.toUpperCase()} severity={severity} />;
     };
 
     const erpReferenceEditor = (rowData: ProductoMapeo) => (

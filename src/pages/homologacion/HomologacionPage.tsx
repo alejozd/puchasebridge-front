@@ -87,16 +87,20 @@ const HomologacionPage: React.FC = () => {
         let result = items;
 
         if (statusFilter !== 'todos') {
-            result = result.filter(item => item.estado.toLowerCase() === statusFilter);
+            result = result.filter(item => {
+                const estado = item.estado ? item.estado.toLowerCase() : 'pendiente';
+                return estado === statusFilter;
+            });
         }
 
         if (globalFilter) {
             const query = globalFilter.toLowerCase();
-            result = result.filter(item =>
-                item.nombreProducto.toLowerCase().includes(query) ||
-                item.referenciaXML.toLowerCase().includes(query) ||
-                (item.productoSistema && item.productoSistema.toLowerCase().includes(query))
-            );
+            result = result.filter(item => {
+                const nombre = item.nombreProducto?.toLowerCase() || '';
+                const ref = item.referenciaXML?.toLowerCase() || '';
+                const sistema = item.productoSistema?.toLowerCase() || '';
+                return nombre.includes(query) || ref.includes(query) || sistema.includes(query);
+            });
         }
 
         return result;
@@ -209,10 +213,15 @@ const HomologacionPage: React.FC = () => {
     };
 
     const statusBodyTemplate = (rowData: ProductoMapeoPage) => {
-        const severity = rowData.estado.toLowerCase() === 'homologado' ? 'success' : 'warning';
+        // Temporal log to check backend structure
+        console.log('Row Data Info:', rowData);
+
+        const estado = rowData.estado ? rowData.estado.toLowerCase() : 'pendiente';
+        const severity = estado === 'homologado' ? 'success' : 'warning';
+
         return (
             <Tag
-                value={rowData.estado.toUpperCase()}
+                value={estado.toUpperCase()}
                 severity={severity}
                 className="status-tag"
             />
@@ -263,6 +272,9 @@ const HomologacionPage: React.FC = () => {
     };
 
     const actionBodyTemplate = (rowData: ProductoMapeoPage) => {
+        const estado = rowData.estado ? rowData.estado.toLowerCase() : 'pendiente';
+        const isHomologado = estado === 'homologado';
+
         return (
             <div className="actions-cell">
                 <Button
@@ -271,15 +283,15 @@ const HomologacionPage: React.FC = () => {
                     rounded
                     onClick={() => handleSave(rowData)}
                     tooltip="Guardar"
-                    disabled={rowData.estado.toLowerCase() === 'homologado'}
+                    disabled={isHomologado}
                 />
                 <Button
-                    icon={rowData.estado.toLowerCase() === 'homologado' ? "pi pi-pencil" : "pi pi-refresh"}
+                    icon={isHomologado ? "pi pi-pencil" : "pi pi-refresh"}
                     text
                     rounded
                     severity="secondary"
                     onClick={() => handleClear(rowData.referenciaXML)}
-                    tooltip={rowData.estado.toLowerCase() === 'homologado' ? "Editar" : "Limpiar"}
+                    tooltip={isHomologado ? "Editar" : "Limpiar"}
                 />
             </div>
         );
@@ -375,7 +387,10 @@ const HomologacionPage: React.FC = () => {
                     className="p-datatable-sm items-table"
                     style={{ width: '100%' }}
                     rowHover
-                    rowClassName={(data) => ({ 'row-pending': data.estado.toLowerCase() === 'pendiente' })}
+                    rowClassName={(data) => {
+                        const estado = data.estado ? data.estado.toLowerCase() : 'pendiente';
+                        return { 'row-pending': estado === 'pendiente' };
+                    }}
                     emptyMessage={selectedXml ? "No se encontraron productos para homologar en este archivo." : "Por favor seleccione un archivo XML."}
                 >
                     <Column
