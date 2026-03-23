@@ -3,6 +3,7 @@ import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
+import { Tag } from 'primereact/tag';
 import { AutoComplete, type AutoCompleteCompleteEvent, type AutoCompleteChangeEvent } from 'primereact/autocomplete';
 import { Dropdown, type DropdownChangeEvent } from 'primereact/dropdown';
 import { InputNumber, type InputNumberValueChangeEvent } from 'primereact/inputnumber';
@@ -43,14 +44,17 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
                 erpService.getErpUnidades()
             ]);
 
-            setProductos(pendingProducts.map(p => ({
+            const mapped = pendingProducts.map(p => ({
                 ...p,
                 referenciaErp: '',
                 unidadErp: '',
                 unidadErpLabel: '',
                 factor: 1
-            })));
+            }));
+
+            setProductos(mapped);
             setUnidades(erpUnits);
+            return mapped;
         } catch {
             toast.current?.show({
                 severity: 'error',
@@ -90,12 +94,12 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
             return;
         }
 
-        updateRowState(rowData.referenciaXml, { loading: true });
+        updateRowState(rowData.referenciaXML, { loading: true });
         try {
             const payload: HomologarPayload = {
                 fileName,
-                referenciaXml: rowData.referenciaXml,
-                unidadXml: rowData.unidad,
+                referenciaXml: rowData.referenciaXML,
+                unidadXml: rowData.unidadXML,
                 referenciaErp: rowData.referenciaErp,
                 unidadErp: rowData.unidadErp,
                 factor: rowData.factor
@@ -109,13 +113,13 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
                     life: 3000
                 });
 
-                setProductos(prev => {
-                    const updated = prev.filter(p => p.referenciaXml !== rowData.referenciaXml);
-                    if (updated.length === 0) {
-                        onSuccess();
-                    }
-                    return updated;
-                });
+                // Reload list to get updated states or remove homologated item
+                const freshItems = await loadData();
+
+                // If the list is now empty, notify success
+                if (freshItems && freshItems.length === 0) {
+                    onSuccess();
+                }
             } else {
                 toast.current?.show({
                     severity: 'error',
@@ -132,23 +136,23 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
                 life: 3000
             });
         } finally {
-            updateRowState(rowData.referenciaXml, { loading: false });
+            updateRowState(rowData.referenciaXML, { loading: false });
         }
     };
 
-    const updateRowState = (referenciaXml: string, newState: Partial<ProductoMapeo>) => {
+    const updateRowState = (referenciaXML: string, newState: Partial<ProductoMapeo>) => {
         setProductos(prev => prev.map(p =>
-            p.referenciaXml === referenciaXml ? { ...p, ...newState } : p
+            p.referenciaXML === referenciaXML ? { ...p, ...newState } : p
         ));
     };
 
     const searchErpProducts = async (event: AutoCompleteCompleteEvent, rowData: ProductoMapeo) => {
-        updateRowState(rowData.referenciaXml, { searching: true });
+        updateRowState(rowData.referenciaXML, { searching: true });
         try {
             const suggestions = await erpService.searchErpProductos(event.query);
-            updateRowState(rowData.referenciaXml, { erpSuggestions: suggestions, searching: false });
+            updateRowState(rowData.referenciaXML, { erpSuggestions: suggestions, searching: false });
         } catch {
-            updateRowState(rowData.referenciaXml, { searching: false });
+            updateRowState(rowData.referenciaXML, { searching: false });
         }
     };
 
@@ -166,7 +170,12 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
             }
         }
 
-        updateRowState(rowData.referenciaXml, update);
+        updateRowState(rowData.referenciaXML, update);
+    };
+
+    const statusBodyTemplate = (rowData: ProductoMapeo) => {
+        const severity = rowData.estado?.toLowerCase() === 'homologado' ? 'success' : 'warning';
+        return <Tag value={rowData.estado?.toUpperCase() || 'PENDIENTE'} severity={severity} />;
     };
 
     const erpReferenceEditor = (rowData: ProductoMapeo) => (
@@ -175,7 +184,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
                 value={rowData.referenciaErp}
                 suggestions={rowData.erpSuggestions?.map(s => `[${s.referencia}] - ${s.nombre}`) || []}
                 completeMethod={(e) => searchErpProducts(e, rowData)}
-                onChange={(e: AutoCompleteChangeEvent) => updateRowState(rowData.referenciaXml, { referenciaErp: e.value })}
+                onChange={(e: AutoCompleteChangeEvent) => updateRowState(rowData.referenciaXML, { referenciaErp: e.value })}
                 onSelect={(e) => {
                     const selectedStr = e.value as string;
                     const match = rowData.erpSuggestions?.find(s => `[${s.referencia}] - ${s.nombre}` === selectedStr);
@@ -197,7 +206,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
             optionValue="codigo"
             onChange={(e: DropdownChangeEvent) => {
                 const selectedUnit = unidades.find(u => u.codigo === e.value);
-                updateRowState(rowData.referenciaXml, {
+                updateRowState(rowData.referenciaXML, {
                     unidadErp: e.value,
                     unidadErpLabel: selectedUnit?.sigla
                 });
@@ -213,7 +222,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
     const factorEditor = (rowData: ProductoMapeo) => (
         <InputNumber
             value={rowData.factor}
-            onValueChange={(e: InputNumberValueChangeEvent) => updateRowState(rowData.referenciaXml, { factor: e.value ?? 0 })}
+            onValueChange={(e: InputNumberValueChangeEvent) => updateRowState(rowData.referenciaXML, { factor: e.value ?? 0 })}
             min={0}
             minFractionDigits={0}
             maxFractionDigits={4}
@@ -263,12 +272,13 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
                     responsiveLayout="scroll"
                     rowHover
                 >
-                    <Column field="referenciaXml" header="REF XML" style={{ width: '12%' }} className="font-semibold text-xs" />
-                    <Column field="nombre" header="NOMBRE PRODUCTO" style={{ width: '22%' }} className="text-xs" />
-                    <Column field="unidad" header="UND XML" style={{ width: '8%' }} align="center" className="text-xs" />
-                    <Column header="REF ERP (Buscador)" body={erpReferenceEditor} style={{ width: '25%' }} />
-                    <Column header="UND ERP" body={erpUnitEditor} style={{ width: '15%' }} />
-                    <Column header="FACTOR" body={factorEditor} style={{ width: '10%' }} />
+                    <Column field="referenciaXML" header="REF XML" style={{ width: '12%' }} className="font-semibold text-xs" />
+                    <Column field="nombreProducto" header="NOMBRE PRODUCTO" style={{ width: '18%' }} className="text-xs" />
+                    <Column field="unidadXML" header="UND XML" style={{ width: '8%' }} align="center" className="text-xs" />
+                    <Column header="REF ERP (Buscador)" body={erpReferenceEditor} style={{ width: '22%' }} />
+                    <Column header="UND ERP" body={erpUnitEditor} style={{ width: '12%' }} />
+                    <Column header="FACTOR" body={factorEditor} style={{ width: '8%' }} />
+                    <Column field="estado" header="ESTADO" body={statusBodyTemplate} style={{ width: '10%' }} align="center" />
                     <Column header="ACCIONES" body={actionTemplate} style={{ width: '8%' }} align="center" />
                 </DataTable>
             </div>

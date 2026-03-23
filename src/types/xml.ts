@@ -111,9 +111,10 @@ export interface XMLProcesarResponse {
 }
 
 export interface ProductoPendiente {
-  referenciaXml: string;
-  nombre: string;
-  unidad: string;
+  referenciaXML: string;
+  nombreProducto: string;
+  unidadXML: string;
+  estado: string;
 }
 
 export interface HomologarPayload {

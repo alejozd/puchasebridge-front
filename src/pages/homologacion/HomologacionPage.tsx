@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -8,147 +8,195 @@ import { AutoComplete, type AutoCompleteCompleteEvent, type AutoCompleteChangeEv
 import { Dropdown, type DropdownChangeEvent } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import PageTitle from '../../components/common/PageTitle';
-import type { ProductoHomologacion, ProductoHelisa } from '../../types/homologacion';
+import * as xmlService from '../../services/xmlService';
+import * as erpService from '../../services/erpService';
+import type { ProductoPendiente, XMLFile, HomologarPayload } from '../../types/xml';
+import type { ErpProducto, ErpUnidad } from '../../services/erpService';
 import '../../styles/homologacion.css';
 
-// Mock data for products in Helisa
-const PRODUCTOS_HELISA_MOCK: ProductoHelisa[] = [
-    { id: '1', codigo: 'INV-009', nombre: 'Cinta Aislante Negra 3/4' },
-    { id: '2', codigo: 'CON-012', nombre: 'Alambre Cobre #12 Verde' },
-    { id: '3', codigo: 'RES-500', nombre: 'Resistencia Eléctrica Industrial 500W' },
-    { id: '4', codigo: 'ABZ-02', nombre: 'Abrazadera Metálica Zinc 2 pulgadas' },
-    { id: '5', codigo: 'CAB-12V', nombre: 'Cable Eléctrico 12AWG Verde' }
-];
-
-// Mock data for initial items to homologate
-const INITIAL_ITEMS_MOCK: ProductoHomologacion[] = [
-    {
-        id: 1,
-        xmlFile: 'FA-2023-0988.xml',
-        productoXml: 'Resistencia Eléctrica 220V 500W',
-        codigoXml: 'XML-RE-500-220',
-        estado: 'pendiente'
-    },
-    {
-        id: 2,
-        xmlFile: 'FA-2023-0988.xml',
-        productoXml: 'Cinta Aislante 3M Super 33+',
-        codigoXml: '3M-S33-BLK',
-        productoSistema: '[INV-009] Cinta Aislante Negra 3/4',
-        estado: 'homologado'
-    },
-    {
-        id: 3,
-        xmlFile: 'FA-2023-0989.xml',
-        productoXml: 'Abrazadera Metálica 2" Zinc',
-        codigoXml: 'ABZ-MET-2Z',
-        estado: 'pendiente'
-    },
-    {
-        id: 4,
-        xmlFile: 'NC-2023-0102.xml',
-        productoXml: 'Cable THW No. 12 AWG Verde',
-        codigoXml: 'ELC-12AWG-G',
-        productoSistema: '[CON-012] Alambre Cobre #12 Verde',
-        estado: 'homologado'
-    }
-];
-
-const XML_FILES_MOCK = [
-    { label: 'Todos los archivos', value: null },
-    { label: 'FA-2023-0988.xml (Sept 24)', value: 'FA-2023-0988.xml' },
-    { label: 'FA-2023-0989.xml (Sept 24)', value: 'FA-2023-0989.xml' },
-    { label: 'NC-2023-0102.xml (Sept 25)', value: 'NC-2023-0102.xml' }
-];
+interface ProductoMapeoPage extends ProductoPendiente {
+    productoSistema?: string;
+    referenciaErp?: string;
+    unidadErp?: string;
+    factor: number;
+    suggestions?: ErpProducto[];
+}
 
 const HomologacionPage: React.FC = () => {
-    const [items, setItems] = useState<ProductoHomologacion[]>(INITIAL_ITEMS_MOCK);
+    const [items, setItems] = useState<ProductoMapeoPage[]>([]);
+    const [xmlFiles, setXmlFiles] = useState<XMLFile[]>([]);
     const [selectedXml, setSelectedXml] = useState<string | null>(null);
     const [statusFilter, setStatusFilter] = useState<'todos' | 'pendiente' | 'homologado'>('todos');
     const [globalFilter, setGlobalFilter] = useState('');
-    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [unidades, setUnidades] = useState<ErpUnidad[]>([]);
+    const [loading, setLoading] = useState(false);
     const toast = useRef<Toast>(null);
+
+    const loadXmlFiles = useCallback(async () => {
+        try {
+            const files = await xmlService.getXMLList();
+            setXmlFiles(files);
+        } catch {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo cargar la lista de archivos XML.',
+                life: 3000
+            });
+        }
+    }, []);
+
+    const loadProducts = useCallback(async (fileName: string) => {
+        setLoading(true);
+        try {
+            const [pendingProducts, erpUnits] = await Promise.all([
+                xmlService.getProductosPendientes(fileName),
+                erpService.getErpUnidades()
+            ]);
+
+            setItems(pendingProducts.map(p => ({
+                ...p,
+                factor: 1
+            })));
+            setUnidades(erpUnits);
+        } catch {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudieron cargar los productos del archivo.',
+                life: 3000
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        loadXmlFiles();
+    }, [loadXmlFiles]);
+
+    useEffect(() => {
+        if (selectedXml) {
+            loadProducts(selectedXml);
+        } else {
+            setItems([]);
+        }
+    }, [selectedXml, loadProducts]);
 
     const filteredItems = React.useMemo(() => {
         let result = items;
 
-        if (selectedXml) {
-            result = result.filter(item => item.xmlFile === selectedXml);
-        }
-
         if (statusFilter !== 'todos') {
-            result = result.filter(item => item.estado === statusFilter);
+            result = result.filter(item => item.estado.toLowerCase() === statusFilter);
         }
 
         if (globalFilter) {
             const query = globalFilter.toLowerCase();
             result = result.filter(item =>
-                item.productoXml.toLowerCase().includes(query) ||
-                item.codigoXml.toLowerCase().includes(query) ||
+                item.nombreProducto.toLowerCase().includes(query) ||
+                item.referenciaXML.toLowerCase().includes(query) ||
                 (item.productoSistema && item.productoSistema.toLowerCase().includes(query))
             );
         }
 
         return result;
-    }, [items, selectedXml, statusFilter, globalFilter]);
+    }, [items, statusFilter, globalFilter]);
 
-    const searchProduct = (event: AutoCompleteCompleteEvent) => {
-        const query = event.query.toLowerCase();
-        const filtered = PRODUCTOS_HELISA_MOCK
-            .filter(p => p.nombre.toLowerCase().includes(query) || p.codigo.toLowerCase().includes(query))
-            .map(p => `[${p.codigo}] ${p.nombre}`);
-        setSuggestions(filtered);
+    const searchProduct = async (event: AutoCompleteCompleteEvent, rowData: ProductoMapeoPage) => {
+        try {
+            const suggestions = await erpService.searchErpProductos(event.query);
+            setItems(prev => prev.map(item =>
+                item.referenciaXML === rowData.referenciaXML ? { ...item, suggestions } : item
+            ));
+        } catch {
+            // Silently fail
+        }
     };
 
-    const onProductChange = (id: number, value: string) => {
-        setItems(prevItems => prevItems.map(item => {
-            if (item.id === id) {
-                return {
-                    ...item,
-                    productoSistema: value,
-                    estado: value ? 'homologado' : 'pendiente'
+    const onProductSelect = (erpProd: ErpProducto, rowData: ProductoMapeoPage) => {
+        setItems(prev => prev.map(item => {
+            if (item.referenciaXML === rowData.referenciaXML) {
+                const update: Partial<ProductoMapeoPage> = {
+                    productoSistema: `[${erpProd.referencia}] ${erpProd.nombre}`,
+                    referenciaErp: erpProd.referencia,
+                    estado: 'homologado'
                 };
+
+                if (erpProd.unidadDefault) {
+                    const matchingUnit = unidades.find(u => u.sigla === erpProd.unidadDefault);
+                    if (matchingUnit) {
+                        update.unidadErp = matchingUnit.codigo;
+                    }
+                }
+
+                return { ...item, ...update };
             }
             return item;
         }));
     };
 
-    const handleSave = (item: ProductoHomologacion) => {
-        if (!item.productoSistema) {
+    const handleSave = async (item: ProductoMapeoPage) => {
+        if (!item.referenciaErp || !item.unidadErp) {
             toast.current?.show({
                 severity: 'warn',
                 summary: 'Atención',
-                detail: 'Debe seleccionar un producto del sistema para homologar.',
+                detail: 'Debe completar la homologación (Producto y Unidad ERP).',
                 life: 3000
             });
             return;
         }
 
-        toast.current?.show({
-            severity: 'success',
-            summary: 'Éxito',
-            detail: 'Homologación guardada con éxito.',
-            life: 3000
-        });
+        try {
+            const payload: HomologarPayload = {
+                fileName: selectedXml!,
+                referenciaXml: item.referenciaXML,
+                unidadXml: item.unidadXML,
+                referenciaErp: item.referenciaErp,
+                unidadErp: item.unidadErp,
+                factor: item.factor
+            };
+
+            const res = await xmlService.homologarProducto(payload);
+            if (res.success) {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: res.mensaje || 'Homologación guardada con éxito.',
+                    life: 3000
+                });
+                // Reload products
+                loadProducts(selectedXml!);
+            } else {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: res.mensaje,
+                    life: 3000
+                });
+            }
+        } catch {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo guardar la homologación.',
+                life: 3000
+            });
+        }
     };
 
-    const handleClear = (id: number) => {
+    const handleClear = (referenciaXML: string) => {
         setItems(prevItems => prevItems.map(item => {
-            if (item.id === id) {
+            if (item.referenciaXML === referenciaXML) {
                 return {
                     ...item,
                     productoSistema: undefined,
+                    referenciaErp: undefined,
+                    unidadErp: undefined,
                     estado: 'pendiente'
                 };
             }
             return item;
         }));
-        toast.current?.show({
-            severity: 'info',
-            summary: 'Limpiado',
-            detail: 'Se ha eliminado la selección.',
-            life: 2000
-        });
     };
 
     const handleSaveAll = () => {
@@ -160,8 +208,8 @@ const HomologacionPage: React.FC = () => {
         });
     };
 
-    const statusBodyTemplate = (rowData: ProductoHomologacion) => {
-        const severity = rowData.estado === 'homologado' ? 'success' : 'warning';
+    const statusBodyTemplate = (rowData: ProductoMapeoPage) => {
+        const severity = rowData.estado.toLowerCase() === 'homologado' ? 'success' : 'warning';
         return (
             <Tag
                 value={rowData.estado.toUpperCase()}
@@ -171,33 +219,50 @@ const HomologacionPage: React.FC = () => {
         );
     };
 
-    const productSystemTemplate = (rowData: ProductoHomologacion) => {
-        if (rowData.estado === 'homologado' && rowData.productoSistema) {
-            return (
-                <div className="product-selected-container">
-                    <i className="pi pi-box mr-2 text-secondary"></i>
-                    <span className="text-xs font-semibold">{rowData.productoSistema}</span>
-                </div>
-            );
-        }
-
+    const productSystemTemplate = (rowData: ProductoMapeoPage) => {
         return (
-            <div className="autocomplete-wrapper">
-                <i className="pi pi-search search-icon"></i>
-                <AutoComplete
-                    value={rowData.productoSistema || ''}
-                    suggestions={suggestions}
-                    completeMethod={searchProduct}
-                    onChange={(e: AutoCompleteChangeEvent) => onProductChange(rowData.id, e.value)}
-                    placeholder="Buscar en Helisa..."
-                    className="w-full"
-                    inputClassName="product-autocomplete-input"
-                />
+            <div className="flex flex-column gap-2">
+                <div className="autocomplete-wrapper">
+                    <i className="pi pi-search search-icon"></i>
+                    <AutoComplete
+                        value={rowData.productoSistema || ''}
+                        suggestions={rowData.suggestions?.map(s => `[${s.referencia}] ${s.nombre}`) || []}
+                        completeMethod={(e) => searchProduct(e, rowData)}
+                        onChange={(e: AutoCompleteChangeEvent) => {
+                            setItems(prev => prev.map(item =>
+                                item.referenciaXML === rowData.referenciaXML ? { ...item, productoSistema: e.value } : item
+                            ));
+                        }}
+                        onSelect={(e) => {
+                            const selectedStr = e.value as string;
+                            const match = rowData.suggestions?.find(s => `[${s.referencia}] ${s.nombre}` === selectedStr);
+                            if (match) onProductSelect(match, rowData);
+                        }}
+                        placeholder="Buscar en Helisa..."
+                        className="w-full"
+                        inputClassName="product-autocomplete-input"
+                    />
+                </div>
+                {rowData.referenciaErp && (
+                    <Dropdown
+                        value={rowData.unidadErp}
+                        options={unidades}
+                        optionLabel="sigla"
+                        optionValue="codigo"
+                        onChange={(e: DropdownChangeEvent) => {
+                            setItems(prev => prev.map(item =>
+                                item.referenciaXML === rowData.referenciaXML ? { ...item, unidadErp: e.value } : item
+                            ));
+                        }}
+                        placeholder="Unidad ERP"
+                        className="w-full p-inputtext-sm"
+                    />
+                )}
             </div>
         );
     };
 
-    const actionBodyTemplate = (rowData: ProductoHomologacion) => {
+    const actionBodyTemplate = (rowData: ProductoMapeoPage) => {
         return (
             <div className="actions-cell">
                 <Button
@@ -206,15 +271,15 @@ const HomologacionPage: React.FC = () => {
                     rounded
                     onClick={() => handleSave(rowData)}
                     tooltip="Guardar"
-                    disabled={rowData.estado === 'homologado' && INITIAL_ITEMS_MOCK.find(i => i.id === rowData.id)?.estado === 'homologado'}
+                    disabled={rowData.estado.toLowerCase() === 'homologado'}
                 />
                 <Button
-                    icon={rowData.estado === 'homologado' ? "pi pi-pencil" : "pi pi-refresh"}
+                    icon={rowData.estado.toLowerCase() === 'homologado' ? "pi pi-pencil" : "pi pi-refresh"}
                     text
                     rounded
                     severity="secondary"
-                    onClick={() => handleClear(rowData.id)}
-                    tooltip={rowData.estado === 'homologado' ? "Editar" : "Limpiar"}
+                    onClick={() => handleClear(rowData.referenciaXML)}
+                    tooltip={rowData.estado.toLowerCase() === 'homologado' ? "Editar" : "Limpiar"}
                 />
             </div>
         );
@@ -252,7 +317,7 @@ const HomologacionPage: React.FC = () => {
                     <label>ARCHIVO FUENTE (XML)</label>
                     <Dropdown
                         value={selectedXml}
-                        options={XML_FILES_MOCK}
+                        options={xmlFiles.map(f => ({ label: f.fileName, value: f.fileName }))}
                         onChange={(e: DropdownChangeEvent) => setSelectedXml(e.value)}
                         placeholder="Seleccionar archivo"
                         className="w-full dropdown-custom"
@@ -306,29 +371,36 @@ const HomologacionPage: React.FC = () => {
                 </div>
                 <DataTable
                     value={filteredItems}
+                    loading={loading}
                     className="p-datatable-sm items-table"
                     style={{ width: '100%' }}
                     rowHover
-                    rowClassName={(data) => ({ 'row-pending': data.estado === 'pendiente' })}
-                    emptyMessage="No se encontraron productos para homologar."
+                    rowClassName={(data) => ({ 'row-pending': data.estado.toLowerCase() === 'pendiente' })}
+                    emptyMessage={selectedXml ? "No se encontraron productos para homologar en este archivo." : "Por favor seleccione un archivo XML."}
                 >
                     <Column
                         header="PRODUCTO XML"
-                        body={(rowData: ProductoHomologacion) => (
+                        body={(rowData: ProductoMapeoPage) => (
                             <div className="product-xml-cell">
-                                <div className="font-bold">{rowData.productoXml}</div>
-                                <div className="text-[10px] text-secondary">{rowData.xmlFile}</div>
+                                <div className="font-bold">{rowData.nombreProducto}</div>
+                                <div className="text-[10px] text-secondary">{selectedXml}</div>
                             </div>
                         )}
                         headerClassName="table-header-cell"
                     />
                     <Column
-                        field="codigoXml"
+                        field="referenciaXML"
                         header="CÓDIGO XML"
-                        body={(rowData: ProductoHomologacion) => (
-                            <span className="font-mono text-xs text-secondary">{rowData.codigoXml}</span>
+                        body={(rowData: ProductoMapeoPage) => (
+                            <span className="font-mono text-xs text-secondary">{rowData.referenciaXML}</span>
                         )}
                         headerClassName="table-header-cell"
+                    />
+                    <Column
+                        field="unidadXML"
+                        header="UND XML"
+                        headerClassName="table-header-cell"
+                        align="center"
                     />
                     <Column
                         header="PRODUCTO EN SISTEMA (HELISA)"
@@ -340,6 +412,7 @@ const HomologacionPage: React.FC = () => {
                         header="ESTADO"
                         body={statusBodyTemplate}
                         headerClassName="table-header-cell"
+                        align="center"
                     />
                     <Column
                         header="ACCIONES"
