@@ -45,7 +45,11 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
             ]);
 
             const mapped = pendingProducts.map(p => ({
-                ...p,
+                referenciaXML: p.referenciaXML,
+                nombreProducto: p.nombreProducto,
+                unidadXML: p.unidadXML,
+                unidadXMLNombre: p.unidadXMLNombre,
+                estado: p.estado || 'PENDIENTE',
                 referenciaErp: '',
                 unidadErp: '',
                 unidadErpLabel: '',
@@ -334,7 +338,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
                         header="UND XML"
                         body={(rowData: ProductoMapeo) => (
                             <div className="text-xs font-semibold">
-                                {rowData.unidadXML} - {rowData.unidadXMLNombre}
+                                {rowData.unidadXML}{rowData.unidadXMLNombre ? ` - ${rowData.unidadXMLNombre}` : ''}
                             </div>
                         )}
                         headerClassName="table-header-cell"
