@@ -169,11 +169,21 @@
 }
 
 .row-pending {
-    background-color: rgba(64, 89, 170, 0.03) !important;
+    background-color: #f8fafc !important; /* light slate 50 */
+    border-left: 4px solid #3b82f6 !important; /* blue 500 */
 }
 
 .row-pending:hover {
-    background-color: rgba(64, 89, 170, 0.05) !important;
+    background-color: #f1f5f9 !important; /* slate 100 */
+}
+
+/* Modal specific overrides if needed */
+.p-dialog .items-table .p-datatable-tbody > tr.row-pending {
+    background-color: #f0f9ff !important; /* light blue 50 */
+}
+
+.p-dialog .items-table .p-datatable-tbody > tr.row-pending:hover {
+    background-color: #e0f2fe !important; /* light blue 100 */
 }
 
 .product-xml-cell .font-bold {

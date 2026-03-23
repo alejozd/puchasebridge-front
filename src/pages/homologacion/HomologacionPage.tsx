@@ -192,9 +192,9 @@ const HomologacionPage: React.FC = () => {
             if (item.referenciaXML === referenciaXML) {
                 return {
                     ...item,
-                    productoSistema: undefined,
-                    referenciaErp: undefined,
-                    unidadErp: undefined,
+                    productoSistema: '',
+                    referenciaErp: '',
+                    unidadErp: '',
                     estado: 'pendiente',
                     isEditing: false
                 };
