@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { XMLFile, ValidationResult, BackendValidationResponse, XMLProcesarResponse } from "../types/xml";
-import { getXMLList, uploadXML, validateXMLFile, procesarDocumentos } from "../services/xmlService";
+import { getXMLFiles, uploadXML, validateXMLFile, procesarDocumentos } from "../services/xmlService";
 import { fixEncoding } from "../utils/textUtils";
 
 interface XMLState {
@@ -23,11 +23,15 @@ export const useXMLStore = create<XMLState>((set, get) => ({
   fetchXMLList: async () => {
     set({ loading: true });
     try {
-      const data = await getXMLList();
+      const data = await getXMLFiles();
       // Ensure default state is set if missing
-      const processedData = data.map(file => ({
-        ...file,
-        estado: file.estado || 'Pendiente'
+      const processedData: XMLFile[] = data.map(file => ({
+        fileName: file.file_name,
+        size: 0,
+        lastModified: file.fecha_carga,
+        estado: (file.estado.charAt(0).toUpperCase() + file.estado.slice(1).toLowerCase()) as XMLFile['estado'],
+        proveedor: file.proveedor_nombre,
+        tipoDocumento: 'Factura'
       }));
       set({ xmlList: processedData, loading: false });
     } catch (error) {
@@ -42,10 +46,14 @@ export const useXMLStore = create<XMLState>((set, get) => ({
     try {
       await uploadXML(file);
       // Refresh the list after successful upload
-      const data = await getXMLList();
-      const processedData = data.map(f => ({
-        ...f,
-        estado: f.estado || 'Pendiente'
+      const data = await getXMLFiles();
+      const processedData: XMLFile[] = data.map(f => ({
+        fileName: f.file_name,
+        size: 0,
+        lastModified: f.fecha_carga,
+        estado: (f.estado.charAt(0).toUpperCase() + f.estado.slice(1).toLowerCase()) as XMLFile['estado'],
+        proveedor: f.proveedor_nombre,
+        tipoDocumento: 'Factura'
       }));
       set({ xmlList: processedData, loading: false });
     } catch (error) {
