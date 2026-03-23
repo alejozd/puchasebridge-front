@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
+import { fixEncoding } from '../../utils/textUtils';
 
 interface ValidationResultDialogProps {
     visible: boolean;
@@ -26,7 +27,7 @@ const ValidationResultDialog: React.FC<ValidationResultDialogProps> = ({
                     <i className={`pi ${errores.length > 0 ? 'pi-exclamation-triangle text-red-500' : 'pi-info-circle text-blue-500'}`} style={{ fontSize: '1.5rem' }}></i>
                     <div>
                         <h3 className="m-0">Resultado de Validación</h3>
-                        <small className="text-secondary">{fileName}</small>
+                        <small className="text-secondary">{fixEncoding(fileName)}</small>
                     </div>
                 </div>
             }
@@ -57,7 +58,7 @@ const ValidationResultDialog: React.FC<ValidationResultDialogProps> = ({
                             </div>
                             <ul className="m-0 pl-4 flex flex-column gap-2">
                                 {errores.map((err, idx) => (
-                                    <li key={idx} className="text-red-700">{err}</li>
+                                    <li key={idx} className="text-red-700">{fixEncoding(err)}</li>
                                 ))}
                             </ul>
                         </div>
@@ -71,7 +72,7 @@ const ValidationResultDialog: React.FC<ValidationResultDialogProps> = ({
                             </div>
                             <ul className="m-0 pl-4 flex flex-column gap-2">
                                 {advertencias.map((adv, idx) => (
-                                    <li key={idx} className="text-orange-700">{adv}</li>
+                                    <li key={idx} className="text-orange-700">{fixEncoding(adv)}</li>
                                 ))}
                             </ul>
                         </div>

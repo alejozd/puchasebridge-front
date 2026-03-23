@@ -5,7 +5,10 @@ import { Tooltip } from "primereact/tooltip";
 import "../styles/layout.css";
 
 const MainLayout: React.FC = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebar-collapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
   const logout = useAuthStore((state) => state.logout);
   const usuario = useAuthStore((state) => state.usuario);
   const navigate = useNavigate();
@@ -32,6 +35,12 @@ const MainLayout: React.FC = () => {
     return location.pathname === path;
   };
 
+  const toggleSidebar = () => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    localStorage.setItem('sidebar-collapsed', JSON.stringify(newState));
+  };
+
   return (
     <div className={`layout-wrapper ${isCollapsed ? "collapsed" : ""}`}>
       <Tooltip target=".menu-item-tooltip" position="right" />
@@ -39,7 +48,7 @@ const MainLayout: React.FC = () => {
         <div className="sidebar-header">
           <button
             className="btn-toggle-sidebar"
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={toggleSidebar}
             title={isCollapsed ? "Expandir" : "Colapsar"}
           >
             <div className="sidebar-logo-icon">

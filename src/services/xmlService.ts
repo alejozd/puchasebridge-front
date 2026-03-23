@@ -6,7 +6,9 @@ import type {
   XMLFileItem,
   XMLFileDetail,
   XMLValidationResult,
-  XMLProcesarResponse
+  XMLProcesarResponse,
+  ProductoPendiente,
+  HomologarPayload
 } from "../types/xml";
 
 export const getXMLList = async (): Promise<XMLFile[]> => {
@@ -21,6 +23,25 @@ export const uploadXML = async (file: File): Promise<unknown> => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+  });
+  return response.data;
+};
+
+export const getProductosPendientes = async (fileName: string): Promise<ProductoPendiente[]> => {
+  const response = await axiosClient.get<ProductoPendiente[]>("/xml/productos/pendientes", {
+    params: { fileName }
+  });
+  return response.data;
+};
+
+export const homologarProducto = async (data: HomologarPayload): Promise<{ success: boolean; mensaje: string }> => {
+  const response = await axiosClient.post<{ success: boolean; mensaje: string }>("/xml/homologar", data);
+  return response.data;
+};
+
+export const procesarDocumentos = async (files: string[]): Promise<XMLProcesarResponse> => {
+  const response = await axiosClient.post<XMLProcesarResponse>("/documentos/procesar", {
+    files,
   });
   return response.data;
 };

@@ -109,3 +109,19 @@ export interface XMLProcesarResponse {
   documentoGenerado?: string;
   mensaje?: string;
 }
+
+export interface ProductoPendiente {
+  referenciaXML: string;
+  nombreProducto: string;
+  unidadXML: string;
+  estado: string;
+}
+
+export interface HomologarPayload {
+  fileName: string;
+  referenciaXml: string;
+  unidadXml: string;
+  referenciaErp: string;
+  unidadErp: string;
+  factor: number;
+}

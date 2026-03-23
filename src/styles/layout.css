@@ -7,12 +7,12 @@
 
 .layout-topbar {
   position: fixed;
-  height: 4rem;
+  height: 3.5rem;
   z-index: 999;
   left: 16rem;
   top: 0;
   width: calc(100% - 16rem);
-  padding: 0 2rem;
+  padding: 0 1.5rem;
   background-color: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
   display: flex;
@@ -40,7 +40,7 @@
   left: 0;
   background-color: #f1f5f9; /* slate-100 */
   border-right: 1px solid var(--color-surface-container-highest);
-  padding: 1.5rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
@@ -108,7 +108,7 @@
   flex-direction: column;
   min-height: 100vh;
   padding-left: 16rem;
-  padding-top: 4rem;
+  padding-top: 3.5rem;
   transition: padding-left 0.3s ease;
 }
 
@@ -254,17 +254,17 @@
 
 /* Collapsed Styles */
 .collapsed .layout-sidebar {
-  width: 5rem;
-  padding: 1.5rem 0.75rem;
+  width: 5.625rem; /* 90px */
+  padding: 1rem 0.75rem;
 }
 
 .collapsed .layout-topbar {
-  left: 5rem;
-  width: calc(100% - 5rem);
+  left: 5.625rem;
+  width: calc(100% - 5.625rem);
 }
 
 .collapsed .layout-main-container {
-  padding-left: 5rem;
+  padding-left: 5.625rem;
 }
 
 .collapsed .sidebar-logo-text,

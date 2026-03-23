@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { DataTable } from 'primereact/datatable';
+import { DataTable, type DataTableSelectionMultipleChangeEvent } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
@@ -16,14 +16,19 @@ import {
 import { useXMLStore } from '../../store/xmlStore';
 import type { XMLFile, XmlDetalle } from '../../types/xml';
 import * as xmlService from '../../services/xmlService';
+import { fixEncoding } from '../../utils/textUtils';
 import '../../styles/xml-list.css';
 
 const XMLListPage: React.FC = () => {
-    const { xmlList, loading, fetchXMLList, uploadXML } = useXMLStore();
+    const { xmlList, loading, validating, processing, fetchXMLList, uploadXML, validateFiles, processFiles } = useXMLStore();
+    const [selectedFiles, setSelectedFiles] = useState<XMLFile[]>([]);
     const [displayUploadModal, setDisplayUploadModal] = useState(false);
     const [displayDetailModal, setDisplayDetailModal] = useState(false);
+    const [displayErrorModal, setDisplayErrorModal] = useState(false);
+    const [selectedFileErrors, setSelectedFileErrors] = useState<{ name: string; errors: string[] } | null>(null);
     const [xmlDetail, setXmlDetail] = useState<XmlDetalle | null>(null);
     const [detailLoading, setDetailLoading] = useState(false);
+    const [loadingRow, setLoadingRow] = useState<string | null>(null);
     const toast = useRef<Toast>(null);
     const fileUploadRef = useRef<FileUpload>(null);
     const [files, setFiles] = useState<File[]>([]);
@@ -57,17 +62,37 @@ const XMLListPage: React.FC = () => {
             'Pendiente': 'secondary',
             'Validado': 'success',
             'Con errores': 'danger',
-            'Requiere homologación': 'warning'
+            'Requiere homologación': 'warning',
+            'Procesado': 'info'
         };
 
         const estado = rowData.estado || 'Pendiente';
 
         return (
-            <Tag
-                value={estado.toUpperCase()}
-                severity={severityMap[estado]}
-                className="status-tag"
-            />
+            <div className="flex align-items-center gap-2">
+                <Tag
+                    value={estado.toUpperCase()}
+                    severity={severityMap[estado]}
+                    className="status-tag"
+                />
+                {estado === 'Con errores' && (
+                    <Button
+                        icon="pi pi-info-circle"
+                        text
+                        rounded
+                        severity="danger"
+                        size="small"
+                        onClick={() => {
+                            setSelectedFileErrors({
+                                name: rowData.fileName,
+                                errors: rowData.erroresValidacion || []
+                            });
+                            setDisplayErrorModal(true);
+                        }}
+                        tooltip="Ver errores"
+                    />
+                )}
+            </div>
         );
     };
 
@@ -101,7 +126,63 @@ const XMLListPage: React.FC = () => {
         }
     };
 
+    const handleValidateFile = async (fileName: string) => {
+        setLoadingRow(fileName);
+        try {
+            await validateFiles([fileName]);
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Validación Completada',
+                detail: `El archivo ${fileName} ha sido validado.`,
+                life: 3000
+            });
+        } catch {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error de Validación',
+                detail: 'Ocurrió un error al intentar validar el archivo.',
+                life: 3000
+            });
+        } finally {
+            setLoadingRow(null);
+        }
+    };
+
+    const handleProcessFile = async (fileName: string) => {
+        setLoadingRow(fileName);
+        try {
+            const response = await processFiles([fileName]);
+            if (response.success) {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Procesado con éxito',
+                    detail: response.mensaje || `Documento generado: ${response.documentoGenerado}`,
+                    life: 5000
+                });
+            } else {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error al procesar',
+                    detail: response.mensaje || 'No se pudo procesar el documento.',
+                    life: 5000
+                });
+            }
+        } catch {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error del Sistema',
+                detail: 'Error al procesar el archivo XML.',
+                life: 3000
+            });
+        } finally {
+            setLoadingRow(null);
+        }
+    };
+
     const actionBodyTemplate = (rowData: XMLFile) => {
+        const isValidated = rowData.estado === 'Validado';
+        const isProcessing = loadingRow === rowData.fileName || processing || validating;
+
         return (
             <div className="actions-cell">
                 <Button
@@ -112,10 +193,87 @@ const XMLListPage: React.FC = () => {
                     size="small"
                     tooltip="Ver detalle"
                     onClick={() => handleViewDetail(rowData.fileName)}
+                    disabled={isProcessing}
                 />
-                <Button icon="pi pi-download" text rounded severity="secondary" size="small" tooltip="Descargar" />
+                {!isValidated && rowData.estado !== 'Procesado' && (
+                    <Button
+                        icon="pi pi-check-circle"
+                        text
+                        rounded
+                        size="small"
+                        tooltip="Validar"
+                        onClick={() => handleValidateFile(rowData.fileName)}
+                        loading={loadingRow === rowData.fileName && validating}
+                        disabled={isProcessing}
+                    />
+                )}
+                {isValidated && (
+                    <Button
+                        icon="pi pi-cog"
+                        text
+                        rounded
+                        severity="success"
+                        size="small"
+                        tooltip="Procesar"
+                        onClick={() => handleProcessFile(rowData.fileName)}
+                        loading={loadingRow === rowData.fileName && processing}
+                        disabled={isProcessing}
+                    />
+                )}
+                <Button
+                    icon="pi pi-download"
+                    text
+                    rounded
+                    severity="secondary"
+                    size="small"
+                    tooltip="Descargar"
+                    disabled={isProcessing}
+                />
             </div>
         );
+    };
+
+    const handleBulkProcess = async () => {
+        if (selectedFiles.length === 0) return;
+
+        const unvalidated = selectedFiles.filter(f => f.estado !== 'Validado');
+        if (unvalidated.length > 0) {
+            toast.current?.show({
+                severity: 'warn',
+                summary: 'Validación Requerida',
+                detail: 'Todos los archivos seleccionados deben estar VALIDADOS.',
+                life: 3000
+            });
+            return;
+        }
+
+        const fileNames = selectedFiles.map(f => f.fileName);
+        try {
+            const response = await processFiles(fileNames);
+            if (response.success) {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Procesado masivo exitoso',
+                    detail: response.mensaje || `${selectedFiles.length} documentos procesados.`,
+                    life: 5000
+                });
+                setSelectedFiles([]);
+            } else {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error en procesamiento masivo',
+                    detail: response.mensaje,
+                    life: 5000
+                });
+            }
+        } catch {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error del Sistema',
+                detail: 'Ocurrió un error al procesar los archivos.',
+                life: 3000
+            });
+        }
     };
 
     const onRefresh = async () => {
@@ -286,6 +444,14 @@ const XMLListPage: React.FC = () => {
                         className="btn-refresh"
                     />
                     <Button
+                        label="Procesar Seleccionados"
+                        icon="pi pi-cog"
+                        severity="success"
+                        onClick={handleBulkProcess}
+                        disabled={selectedFiles.length === 0 || processing || validating}
+                        className="btn-bulk-process"
+                    />
+                    <Button
                         label="Subir XML"
                         icon="pi pi-cloud-upload"
                         onClick={onUploadClick}
@@ -314,8 +480,8 @@ const XMLListPage: React.FC = () => {
                     <div className="metric-details">
                         <p className="metric-label">Validados</p>
                         <div className="metric-value-wrapper">
-                            <h3 className="metric-value">0</h3>
-                            <span className="metric-badge success">+0%</span>
+                            <h3 className="metric-value">{xmlList.filter(f => f.estado === 'Validado').length}</h3>
+                            <span className="metric-badge success">Listos</span>
                         </div>
                     </div>
                 </div>
@@ -326,8 +492,8 @@ const XMLListPage: React.FC = () => {
                     <div className="metric-details">
                         <p className="metric-label">Procesados</p>
                         <div className="metric-value-wrapper">
-                            <h3 className="metric-value">0</h3>
-                            <span className="metric-badge info">En Cola</span>
+                            <h3 className="metric-value">{xmlList.filter(f => f.estado === 'Procesado').length}</h3>
+                            <span className="metric-badge info">Finalizados</span>
                         </div>
                     </div>
                 </div>
@@ -337,6 +503,10 @@ const XMLListPage: React.FC = () => {
                 <DataTable
                     value={xmlList}
                     loading={loading}
+                    selection={selectedFiles}
+                    onSelectionChange={(e: DataTableSelectionMultipleChangeEvent<XMLFile[]>) => setSelectedFiles(e.value as XMLFile[])}
+                    selectionMode="multiple"
+                    dataKey="fileName"
                     paginator
                     rows={10}
                     className="p-datatable-sm xml-table"
@@ -345,6 +515,7 @@ const XMLListPage: React.FC = () => {
                     tableStyle={{ minWidth: '50rem' }}
                     emptyMessage="No se encontraron archivos XML."
                 >
+                    <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
                     <Column field="fileName" header="NOMBRE ARCHIVO" body={fileNameBodyTemplate} sortable className="col-filename" headerClassName="col-header" />
                     <Column field="size" header="TAMAÑO" body={(rowData: XMLFile) => formatSize(rowData.size)} sortable className="col-size" headerClassName="col-header" />
                     <Column field="lastModified" header="FECHA CARGA" sortable className="col-date" headerClassName="col-header" />
@@ -362,6 +533,37 @@ const XMLListPage: React.FC = () => {
                 xmlDetail={xmlDetail}
                 loading={detailLoading}
             />
+
+            <Dialog
+                header={
+                    <div className="modal-header-container">
+                        <div className="modal-header-icon" style={{ backgroundColor: 'var(--color-error-container)', color: 'var(--color-error)' }}>
+                            <i className="pi pi-exclamation-triangle"></i>
+                        </div>
+                        <h3 className="modal-header-title">Errores de Validación</h3>
+                    </div>
+                }
+                visible={displayErrorModal}
+                style={{ width: '500px' }}
+                onHide={() => setDisplayErrorModal(false)}
+                footer={<Button label="Cerrar" onClick={() => setDisplayErrorModal(false)} className="p-button-text" />}
+            >
+                <div className="py-2">
+                    <p className="mb-3 font-semibold">Archivo: <span className="text-primary">{fixEncoding(selectedFileErrors?.name || "")}</span></p>
+                    <ul className="p-0 m-0 list-none">
+                        {selectedFileErrors?.errors && selectedFileErrors.errors.length > 0 ? (
+                            selectedFileErrors.errors.map((error, index) => (
+                                <li key={index} className="flex align-items-start gap-2 mb-2 p-2 border-round surface-100">
+                                    <i className="pi pi-times-circle text-red-500 mt-1"></i>
+                                    <span className="text-sm">{fixEncoding(error)}</span>
+                                </li>
+                            ))
+                        ) : (
+                            <li className="text-sm text-secondary italic">No se especificaron errores detallados.</li>
+                        )}
+                    </ul>
+                </div>
+            </Dialog>
 
             <Dialog
                 header={
