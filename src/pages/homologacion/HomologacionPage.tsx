@@ -436,9 +436,10 @@ const HomologacionPage: React.FC = () => {
                 <DataTable
                     value={filteredItems}
                     loading={loading}
-                    className="p-datatable-sm items-table"
+                    className="p-datatable-sm items-table modern-erp-table"
                     style={{ width: '100%' }}
                     rowHover
+                    stripedRows
                     rowClassName={(data) => {
                         const estado = data.estado ? data.estado.toLowerCase() : 'pendiente';
                         return {
@@ -452,22 +453,23 @@ const HomologacionPage: React.FC = () => {
                         header="PRODUCTO XML"
                         body={(rowData: ProductoMapeoPage) => (
                             <div className="flex flex-column gap-1">
-                                <div className="text-sm font-semibold text-dark">{rowData.nombreProducto}</div>
+                                <div className="text-sm font-semibold text-dark line-height-2">{rowData.nombreProducto}</div>
                                 <div className="text-xs text-secondary opacity-70 font-mono">{rowData.referenciaXML}</div>
                             </div>
                         )}
                         headerClassName="table-header-cell"
-                        style={{ width: '30%' }}
+                        style={{ width: '35%' }}
                     />
                     <Column
                         header="UND XML"
                         body={(rowData: ProductoMapeoPage) => (
-                            <div className="text-xs font-semibold">
-                                {rowData.unidadXML}{rowData.unidadXMLNombre ? ` - ${rowData.unidadXMLNombre}` : ''}
+                            <div className="flex flex-column gap-1">
+                                <span className="text-xs font-bold text-dark uppercase">{rowData.unidadXMLNombre || '---'}</span>
+                                <span className="text-xs text-secondary font-medium">({rowData.unidadXML})</span>
                             </div>
                         )}
                         headerClassName="table-header-cell"
-                        style={{ width: '15%' }}
+                        style={{ width: '10%' }}
                     />
                     <Column
                         header="PRODUCTO EN ERP"

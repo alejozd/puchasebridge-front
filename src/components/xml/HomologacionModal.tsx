@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { AutoComplete, type AutoCompleteCompleteEvent, type AutoCompleteChangeEvent } from 'primereact/autocomplete';
 import { InputNumber, type InputNumberValueChangeEvent } from 'primereact/inputnumber';
+import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import * as xmlService from '../../services/xmlService';
 import * as erpService from '../../services/erpService';
@@ -33,6 +34,8 @@ interface ProductoMapeo extends ProductoPendiente {
 
 const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, fileName, onSuccess }) => {
     const [productos, setProductos] = useState<ProductoMapeo[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<ProductoMapeo[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [unidades, setUnidades] = useState<ErpUnidad[]>([]);
     const [loading, setLoading] = useState(false);
     const toast = useRef<Toast>(null);
@@ -58,6 +61,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
             }));
 
             setProductos(mapped);
+            setFilteredProducts(mapped);
             setUnidades(erpUnits);
             return mapped;
         } catch {
@@ -77,6 +81,18 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
             loadData();
         }
     }, [visible, fileName, loadData]);
+
+    useEffect(() => {
+        if (!searchTerm) {
+            setFilteredProducts(productos);
+        } else {
+            const lowSearch = searchTerm.toLowerCase();
+            setFilteredProducts(productos.filter(p =>
+                p.nombreProducto.toLowerCase().includes(lowSearch) ||
+                p.referenciaXML.toLowerCase().includes(lowSearch)
+            ));
+        }
+    }, [searchTerm, productos]);
 
     const handleSaveRow = async (rowData: ProductoMapeo) => {
         if (!rowData.referenciaErp || !rowData.unidadErp) {
@@ -211,7 +227,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
         };
 
         return (
-            <div className="flex flex-column gap-2">
+            <div className="flex flex-column gap-1">
                 <div className="p-input-icon-left w-full">
                     <i className="pi pi-search text-xs" style={{ left: '0.75rem', zIndex: 1 }} />
                     <AutoComplete
@@ -234,9 +250,11 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
                     />
                 </div>
                 {rowData.referenciaErp && (
-                     <div className="px-2 py-1 bg-blue-50 border-round border-left-3 border-blue-500">
-                        <span className="text-xs font-bold text-secondary text-uppercase">UNIDAD ASIGNADA: </span>
-                        <span className="text-xs font-bold text-primary">{rowData.unidadErpLabel || rowData.unidadErp || 'SIN UNIDAD'}</span>
+                     <div className="flex align-items-center gap-1 mt-1">
+                        <span className="unit-tag-inline">
+                            <i className="pi pi-tag" style={{ fontSize: '9px' }}></i>
+                            UND: {rowData.unidadErpLabel || rowData.unidadErp || '---'}
+                        </span>
                     </div>
                 )}
             </div>
@@ -337,30 +355,66 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
     return (
         <Dialog
             header={
-                <div className="flex align-items-center gap-2">
-                    <i className="pi pi-sync text-primary" style={{ fontSize: '1.5rem' }}></i>
-                    <div>
-                        <h3 className="m-0 text-primary font-bold">Homologación de Productos</h3>
-                        <small className="text-secondary font-medium">{fileName}</small>
+                <div className="detail-modal-header">
+                    <div className="flex align-items-center justify-content-between w-full">
+                        <div className="flex align-items-center gap-3">
+                            <i className="pi pi-sync text-primary text-2xl"></i>
+                            <div>
+                                <h2 className="detail-modal-title m-0">Homologación de Productos</h2>
+                                <small className="text-secondary font-medium">{fileName}</small>
+                            </div>
+                        </div>
+                        <div className="flex align-items-center gap-3 pr-4">
+                            <span className="p-input-icon-left">
+                                <i className="pi pi-search text-secondary" />
+                                <InputText
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Filtrar productos..."
+                                    className="p-inputtext-sm"
+                                    style={{ width: '250px' }}
+                                />
+                            </span>
+                            <Tag value={`${productos.length} Ítems`} severity="info" className="p-px-3" />
+                        </div>
                     </div>
                 </div>
             }
             visible={visible}
             onHide={onHide}
-            style={{ width: '85vw', maxWidth: '1200px' }}
+            className="detail-dialog-v2"
+            style={{ width: '90vw', maxWidth: '1300px' }}
             draggable={false}
             resizable={false}
             modal
             blockScroll
+            footer={
+                <div className="flex align-items-center justify-content-between p-3 border-top-1 border-gray-200">
+                    <div className="flex align-items-center gap-2">
+                        <i className="pi pi-info-circle text-secondary"></i>
+                        <span className="text-xs font-medium text-secondary italic">
+                            Tip: El sistema autoselecciona la unidad predeterminada del producto Helisa.
+                        </span>
+                    </div>
+                    <div className="flex align-items-center gap-3">
+                         <div className="text-xs text-secondary font-bold uppercase">
+                            Resumen: <span className="text-primary">{productos.filter(p => p.estado?.toLowerCase() === 'homologado').length}</span> de <span className="text-primary">{productos.length}</span> homologados
+                        </div>
+                        <Button label="Cerrar Ventana" icon="pi pi-times" onClick={onHide} className="p-button-text p-button-secondary font-bold" />
+                    </div>
+                </div>
+            }
         >
             <Toast ref={toast} />
-            <div className="py-2">
+            <div className="modal-body-content py-1">
                 <DataTable
-                    value={productos}
+                    value={filteredProducts}
                     loading={loading}
-                    className="p-datatable-sm items-table"
+                    className="p-datatable-sm items-table modern-erp-table"
                     emptyMessage="No hay productos pendientes por homologar."
-                    responsiveLayout="scroll"
+                    scrollable
+                    scrollHeight="550px"
+                    stripedRows
                     rowHover
                     rowClassName={(data) => {
                         const estado = data.estado ? data.estado.toLowerCase() : 'pendiente';
@@ -371,32 +425,29 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
                         header="PRODUCTO XML"
                         body={(rowData: ProductoMapeo) => (
                             <div className="flex flex-column gap-1">
-                                <div className="text-sm font-semibold text-dark">{rowData.nombreProducto}</div>
+                                <div className="text-sm font-semibold text-dark line-height-2">{rowData.nombreProducto}</div>
                                 <div className="text-xs text-secondary opacity-70 font-mono">{rowData.referenciaXML}</div>
                             </div>
                         )}
                         headerClassName="table-header-cell"
-                        style={{ width: '25%' }}
+                        style={{ width: '35%' }}
                     />
                     <Column
                         header="UND XML"
                         body={(rowData: ProductoMapeo) => (
                             <div className="flex flex-column gap-1">
-                                <span className="text-sm font-bold text-dark">{rowData.unidadXMLNombre || '---'}</span>
+                                <span className="text-xs font-bold text-dark uppercase">{rowData.unidadXMLNombre || '---'}</span>
                                 <span className="text-xs text-secondary font-medium">({rowData.unidadXML})</span>
                             </div>
                         )}
                         headerClassName="table-header-cell"
-                        style={{ width: '15%' }}
+                        style={{ width: '7%' }}
                     />
                     <Column header="PRODUCTO EN ERP" body={productErpTemplate} style={{ width: '35%' }} headerClassName="table-header-cell" />
                     <Column header="FACTOR" body={factorEditor} style={{ width: '8%' }} headerClassName="table-header-cell" />
                     <Column field="estado" header="ESTADO" body={statusBodyTemplate} style={{ width: '10%' }} align="center" headerClassName="table-header-cell" />
-                    <Column header="ACCIONES" body={actionTemplate} style={{ width: '8%' }} align="center" headerClassName="table-header-cell" />
+                    <Column header="ACCIONES" body={actionTemplate} style={{ width: '5%' }} align="center" headerClassName="table-header-cell" />
                 </DataTable>
-            </div>
-            <div className="flex justify-content-end mt-4 gap-2">
-                <Button label="Cancelar" icon="pi pi-times" onClick={onHide} className="p-button-text text-secondary font-bold" />
             </div>
         </Dialog>
     );
