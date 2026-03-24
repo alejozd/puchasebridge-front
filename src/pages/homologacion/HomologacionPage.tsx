@@ -112,8 +112,10 @@ const HomologacionPage: React.FC = () => {
     }, [items, statusFilter, globalFilter]);
 
     const searchProduct = async (event: AutoCompleteCompleteEvent, rowData: ProductoMapeoPage) => {
+        const query = (event.query || '').trim();
+
         try {
-            const suggestions = await erpService.searchErpProductos(event.query);
+            const suggestions = await erpService.searchErpProductos(query);
             setItems(prev => prev.map(item =>
                 item.referenciaXML === rowData.referenciaXML ? { ...item, suggestions } : item
             ));
@@ -129,7 +131,7 @@ const HomologacionPage: React.FC = () => {
             if (item.referenciaXML === rowData.referenciaXML) {
                 return {
                     ...item,
-                    productoSistema: `[${erpProd.referencia}] ${erpProd.nombre}`,
+                    productoSistema: `[${erpProd.referencia}] - ${erpProd.nombre}`,
                     referenciaErp: erpProd.referencia,
                     unidadErp: matchingUnit?.codigo || '',
                 };
@@ -238,7 +240,7 @@ const HomologacionPage: React.FC = () => {
         if (!showEditor) {
             const unitLabel = unidades.find(u => u.codigo === rowData.unidadErp)?.sigla || rowData.unidadErp || '---';
             return (
-                <div className="flex flex-column gap-1 py-1">
+                <div className="flex flex-column gap-1 py-1 product-system-display">
                     <span className="text-sm font-semibold text-primary">{rowData.productoSistema}</span>
                     <span className="text-xs text-secondary font-medium">Unidad ERP: <span className="text-dark">{unitLabel}</span></span>
                 </div>
@@ -247,27 +249,37 @@ const HomologacionPage: React.FC = () => {
 
         const selectedUnitLabel = unidades.find(u => u.codigo === rowData.unidadErp)?.sigla || '';
 
+        const itemTemplate = (item: ErpProducto) => {
+            return (
+                <div className="flex flex-column erp-item-suggestion py-1">
+                    <span className="erp-item-code font-bold text-sm text-primary">[{item.referencia}]</span>
+                    <span className="erp-item-name text-xs text-secondary mt-1">{item.nombre}</span>
+                </div>
+            );
+        };
+
         return (
             <div className="flex flex-column gap-2">
                 <div className="autocomplete-wrapper">
-                    <i className="pi pi-search search-icon"></i>
+                    <i className="pi pi-search search-icon" style={{ zIndex: 1 }}></i>
                     <AutoComplete
                         value={rowData.productoSistema || ''}
-                        suggestions={rowData.suggestions?.map(s => `[${s.referencia}] ${s.nombre}`) || []}
+                        suggestions={rowData.suggestions || []}
                         completeMethod={(e) => searchProduct(e, rowData)}
                         onChange={(e: AutoCompleteChangeEvent) => {
+                            const val = typeof e.value === 'string' ? e.value : `[${e.value.referencia}] - ${e.value.nombre}`;
                             setItems(prev => prev.map(item =>
-                                item.referenciaXML === rowData.referenciaXML ? { ...item, productoSistema: e.value } : item
+                                item.referenciaXML === rowData.referenciaXML ? { ...item, productoSistema: val } : item
                             ));
                         }}
-                        onSelect={(e) => {
-                            const selectedStr = e.value as string;
-                            const match = rowData.suggestions?.find(s => `[${s.referencia}] ${s.nombre}` === selectedStr);
-                            if (match) onProductSelect(match, rowData);
-                        }}
+                        onSelect={(e) => onProductSelect(e.value as ErpProducto, rowData)}
+                        itemTemplate={itemTemplate}
                         placeholder="Buscar producto en ERP..."
                         className="w-full"
                         inputClassName="product-autocomplete-input"
+                        panelClassName="erp-autocomplete-panel"
+                        delay={300}
+                        minLength={1}
                     />
                 </div>
                 {rowData.referenciaErp && (
@@ -424,9 +436,10 @@ const HomologacionPage: React.FC = () => {
                 <DataTable
                     value={filteredItems}
                     loading={loading}
-                    className="p-datatable-sm items-table"
+                    className="p-datatable-sm items-table modern-erp-table"
                     style={{ width: '100%' }}
                     rowHover
+                    stripedRows
                     rowClassName={(data) => {
                         const estado = data.estado ? data.estado.toLowerCase() : 'pendiente';
                         return {
@@ -440,22 +453,23 @@ const HomologacionPage: React.FC = () => {
                         header="PRODUCTO XML"
                         body={(rowData: ProductoMapeoPage) => (
                             <div className="flex flex-column gap-1">
-                                <div className="font-bold text-dark">{rowData.nombreProducto}</div>
-                                <div className="text-xs text-secondary font-mono">{rowData.referenciaXML}</div>
+                                <div className="text-sm font-semibold text-dark line-height-2">{rowData.nombreProducto}</div>
+                                <div className="text-xs text-secondary opacity-70 font-mono">{rowData.referenciaXML}</div>
                             </div>
                         )}
                         headerClassName="table-header-cell"
-                        style={{ width: '30%' }}
+                        style={{ width: '35%' }}
                     />
                     <Column
                         header="UND XML"
                         body={(rowData: ProductoMapeoPage) => (
-                            <div className="text-xs font-semibold">
-                                {rowData.unidadXML}{rowData.unidadXMLNombre ? ` - ${rowData.unidadXMLNombre}` : ''}
+                            <div className="flex flex-column gap-1">
+                                <span className="text-xs font-bold text-dark uppercase">{rowData.unidadXMLNombre || '---'}</span>
+                                <span className="text-xs text-secondary font-medium">({rowData.unidadXML})</span>
                             </div>
                         )}
                         headerClassName="table-header-cell"
-                        style={{ width: '15%' }}
+                        style={{ width: '10%' }}
                     />
                     <Column
                         header="PRODUCTO EN ERP"

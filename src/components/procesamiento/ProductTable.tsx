@@ -42,14 +42,14 @@ const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
       >
         <Column
           field="descripcion"
-          header="Descripción"
-          body={(rowData) => <span className="description-column text-sm font-medium">{rowData.descripcion}</span>}
-          style={{ minWidth: '200px' }}
-        />
-        <Column
-          field="referencia"
-          header="Ref"
-          body={(rowData) => <span className="ref-column text-xs font-mono">{rowData.referencia}</span>}
+          header="Producto XML"
+          body={(rowData) => (
+            <div className="flex flex-column gap-1">
+              <span className="description-column text-sm font-semibold">{rowData.descripcion}</span>
+              <span className="ref-column text-xs text-secondary opacity-70 font-mono">{rowData.referencia}</span>
+            </div>
+          )}
+          style={{ minWidth: '250px' }}
         />
         <Column
           field="cantidad"
