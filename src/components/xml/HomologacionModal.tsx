@@ -152,9 +152,11 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
     };
 
     const searchErpProducts = async (event: AutoCompleteCompleteEvent, rowData: ProductoMapeo) => {
+        const query = (event.query || '').trim();
+
         updateRowState(rowData.referenciaXML, { searching: true });
         try {
-            const suggestions = await erpService.searchErpProductos(event.query);
+            const suggestions = await erpService.searchErpProductos(query);
             updateRowState(rowData.referenciaXML, { erpSuggestions: suggestions, searching: false });
         } catch {
             updateRowState(rowData.referenciaXML, { searching: false });
@@ -187,7 +189,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
 
         if (!showEditor) {
             return (
-                <div className="flex flex-column gap-1 py-1">
+                <div className="flex flex-column gap-1 py-1 product-system-display">
                     <span className="text-sm font-semibold text-primary">
                         {rowData.productoSistema || rowData.referenciaErp}
                     </span>
@@ -199,24 +201,36 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
             );
         }
 
+        const itemTemplate = (item: ErpProducto) => {
+            return (
+                <div className="flex flex-column erp-item-suggestion py-1">
+                    <span className="erp-item-code font-bold text-sm text-primary">[{item.referencia}]</span>
+                    <span className="erp-item-name text-xs text-secondary mt-1">{item.nombre}</span>
+                </div>
+            );
+        };
+
         return (
             <div className="flex flex-column gap-2">
                 <div className="p-input-icon-left w-full">
-                    <i className="pi pi-search text-xs" style={{ left: '0.75rem' }} />
+                    <i className="pi pi-search text-xs" style={{ left: '0.75rem', zIndex: 1 }} />
                     <AutoComplete
                         value={rowData.productoSistema || rowData.referenciaErp}
-                        suggestions={rowData.erpSuggestions?.map(s => `[${s.referencia}] - ${s.nombre}`) || []}
+                        suggestions={rowData.erpSuggestions || []}
                         completeMethod={(e) => searchErpProducts(e, rowData)}
-                        onChange={(e: AutoCompleteChangeEvent) => updateRowState(rowData.referenciaXML, { productoSistema: e.value })}
-                        onSelect={(e) => {
-                            const selectedStr = e.value as string;
-                            const match = rowData.erpSuggestions?.find(s => `[${s.referencia}] - ${s.nombre}` === selectedStr);
-                            if (match) onErpProductSelect(match, rowData);
+                        onChange={(e: AutoCompleteChangeEvent) => {
+                            const val = typeof e.value === 'string' ? e.value : `[${e.value.referencia}] - ${e.value.nombre}`;
+                            updateRowState(rowData.referenciaXML, { productoSistema: val });
                         }}
+                        onSelect={(e) => onErpProductSelect(e.value as ErpProducto, rowData)}
+                        itemTemplate={itemTemplate}
                         placeholder="Buscar producto en ERP..."
                         className="w-full"
                         inputClassName="p-inputtext-sm w-full pl-5"
+                        panelClassName="erp-autocomplete-panel"
                         loadingIcon="pi pi-spin pi-spinner"
+                        delay={300}
+                        minLength={1}
                     />
                 </div>
                 {rowData.referenciaErp && (

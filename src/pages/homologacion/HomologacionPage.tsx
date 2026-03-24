@@ -112,8 +112,10 @@ const HomologacionPage: React.FC = () => {
     }, [items, statusFilter, globalFilter]);
 
     const searchProduct = async (event: AutoCompleteCompleteEvent, rowData: ProductoMapeoPage) => {
+        const query = (event.query || '').trim();
+
         try {
-            const suggestions = await erpService.searchErpProductos(event.query);
+            const suggestions = await erpService.searchErpProductos(query);
             setItems(prev => prev.map(item =>
                 item.referenciaXML === rowData.referenciaXML ? { ...item, suggestions } : item
             ));
@@ -129,7 +131,7 @@ const HomologacionPage: React.FC = () => {
             if (item.referenciaXML === rowData.referenciaXML) {
                 return {
                     ...item,
-                    productoSistema: `[${erpProd.referencia}] ${erpProd.nombre}`,
+                    productoSistema: `[${erpProd.referencia}] - ${erpProd.nombre}`,
                     referenciaErp: erpProd.referencia,
                     unidadErp: matchingUnit?.codigo || '',
                 };
@@ -238,7 +240,7 @@ const HomologacionPage: React.FC = () => {
         if (!showEditor) {
             const unitLabel = unidades.find(u => u.codigo === rowData.unidadErp)?.sigla || rowData.unidadErp || '---';
             return (
-                <div className="flex flex-column gap-1 py-1">
+                <div className="flex flex-column gap-1 py-1 product-system-display">
                     <span className="text-sm font-semibold text-primary">{rowData.productoSistema}</span>
                     <span className="text-xs text-secondary font-medium">Unidad ERP: <span className="text-dark">{unitLabel}</span></span>
                 </div>
@@ -247,27 +249,37 @@ const HomologacionPage: React.FC = () => {
 
         const selectedUnitLabel = unidades.find(u => u.codigo === rowData.unidadErp)?.sigla || '';
 
+        const itemTemplate = (item: ErpProducto) => {
+            return (
+                <div className="flex flex-column erp-item-suggestion py-1">
+                    <span className="erp-item-code font-bold text-sm text-primary">[{item.referencia}]</span>
+                    <span className="erp-item-name text-xs text-secondary mt-1">{item.nombre}</span>
+                </div>
+            );
+        };
+
         return (
             <div className="flex flex-column gap-2">
                 <div className="autocomplete-wrapper">
-                    <i className="pi pi-search search-icon"></i>
+                    <i className="pi pi-search search-icon" style={{ zIndex: 1 }}></i>
                     <AutoComplete
                         value={rowData.productoSistema || ''}
-                        suggestions={rowData.suggestions?.map(s => `[${s.referencia}] ${s.nombre}`) || []}
+                        suggestions={rowData.suggestions || []}
                         completeMethod={(e) => searchProduct(e, rowData)}
                         onChange={(e: AutoCompleteChangeEvent) => {
+                            const val = typeof e.value === 'string' ? e.value : `[${e.value.referencia}] - ${e.value.nombre}`;
                             setItems(prev => prev.map(item =>
-                                item.referenciaXML === rowData.referenciaXML ? { ...item, productoSistema: e.value } : item
+                                item.referenciaXML === rowData.referenciaXML ? { ...item, productoSistema: val } : item
                             ));
                         }}
-                        onSelect={(e) => {
-                            const selectedStr = e.value as string;
-                            const match = rowData.suggestions?.find(s => `[${s.referencia}] ${s.nombre}` === selectedStr);
-                            if (match) onProductSelect(match, rowData);
-                        }}
+                        onSelect={(e) => onProductSelect(e.value as ErpProducto, rowData)}
+                        itemTemplate={itemTemplate}
                         placeholder="Buscar producto en ERP..."
                         className="w-full"
                         inputClassName="product-autocomplete-input"
+                        panelClassName="erp-autocomplete-panel"
+                        delay={300}
+                        minLength={1}
                     />
                 </div>
                 {rowData.referenciaErp && (

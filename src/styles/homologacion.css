@@ -214,6 +214,37 @@
     border-radius: var(--radius-lg) !important;
     font-size: 0.875rem !important;
     box-shadow: var(--shadow) !important;
+    min-width: 280px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.erp-autocomplete-panel {
+    min-width: 400px !important;
+    box-shadow: var(--shadow-lg) !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: var(--radius-xl) !important;
+}
+
+.erp-item-suggestion {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.erp-item-suggestion:last-child {
+    border-bottom: none;
+}
+
+.erp-item-code {
+    display: block;
+    line-height: 1.2;
+}
+
+.erp-item-name {
+    display: block;
+    line-height: 1.4;
+    white-space: normal;
+    word-break: break-word;
 }
 
 .product-selected-container {
@@ -223,6 +254,13 @@
     background-color: var(--color-surface-container-low);
     border-radius: var(--radius-lg);
     color: var(--color-secondary);
+}
+
+.product-system-display {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
+    max-width: 100%;
 }
 
 .table-footer {
