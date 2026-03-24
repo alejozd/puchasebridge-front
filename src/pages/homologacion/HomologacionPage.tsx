@@ -452,8 +452,8 @@ const HomologacionPage: React.FC = () => {
                         header="PRODUCTO XML"
                         body={(rowData: ProductoMapeoPage) => (
                             <div className="flex flex-column gap-1">
-                                <div className="font-bold text-dark">{rowData.nombreProducto}</div>
-                                <div className="text-xs text-secondary font-mono">{rowData.referenciaXML}</div>
+                                <div className="text-sm font-semibold text-dark">{rowData.nombreProducto}</div>
+                                <div className="text-xs text-secondary opacity-70 font-mono">{rowData.referenciaXML}</div>
                             </div>
                         )}
                         headerClassName="table-header-cell"

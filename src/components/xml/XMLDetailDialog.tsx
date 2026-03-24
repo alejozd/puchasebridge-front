@@ -84,8 +84,17 @@ const XMLDetailDialog: React.FC<XMLDetailDialogProps> = ({ visible, onHide, xmlD
                             tableStyle={{ minWidth: '60rem' }}
                             rowHover
                         >
-                            <Column field="descripcion" header="DESCRIPCIÓN" headerClassName="table-header-v2" className="col-desc" />
-                            <Column field="referencia" header="REFERENCIA" headerClassName="table-header-v2" className="col-ref" />
+                            <Column
+                                header="PRODUCTO XML"
+                                headerClassName="table-header-v2"
+                                className="col-desc"
+                                body={(rowData) => (
+                                    <div className="flex flex-column gap-1">
+                                        <div className="text-sm font-semibold text-dark">{rowData.descripcion}</div>
+                                        <div className="text-xs text-secondary opacity-70 font-mono">{rowData.referencia}</div>
+                                    </div>
+                                )}
+                            />
                             <Column field="cantidad" header="CANTIDAD" align="center" headerClassName="table-header-v2" className="col-qty font-bold" />
                             <Column
                                 field="valorUnitario"
