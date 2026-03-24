@@ -24,6 +24,7 @@ const XMLValidationPage: React.FC = () => {
     const [displayHomologacionModal, setDisplayHomologacionModal] = useState(false);
     const [selectedFileName, setSelectedFileName] = useState<string>('');
     const [validationInfo, setValidationInfo] = useState<{ fileName: string, errores?: string[], advertencias?: string[] } | null>(null);
+    const [validatingFiles, setValidatingFiles] = useState<string[]>([]);
 
     const toast = useRef<Toast>(null);
 
@@ -52,11 +53,14 @@ const XMLValidationPage: React.FC = () => {
         }
     };
 
-    const onValidate = async (files: XMLFile[]) => {
+    const handleValidate = async (files: XMLFile[]) => {
         if (files.length === 0) return;
 
+        const fileNamesToValidate = files.map(f => f.fileName);
+        setValidatingFiles(prev => [...prev, ...fileNamesToValidate]);
+
         try {
-            await validateFiles(files.map(f => f.fileName));
+            await validateFiles(fileNamesToValidate);
 
             // If single file validation, show issues if any
             if (files.length === 1) {
@@ -80,6 +84,8 @@ const XMLValidationPage: React.FC = () => {
                 detail: 'No se pudo completar la validación.',
                 life: 3000
             });
+        } finally {
+            setValidatingFiles(prev => prev.filter(name => !fileNamesToValidate.includes(name)));
         }
     };
 
@@ -129,28 +135,37 @@ const XMLValidationPage: React.FC = () => {
     const handleHomologacionSuccess = async () => {
         setDisplayHomologacionModal(false);
         if (selectedFileName) {
-            await onValidate([{ fileName: selectedFileName } as XMLFile]);
+            await handleValidate([{ fileName: selectedFileName } as XMLFile]);
         }
     };
 
     const actionBodyTemplate = (rowData: XMLFile) => {
-        const isPending = rowData.estado === 'Pendiente' || !rowData.estado;
         const isError = rowData.estado === 'Con errores';
         const isHomologation = rowData.estado === 'Requiere homologación';
+        const isValidated = rowData.estado === 'Validado' || rowData.estado === 'Procesado';
+        const isCurrentlyValidating = validatingFiles.includes(rowData.fileName);
 
         return (
             <div className="actions-cell">
-                {isPending && (
-                    <Button
-                        icon="pi pi-check-circle"
-                        text rounded
-                        severity="secondary"
-                        size="small"
-                        tooltip="Validar"
-                        onClick={() => onValidate([rowData])}
-                        disabled={validating}
-                    />
-                )}
+                <Button
+                    icon="pi pi-check"
+                    text rounded
+                    severity="success"
+                    size="small"
+                    tooltip="Validar archivo"
+                    onClick={() => handleValidate([rowData])}
+                    disabled={isValidated || validating || isCurrentlyValidating}
+                    loading={isCurrentlyValidating}
+                />
+                <Button
+                    icon="pi pi-eye"
+                    text
+                    rounded
+                    severity="secondary"
+                    size="small"
+                    tooltip="Ver detalle"
+                    onClick={() => handleViewDetail(rowData.fileName)}
+                />
                 {isHomologation && (
                     <Button
                         icon="pi pi-sync"
@@ -171,15 +186,6 @@ const XMLValidationPage: React.FC = () => {
                         onClick={() => handleViewIssues(rowData)}
                     />
                 )}
-                <Button
-                    icon="pi pi-eye"
-                    text
-                    rounded
-                    severity="secondary"
-                    size="small"
-                    tooltip="Ver detalle"
-                    onClick={() => handleViewDetail(rowData.fileName)}
-                />
             </div>
         );
     };
@@ -208,7 +214,7 @@ const XMLValidationPage: React.FC = () => {
                         className="btn-validate-bulk"
                         disabled={selectedFiles.length === 0 || validating}
                         loading={validating}
-                        onClick={() => onValidate(selectedFiles)}
+                        onClick={() => handleValidate(selectedFiles)}
                     />
                 </div>
             </section>
