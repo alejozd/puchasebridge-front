@@ -251,7 +251,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
     if (!showEditor) {
       return (
         <div className="flex flex-column gap-1 py-1 product-system-display">
-          <span className="text-sm font-semibold text-primary">
+          <span className="text-sm font-semibold text-primary homologado-erp-label">
             {rowData.productoSistema || rowData.referenciaErp}
           </span>
           <div className="flex align-items-center gap-1">
@@ -325,17 +325,26 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
         <span className="factor-relation text-xs">
           1 {displayUnit} = {rowData.factor} {rowData.unidadErpLabel || "ERP"}
         </span>
-        <InputNumber
-          value={rowData.factor}
-          onValueChange={(e) =>
-            updateRowState(rowData.referenciaXML, { factor: e.value ?? 1 })
-          }
-          min={0}
-          minFractionDigits={0}
-          maxFractionDigits={4}
-          size={5}
-          inputClassName="p-inputtext-sm text-center font-bold"
-        />
+        <div className="factor-input-wrap">
+          <span className="factor-eq">Factor</span>
+          <InputNumber
+            value={rowData.factor}
+            onValueChange={(e) =>
+              updateRowState(rowData.referenciaXML, { factor: e.value ?? 1 })
+            }
+            min={0}
+            minFractionDigits={0}
+            maxFractionDigits={4}
+            mode="decimal"
+            showButtons
+            buttonLayout="horizontal"
+            decrementButtonClassName="p-button-text p-button-sm"
+            incrementButtonClassName="p-button-text p-button-sm"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus"
+            inputClassName="p-inputtext-sm text-center font-bold"
+          />
+        </div>
       </div>
     );
   };
@@ -411,13 +420,13 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
   return (
     <Dialog
       header={
-        <div className="flex align-items-center gap-3 w-full py-2">
+        <div className="homologacion-header">
           <div className="header-icon-container">
             <i className="pi pi-sync text-primary text-xl"></i>
           </div>
-          <div>
+          <div className="header-title-block">
             <h2 className="m-0 text-lg font-bold text-slate-800">Homologación de productos</h2>
-            <small className="text-slate-500 font-medium block mt-1 font-mono text-xs">{fileName}</small>
+            <div className="header-file-name">{fileName}</div>
           </div>
         </div>
       }
@@ -460,8 +469,8 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
       }
     >
       <Toast ref={toast} />
-      <div className="modal-body-content py-1">
-        <div className="toolbar-grid mb-3">
+      <div className="modal-body-content py-0">
+        <div className="toolbar-grid mb-2">
           <div className="toolbar-stats">
             <Tag value={`Total: ${totales.totalProductos}`} severity="info" rounded />
             <Tag value={`Pendientes: ${totales.totalPendientes}`} severity="warning" rounded />
@@ -525,7 +534,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             };
           }}
         >
-          <Column header="PRODUCTO ORIGEN (XML)" body={productXmlTemplate} style={{ width: "23%" }} />
+          <Column header="PRODUCTO ORIGEN (XML)" body={productXmlTemplate} style={{ width: "24%" }} />
           <Column
             header="UND. XML"
             body={(rowData) => {
@@ -549,8 +558,8 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             style={{ width: "8%" }}
             align="center"
           />
-          <Column header="EQUIVALENCIA EN ERP" body={productErpTemplate} style={{ width: "44%" }} />
-          <Column header="CONVERSIÓN (FACTOR)" body={factorEditor} style={{ width: "13%" }} />
+          <Column header="EQUIVALENCIA EN ERP" body={productErpTemplate} style={{ width: "46%" }} />
+          <Column header="CONVERSIÓN (FACTOR)" body={factorEditor} style={{ width: "11%" }} />
           <Column
             field="estado"
             header="ESTADO"
