@@ -51,32 +51,48 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
   const [filteredProducts, setFilteredProducts] = useState<ProductoMapeo[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [unidades, setUnidades] = useState<ErpUnidad[]>([]);
+  const [totales, setTotales] = useState({
+    totalProductos: 0,
+    totalPendientes: 0,
+    totalHomologados: 0,
+  });
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [pendingProducts, erpUnits] = await Promise.all([
-        xmlService.getProductosPendientes(fileName),
+      const [docData, erpUnits] = await Promise.all([
+        xmlService.getProductosDocumento(fileName),
         erpService.getErpUnidades(),
       ]);
 
-      const mapped = pendingProducts.map((p) => ({
+      const mapped = docData.productos.map((p) => ({
         referenciaXML: p.referenciaXML,
         nombreProducto: p.nombreProducto,
         unidadXML: p.unidadXML,
         unidadXMLNombre: p.unidadXMLNombre,
-        estado: p.estado || "PENDIENTE",
-        referenciaErp: "",
-        unidadErp: "",
-        unidadErpLabel: "",
-        factor: 1,
+        estado: p.estado,
+
+        referenciaErp: p.referenciaErp || "",
+        productoSistema: p.referenciaErp
+          ? `[${p.referenciaErp}] - ${p.nombreErp || ""}`
+          : "",
+
+        unidadErp: p.unidadErp || "",
+        unidadErpLabel: p.unidadErpNombre || "",
+
+        factor: p.factor || 1,
       }));
 
       setProductos(mapped);
       setFilteredProducts(mapped);
       setUnidades(erpUnits);
+      setTotales({
+        totalProductos: docData.totalProductos,
+        totalPendientes: docData.totalPendientes,
+        totalHomologados: docData.totalHomologados,
+      });
       return mapped;
     } catch {
       toast.current?.show({
@@ -493,13 +509,12 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             <div className="text-xs text-slate-500 font-medium">
               Estado:{" "}
               <span className="text-slate-700 font-bold">
-                {
-                  productos.filter(
-                    (p) => p.estado?.toLowerCase() === "homologado",
-                  ).length
-                }
+                {totales.totalHomologados}
               </span>{" "}
-              de <span className="text-slate-700 font-bold">{productos.length}</span>{" "}
+              de{" "}
+              <span className="text-slate-700 font-bold">
+                {totales.totalProductos}
+              </span>{" "}
               homologados
             </div>
             <Button

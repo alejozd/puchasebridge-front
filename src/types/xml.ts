@@ -122,6 +122,26 @@ export interface ProductoPendiente {
   estado: string;
 }
 
+export interface ProductoDocumento {
+  referenciaXML: string;
+  nombreProducto: string;
+  unidadXML: string;
+  unidadXMLNombre: string;
+  estado: string;
+  referenciaErp: string;
+  nombreErp: string;
+  unidadErp: string;
+  unidadErpNombre: string;
+  factor: number;
+}
+
+export interface DocumentoProductosResponse {
+  totalProductos: number;
+  totalPendientes: number;
+  totalHomologados: number;
+  productos: ProductoDocumento[];
+}
+
 export interface HomologarPayload {
   fileName: string;
   referenciaXml: string;
