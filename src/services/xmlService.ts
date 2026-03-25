@@ -8,7 +8,8 @@ import type {
   XMLValidationResult,
   XMLProcesarResponse,
   ProductoPendiente,
-  HomologarPayload
+  HomologarPayload,
+  DocumentoProductosResponse
 } from "../types/xml";
 
 export const getXMLList = async (): Promise<XMLFile[]> => {
@@ -25,6 +26,14 @@ export const uploadXML = async (file: File): Promise<unknown> => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+  });
+  return response.data;
+};
+
+export const getProductosDocumento = async (fileName: string): Promise<DocumentoProductosResponse> => {
+  console.log('[API CALL]', { method: 'GET', url: '/xml/productos/documento', params: { fileName } });
+  const response = await axiosClient.get<DocumentoProductosResponse>("/xml/productos/documento", {
+    params: { fileName }
   });
   return response.data;
 };

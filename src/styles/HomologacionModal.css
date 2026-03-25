@@ -1,101 +1,216 @@
 /* HomologacionModal.css */
+
+/* Modern Table Reset */
 .modern-erp-table .p-datatable-thead > tr > th {
-    background: #f8fafc;
-    color: #475569;
-    font-size: 0.75rem;
-    font-weight: 700;
+    background: #f8fafc !important;
+    color: #0f172a !important; /* Slate 900 */
+    font-size: 0.9rem !important;
+    font-weight: 800 !important;
     text-transform: uppercase;
-    letter-spacing: 0.025em;
-    padding: 1rem;
-    border-bottom: 2px solid #e2e8f0;
+    letter-spacing: 0.1em !important;
+    padding: 1.75rem 0.75rem !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 2px solid #e2e8f0 !important;
 }
 
 .modern-erp-table .p-datatable-tbody > tr {
-    transition: background-color 0.2s;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f1f5f9 !important;
 }
 
+.modern-erp-table .p-datatable-tbody > tr:hover {
+    background-color: #f1f5f9 !important;
+}
+
+/* Row Pending Styling */
 .modern-erp-table .row-pending {
-    background-color: #fffaf0 !important; /* Un naranja muy sutil para pendientes */
+    background-color: #ffffff !important;
+    border-left: 4px solid #f59e0b !important;
 }
 
-.product-xml-container, .unit-container {
+/* XML Reference Badge */
+.product-xml-container {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 
 .ref-mono {
-    font-family: 'JetBrains Mono', monospace;
-    background: #f1f5f9;
-    padding: 2px 6px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.65rem;
+    color: #94a3b8;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 1px 6px;
     border-radius: 4px;
     width: fit-content;
-    color: #64748b;
+    font-weight: 500;
 }
 
-/* El contenedor del factor (Conversión) */
-.factor-wrapper {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0; /* Corregido: 'style solid' estaba mal escrito */
-    border-radius: 12px;
-    padding: 10px;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+/* AutoComplete Customization */
+.modern-erp-table .p-autocomplete .p-inputtext {
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    padding-left: 0.5rem !important;
+    transition: all 0.2s ease;
+    font-size: 0.875rem !important;
+    color: #1e293b !important;
+    font-weight: 600 !important;
 }
 
-.factor-relation {
-    font-size: 10px;
-    color: #166534;
-    font-weight: 600;
-    margin-bottom: 4px;
+.modern-erp-table .p-autocomplete .p-inputtext:focus,
+.modern-erp-table .p-autocomplete .p-inputtext:hover {
+    border: 1px solid #cbd5e1 !important;
+    background: #fff !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+.erp-autocomplete-panel {
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    margin-top: 4px !important;
 }
 
 .erp-autocomplete-panel .p-autocomplete-item {
+    padding: 0.75rem 1rem !important;
     border-bottom: 1px solid #f1f5f9;
 }
 
-.unit-tag-inline {
-    background: #e0f2fe;
-    color: #0369a1;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 700;
-    display: inline-flex;
+/* Factor Box Styling */
+.factor-wrapper {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 10px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 4px;
 }
 
-/* Arreglo para la lupa en EQUIVALENCIA EN ERP */
-.p-input-icon-right > .p-autocomplete > .p-inputtext {
-    padding-right: 2.5rem !important; /* Asegura espacio para la lupa */
+.factor-relation {
+    font-size: 11px;
+    color: #15803d; /* Forest Green */
+    font-weight: 700;
+    background: #f0fdf4;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid #dcfce7;
+    white-space: nowrap;
+}
+
+.factor-wrapper .p-inputnumber-input {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    font-size: 0.9rem !important;
+}
+
+/* Header UI Elements */
+.header-icon-container {
+    background: #eff6ff;
+    padding: 8px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tailwind-style fallback colors if not present in project */
+.text-slate-800 { color: #1e293b; }
+.text-slate-700 { color: #334155; }
+.text-slate-500 { color: #64748b; }
+
+.search-pill-container {
+    position: relative;
+}
+
+.search-pill {
+    border-radius: 20px !important;
+    border: 1px solid #e2e8f0 !important;
+    padding-left: 1rem !important;
+    padding-right: 2.5rem !important;
+    width: 280px !important;
+    transition: all 0.2s ease !important;
+    background: #fff !important;
+}
+
+.search-pill:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.search-pill-container i {
+    right: 0.85rem !important;
+    color: #94a3b8 !important;
+}
+
+.p-tag-minimalist {
+    background: transparent !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #64748b !important;
+    font-weight: 600 !important;
+    font-size: 0.75rem !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 6px !important;
+}
+
+/* Footer UI Elements */
+.minimalist-tip {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    padding: 0.25rem 0.75rem !important;
+}
+
+.minimalist-tip .p-message-wrapper {
+    padding: 0 !important;
+}
+
+.minimalist-tip .p-message-icon,
+.minimalist-tip .p-message-close {
+    display: none !important;
+}
+
+.minimalist-tip .p-message-detail {
+    margin: 0 !important;
+    color: #64748b !important;
+    font-weight: 500 !important;
+}
+
+/* Unit Tag Inline */
+.unit-tag-inline {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid #e2e8f0;
+}
+
+/* Alignment Fixes */
+.actions-cell .p-button {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+}
+
+/* Fix for AutoComplete icon alignment in table cells */
+.modern-erp-table .p-input-icon-right > .p-autocomplete > .p-inputtext {
+    padding-right: 2.5rem !important;
 }
 
 .p-input-icon-right > i:last-child {
-    z-index: 2; /* Asegura que la lupa esté por encima del fondo pero no bloquee el click */
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
+    z-index: 2;
 }
 
-/* Títulos con más peso y mejor separación */
-.modern-erp-table .p-datatable-thead > tr > th {
-    background-color: #f1f5f9 !important;
-    color: #1e293b !important;
-    font-size: 0.8rem !important;
-    font-weight: 800 !important;
-    padding: 1.25rem 1rem !important;
-    border-bottom: 3px solid #cbd5e1 !important;
-}
-
-/* Efecto hover en las filas para que no se sienta estático */
-.modern-erp-table .p-datatable-tbody > tr:hover {
-    background-color: #f8fafc !important;
-}
-
-/* Corregir posición de la lupa en el AutoComplete */
-.p-input-icon-right > i:last-child {
-    top: 50%;
-    transform: translateY(-50%);
-    right: 0.75rem;
-    margin-top: 0; /* Eliminamos el margin-top negativo */
+/* Erp Item Suggestions */
+.erp-item-suggestion:hover .erp-item-code {
+    color: #2563eb;
 }

@@ -4,6 +4,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
+import { Message } from "primereact/message";
 import {
   AutoComplete,
   type AutoCompleteCompleteEvent,
@@ -50,32 +51,48 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
   const [filteredProducts, setFilteredProducts] = useState<ProductoMapeo[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [unidades, setUnidades] = useState<ErpUnidad[]>([]);
+  const [totales, setTotales] = useState({
+    totalProductos: 0,
+    totalPendientes: 0,
+    totalHomologados: 0,
+  });
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [pendingProducts, erpUnits] = await Promise.all([
-        xmlService.getProductosPendientes(fileName),
+      const [docData, erpUnits] = await Promise.all([
+        xmlService.getProductosDocumento(fileName),
         erpService.getErpUnidades(),
       ]);
 
-      const mapped = pendingProducts.map((p) => ({
+      const mapped = docData.productos.map((p) => ({
         referenciaXML: p.referenciaXML,
         nombreProducto: p.nombreProducto,
         unidadXML: p.unidadXML,
         unidadXMLNombre: p.unidadXMLNombre,
-        estado: p.estado || "PENDIENTE",
-        referenciaErp: "",
-        unidadErp: "",
-        unidadErpLabel: "",
-        factor: 1,
+        estado: p.estado,
+
+        referenciaErp: p.referenciaErp || "",
+        productoSistema: p.referenciaErp
+          ? `[${p.referenciaErp}] - ${p.nombreErp || ""}`
+          : "",
+
+        unidadErp: p.unidadErp || "",
+        unidadErpLabel: p.unidadErpNombre || "",
+
+        factor: p.factor || 1,
       }));
 
       setProductos(mapped);
       setFilteredProducts(mapped);
       setUnidades(erpUnits);
+      setTotales({
+        totalProductos: docData.totalProductos,
+        totalPendientes: docData.totalPendientes,
+        totalHomologados: docData.totalHomologados,
+      });
       return mapped;
     } catch {
       toast.current?.show({
@@ -309,25 +326,30 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
     );
   };
 
-  const factorEditor = (rowData: ProductoMapeo) => (
-    <div className="factor-wrapper">
-      <span className="factor-relation">
-        1 {rowData.unidadXML} = {rowData.factor}{" "}
-        {rowData.unidadErpLabel || "ERP"}
-      </span>
-      <InputNumber
-        value={rowData.factor}
-        onValueChange={(e) =>
-          updateRowState(rowData.referenciaXML, { factor: e.value ?? 1 })
-        }
-        min={0}
-        minFractionDigits={0}
-        maxFractionDigits={4}
-        size={5}
-        inputClassName="p-inputtext-sm text-center font-bold"
-      />
-    </div>
-  );
+  const factorEditor = (rowData: ProductoMapeo) => {
+    const unitLabel = rowData.unidadXMLNombre || rowData.unidadXML;
+    const isTechnical = unitLabel.toLowerCase().includes("código") || unitLabel.toLowerCase().includes("codigo");
+    const displayUnit = isTechnical ? rowData.unidadXML : unitLabel;
+
+    return (
+      <div className="factor-wrapper">
+        <span className="factor-relation text-xs">
+          1 {displayUnit} = {rowData.factor} {rowData.unidadErpLabel || "ERP"}
+        </span>
+        <InputNumber
+          value={rowData.factor}
+          onValueChange={(e) =>
+            updateRowState(rowData.referenciaXML, { factor: e.value ?? 1 })
+          }
+          min={0}
+          minFractionDigits={0}
+          maxFractionDigits={4}
+          size={5}
+          inputClassName="p-inputtext-sm text-center font-bold"
+        />
+      </div>
+    );
+  };
 
   const productXmlTemplate = (rowData: ProductoMapeo) => (
     <div className="product-xml-container">
@@ -345,9 +367,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
 
     if (isEditing) {
       return (
-        <div className="actions-cell flex gap-2 justify-content-center">
+        <div className="actions-cell flex gap-1 justify-content-center">
           <Button
-            icon="pi pi-check"
+            icon="pi pi-check-circle"
             text
             rounded
             severity="success"
@@ -374,7 +396,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
 
     if (isHomologado) {
       return (
-        <div className="actions-cell flex gap-2 justify-content-center">
+        <div className="actions-cell flex gap-1 justify-content-center">
           <Button
             icon="pi pi-pencil"
             text
@@ -407,9 +429,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
     }
 
     return (
-      <div className="actions-cell flex gap-2 justify-content-center">
+      <div className="actions-cell flex gap-1 justify-content-center">
         <Button
-          icon="pi pi-save"
+          icon="pi pi-check-circle"
           text
           rounded
           severity="success"
@@ -427,48 +449,39 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
   return (
     <Dialog
       header={
-        <div className="flex align-items-center justify-content-between w-full pr-4">
+        <div className="flex align-items-center justify-content-between w-full pr-4 py-2">
           <div className="flex align-items-center gap-3">
-            <i className="pi pi-sync text-primary text-2xl"></i>
+            <div className="header-icon-container">
+              <i className="pi pi-sync text-primary text-xl"></i>
+            </div>
             <div>
-              <h2
-                className="m-0 text-xl font-bold"
-                style={{ color: "#1e293b" }}
-              >
+              <h2 className="m-0 text-lg font-bold text-slate-800">
                 Homologación de Productos
               </h2>
-              <small
-                className="text-secondary font-medium block mt-1"
-                style={{ fontSize: "0.75rem", fontFamily: "monospace" }}
-              >
+              <small className="text-slate-500 font-medium block mt-1 font-mono text-xs">
                 {fileName}
               </small>
             </div>
           </div>
 
-          <div className="flex align-items-center gap-2 ml-auto">
-            <span className="p-input-icon-right">
+          <div className="flex align-items-center gap-3 ml-auto">
+            <span className="p-input-icon-right search-pill-container">
               <InputText
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Filtrar productos..."
-                className="p-inputtext-sm"
-                style={{
-                  width: "250px",
-                  borderRadius: "8px",
-                  paddingRight: "2.5rem",
-                }}
+                placeholder="Filtrar por nombre o referencia..."
+                className="p-inputtext-sm search-pill"
               />
-              <i className="pi pi-search" style={{ color: "#94a3b8" }} />
+              <i className="pi pi-search" />
             </span>
             <Tag
               value={`${productos.length} Ítems`}
-              severity="info"
-              style={{ borderRadius: "6px", padding: "0.4rem 0.8rem" }}
+              className="p-tag-minimalist"
             />
           </div>
         </div>
       }
+      headerStyle={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}
       visible={visible}
       onHide={onHide}
       className="detail-dialog-v2"
@@ -478,32 +491,37 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
       modal
       blockScroll
       footer={
-        <div className="flex align-items-center justify-content-between p-3 border-top-1 border-gray-200">
-          <div className="flex align-items-center gap-2">
-            <i className="pi pi-info-circle text-secondary"></i>
-            <span className="text-xs font-medium text-secondary italic">
-              Tip: El sistema autoselecciona la unidad predeterminada del
-              producto Helisa.
-            </span>
-          </div>
-          <div className="flex align-items-center gap-3">
-            <div className="text-xs text-secondary font-bold uppercase">
-              Resumen:{" "}
-              <span className="text-primary">
-                {
-                  productos.filter(
-                    (p) => p.estado?.toLowerCase() === "homologado",
-                  ).length
-                }
+        <div className="flex align-items-center justify-content-between px-4 py-3 border-top-1 border-gray-100 bg-white">
+          <Message
+            severity="info"
+            className="minimalist-tip"
+            content={
+              <div className="flex align-items-center gap-2">
+                <i className="pi pi-info-circle text-xs"></i>
+                <span className="text-xs">
+                  Tip: El sistema autoselecciona la unidad predeterminada del
+                  producto ERP.
+                </span>
+              </div>
+            }
+          />
+          <div className="flex align-items-center gap-4">
+            <div className="text-xs text-slate-500 font-medium">
+              Estado:{" "}
+              <span className="text-slate-700 font-bold">
+                {totales.totalHomologados}
               </span>{" "}
-              de <span className="text-primary">{productos.length}</span>{" "}
+              de{" "}
+              <span className="text-slate-700 font-bold">
+                {totales.totalProductos}
+              </span>{" "}
               homologados
             </div>
             <Button
-              label="Cerrar Ventana"
+              label="Cerrar"
               icon="pi pi-times"
               onClick={onHide}
-              className="p-button-text p-button-secondary font-bold"
+              className="p-button-text p-button-secondary p-button-sm font-semibold"
             />
           </div>
         </div>
@@ -533,40 +551,46 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
           <Column
             header="PRODUCTO ORIGEN (XML)"
             body={productXmlTemplate}
-            style={{ width: "30%" }}
+            style={{ width: "23%" }}
           />
           <Column
             header="UND. XML"
-            body={(rowData) => (
-              <div className="flex flex-column align-items-center gap-1">
-                <span className="surface-100 text-primary-700 font-bold px-3 py-1 border-round-xl text-sm border-1 border-primary-100 shadow-1">
-                  {rowData.unidadXMLNombre || "Unidad"}
-                </span>
-                <span className="text-xs font-medium text-500">
-                  Código: {rowData.unidadXML}
-                </span>
-              </div>
-            )}
-            style={{ width: "12%" }}
+            body={(rowData) => {
+              const nombre = rowData.unidadXMLNombre || "";
+              const isTechnical = nombre.toLowerCase().includes("código") || nombre.toLowerCase().includes("codigo");
+              return (
+                <div className="flex flex-column align-items-center gap-1">
+                  <span className="unit-tag-inline shadow-sm px-3 py-1 bg-white border-1 border-slate-300 text-slate-800 font-bold uppercase text-xs">
+                    {isTechnical ? rowData.unidadXML : (nombre || rowData.unidadXML)}
+                  </span>
+                  {isTechnical && nombre && (
+                    <span className="text-slate-400 font-medium" style={{ fontSize: '10px' }}>
+                      Ref: {rowData.unidadXML}
+                    </span>
+                  )}
+                </div>
+              );
+            }}
+            style={{ width: "7%" }}
             align="center"
           />
           <Column
             header="EQUIVALENCIA EN ERP"
             body={productErpTemplate}
-            style={{ width: "35%" }}
+            style={{ width: "45%" }}
           />
 
           <Column
             header="CONVERSIÓN (FACTOR)"
             body={factorEditor}
-            style={{ width: "15%" }}
+            style={{ width: "12%" }}
           />
 
           <Column
             field="estado"
             header="ESTADO"
             body={statusBodyTemplate}
-            style={{ width: "10%" }}
+            style={{ width: "7%" }}
             align="center"
           />
 
