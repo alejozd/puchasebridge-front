@@ -66,13 +66,15 @@
 }
 
 /* Arreglo para la lupa en EQUIVALENCIA EN ERP */
-.p-input-icon-left > .p-autocomplete > .p-inputtext {
-    padding-left: 2.5rem !important; /* Asegura espacio para la lupa */
+.p-input-icon-right > .p-autocomplete > .p-inputtext {
+    padding-right: 2.5rem !important; /* Asegura espacio para la lupa */
 }
 
-.p-input-icon-left > i:first-child {
+.p-input-icon-right > i:last-child {
     z-index: 2; /* Asegura que la lupa esté por encima del fondo pero no bloquee el click */
-    margin-top: -6px; /* Centrado vertical manual si es necesario */
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* Títulos con más peso y mejor separación */
@@ -91,9 +93,9 @@
 }
 
 /* Corregir posición de la lupa en el AutoComplete */
-.p-input-icon-left > i:first-child {
+.p-input-icon-right > i:last-child {
     top: 50%;
     transform: translateY(-50%);
-    left: 0.75rem;
+    right: 0.75rem;
     margin-top: 0; /* Eliminamos el margin-top negativo */
 }

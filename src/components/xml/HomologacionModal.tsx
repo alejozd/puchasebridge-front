@@ -268,11 +268,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
 
     return (
       <div className="flex flex-column gap-1">
-        <div className="p-input-icon-left w-full">
-          <i
-            className="pi pi-search text-xs"
-            style={{ left: "0.75rem", zIndex: 1 }}
-          />
+        <div className="p-input-icon-right w-full">
           <AutoComplete
             value={rowData.productoSistema || rowData.referenciaErp}
             suggestions={rowData.erpSuggestions || []}
@@ -290,11 +286,15 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             itemTemplate={itemTemplate}
             placeholder="Buscar producto en ERP..."
             className="w-full"
-            inputClassName="p-inputtext-sm w-full pl-5"
+            inputClassName="p-inputtext-sm w-full pr-5"
             panelClassName="erp-autocomplete-panel"
             loadingIcon="pi pi-spin pi-spinner"
             delay={300}
             minLength={1}
+          />
+          <i
+            className="pi pi-search text-xs"
+            style={{ right: "0.75rem", zIndex: 1 }}
           />
         </div>
         {rowData.referenciaErp && (
@@ -446,9 +446,8 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             </div>
           </div>
 
-          <div className="flex align-items-center gap-2">
-            <span className="p-input-icon-left">
-              <i className="pi pi-search" style={{ color: "#94a3b8" }} />
+          <div className="flex align-items-center gap-2 ml-auto">
+            <span className="p-input-icon-right">
               <InputText
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -457,9 +456,10 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
                 style={{
                   width: "250px",
                   borderRadius: "8px",
-                  paddingLeft: "2.5rem",
+                  paddingRight: "2.5rem",
                 }}
               />
+              <i className="pi pi-search" style={{ color: "#94a3b8" }} />
             </span>
             <Tag
               value={`${productos.length} Ítems`}
