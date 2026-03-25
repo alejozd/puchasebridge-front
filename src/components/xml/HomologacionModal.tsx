@@ -4,6 +4,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
+import { Message } from "primereact/message";
 import {
   AutoComplete,
   type AutoCompleteCompleteEvent,
@@ -345,9 +346,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
 
     if (isEditing) {
       return (
-        <div className="actions-cell flex gap-2 justify-content-center">
+        <div className="actions-cell flex gap-1 justify-content-center">
           <Button
-            icon="pi pi-check"
+            icon="pi pi-check-circle"
             text
             rounded
             severity="success"
@@ -374,7 +375,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
 
     if (isHomologado) {
       return (
-        <div className="actions-cell flex gap-2 justify-content-center">
+        <div className="actions-cell flex gap-1 justify-content-center">
           <Button
             icon="pi pi-pencil"
             text
@@ -407,9 +408,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
     }
 
     return (
-      <div className="actions-cell flex gap-2 justify-content-center">
+      <div className="actions-cell flex gap-1 justify-content-center">
         <Button
-          icon="pi pi-save"
+          icon="pi pi-check-circle"
           text
           rounded
           severity="success"
@@ -427,48 +428,39 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
   return (
     <Dialog
       header={
-        <div className="flex align-items-center justify-content-between w-full pr-4">
+        <div className="flex align-items-center justify-content-between w-full pr-4 py-2">
           <div className="flex align-items-center gap-3">
-            <i className="pi pi-sync text-primary text-2xl"></i>
+            <div className="header-icon-container">
+              <i className="pi pi-sync text-primary text-xl"></i>
+            </div>
             <div>
-              <h2
-                className="m-0 text-xl font-bold"
-                style={{ color: "#1e293b" }}
-              >
+              <h2 className="m-0 text-lg font-bold text-slate-800">
                 Homologación de Productos
               </h2>
-              <small
-                className="text-secondary font-medium block mt-1"
-                style={{ fontSize: "0.75rem", fontFamily: "monospace" }}
-              >
+              <small className="text-slate-500 font-medium block mt-1 font-mono text-xs">
                 {fileName}
               </small>
             </div>
           </div>
 
-          <div className="flex align-items-center gap-2 ml-auto">
-            <span className="p-input-icon-right">
+          <div className="flex align-items-center gap-3 ml-auto">
+            <span className="p-input-icon-right search-pill-container">
               <InputText
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Filtrar productos..."
-                className="p-inputtext-sm"
-                style={{
-                  width: "250px",
-                  borderRadius: "8px",
-                  paddingRight: "2.5rem",
-                }}
+                placeholder="Filtrar por nombre o referencia..."
+                className="p-inputtext-sm search-pill"
               />
-              <i className="pi pi-search" style={{ color: "#94a3b8" }} />
+              <i className="pi pi-search" />
             </span>
             <Tag
               value={`${productos.length} Ítems`}
-              severity="info"
-              style={{ borderRadius: "6px", padding: "0.4rem 0.8rem" }}
+              className="p-tag-minimalist"
             />
           </div>
         </div>
       }
+      headerStyle={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}
       visible={visible}
       onHide={onHide}
       className="detail-dialog-v2"
@@ -478,32 +470,38 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
       modal
       blockScroll
       footer={
-        <div className="flex align-items-center justify-content-between p-3 border-top-1 border-gray-200">
-          <div className="flex align-items-center gap-2">
-            <i className="pi pi-info-circle text-secondary"></i>
-            <span className="text-xs font-medium text-secondary italic">
-              Tip: El sistema autoselecciona la unidad predeterminada del
-              producto Helisa.
-            </span>
-          </div>
-          <div className="flex align-items-center gap-3">
-            <div className="text-xs text-secondary font-bold uppercase">
-              Resumen:{" "}
-              <span className="text-primary">
+        <div className="flex align-items-center justify-content-between px-4 py-3 border-top-1 border-gray-100 bg-white">
+          <Message
+            severity="info"
+            className="minimalist-tip"
+            content={
+              <div className="flex align-items-center gap-2">
+                <i className="pi pi-info-circle text-xs"></i>
+                <span className="text-xs">
+                  Tip: El sistema autoselecciona la unidad predeterminada del
+                  producto ERP.
+                </span>
+              </div>
+            }
+          />
+          <div className="flex align-items-center gap-4">
+            <div className="text-xs text-slate-500 font-medium">
+              Estado:{" "}
+              <span className="text-slate-700 font-bold">
                 {
                   productos.filter(
                     (p) => p.estado?.toLowerCase() === "homologado",
                   ).length
                 }
               </span>{" "}
-              de <span className="text-primary">{productos.length}</span>{" "}
+              de <span className="text-slate-700 font-bold">{productos.length}</span>{" "}
               homologados
             </div>
             <Button
-              label="Cerrar Ventana"
+              label="Cerrar"
               icon="pi pi-times"
               onClick={onHide}
-              className="p-button-text p-button-secondary font-bold"
+              className="p-button-text p-button-secondary p-button-sm font-semibold"
             />
           </div>
         </div>
