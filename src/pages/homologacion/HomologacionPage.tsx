@@ -260,8 +260,7 @@ const HomologacionPage: React.FC = () => {
 
         return (
             <div className="flex flex-column gap-2">
-                <div className="autocomplete-wrapper">
-                    <i className="pi pi-search search-icon" style={{ zIndex: 1 }}></i>
+                <div className="autocomplete-wrapper p-input-icon-right">
                     <AutoComplete
                         value={rowData.productoSistema || ''}
                         suggestions={rowData.suggestions || []}
@@ -276,11 +275,12 @@ const HomologacionPage: React.FC = () => {
                         itemTemplate={itemTemplate}
                         placeholder="Buscar producto en ERP..."
                         className="w-full"
-                        inputClassName="product-autocomplete-input"
+                        inputClassName="product-autocomplete-input pr-5"
                         panelClassName="erp-autocomplete-panel"
                         delay={300}
                         minLength={1}
                     />
+                    <i className="pi pi-search search-icon" style={{ zIndex: 1 }}></i>
                 </div>
                 {rowData.referenciaErp && (
                     <div className="px-2 py-1 bg-bluegray-50 border-round">
@@ -422,15 +422,15 @@ const HomologacionPage: React.FC = () => {
             </div>
 
             <div className="table-card">
-                <div className="table-header-search">
-                    <span className="p-input-icon-left w-full max-w-sm">
-                        <i className="pi pi-search" />
+                <div className="table-header-search flex justify-content-end">
+                    <span className="p-input-icon-right w-full max-w-sm">
                         <InputText
                             value={globalFilter}
                             onChange={(e) => setGlobalFilter(e.target.value)}
                             placeholder="Buscar por código o descripción..."
-                            className="w-full search-input"
+                            className="w-full search-input pr-5"
                         />
+                        <i className="pi pi-search" />
                     </span>
                 </div>
                 <DataTable
