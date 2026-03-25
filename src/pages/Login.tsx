@@ -71,23 +71,12 @@ const Login: React.FC = () => {
             </h1>
             <p className="brand-description">
               Optimice su flujo de trabajo con nuestra avanzada tecnología de
-              procesamiento de documentos. Transforme sus datos XML en registros
-              contables precisos con un solo clic.
+              procesamiento de documentos.
             </p>
           </div>
           <div className="brand-footer">
-            <div className="security-badge">
-              <span className="material-symbols-outlined">security</span>
-              <div>
-                <p className="security-title">Seguridad de Grado Empresarial</p>
-                <p className="security-subtitle">
-                  Autenticación de múltiples factores y cifrado de extremo a
-                  extremo activos.
-                </p>
-              </div>
-            </div>
             <p className="copyright">
-              © 2024 ZambranoSoft - Sistema de Precisión ERP | v1.0.0
+              © 2024 ZambranoSoft - Sistema lectura XML | v1.0.0
             </p>
           </div>
         </div>
@@ -122,7 +111,7 @@ const Login: React.FC = () => {
                   id="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="usuario@empresa.com"
+                  placeholder="usuario"
                   required
                   className="login-input"
                 />
@@ -156,11 +145,7 @@ const Login: React.FC = () => {
             )}
 
             {/* Action Button */}
-            <Button
-              type="submit"
-              loading={loading}
-              className="submit-button"
-            >
+            <Button type="submit" loading={loading} className="submit-button">
               <span>Ingresar</span>
               <span className="material-symbols-outlined">arrow_forward</span>
             </Button>
