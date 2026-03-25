@@ -310,25 +310,30 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
     );
   };
 
-  const factorEditor = (rowData: ProductoMapeo) => (
-    <div className="factor-wrapper">
-      <span className="factor-relation">
-        1 {rowData.unidadXML} = {rowData.factor}{" "}
-        {rowData.unidadErpLabel || "ERP"}
-      </span>
-      <InputNumber
-        value={rowData.factor}
-        onValueChange={(e) =>
-          updateRowState(rowData.referenciaXML, { factor: e.value ?? 1 })
-        }
-        min={0}
-        minFractionDigits={0}
-        maxFractionDigits={4}
-        size={5}
-        inputClassName="p-inputtext-sm text-center font-bold"
-      />
-    </div>
-  );
+  const factorEditor = (rowData: ProductoMapeo) => {
+    const unitLabel = rowData.unidadXMLNombre || rowData.unidadXML;
+    const isTechnical = unitLabel.toLowerCase().includes("código") || unitLabel.toLowerCase().includes("codigo");
+    const displayUnit = isTechnical ? rowData.unidadXML : unitLabel;
+
+    return (
+      <div className="factor-wrapper">
+        <span className="factor-relation text-xs">
+          1 {displayUnit} = {rowData.factor} {rowData.unidadErpLabel || "ERP"}
+        </span>
+        <InputNumber
+          value={rowData.factor}
+          onValueChange={(e) =>
+            updateRowState(rowData.referenciaXML, { factor: e.value ?? 1 })
+          }
+          min={0}
+          minFractionDigits={0}
+          maxFractionDigits={4}
+          size={5}
+          inputClassName="p-inputtext-sm text-center font-bold"
+        />
+      </div>
+    );
+  };
 
   const productXmlTemplate = (rowData: ProductoMapeo) => (
     <div className="product-xml-container">
@@ -531,40 +536,46 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
           <Column
             header="PRODUCTO ORIGEN (XML)"
             body={productXmlTemplate}
-            style={{ width: "30%" }}
+            style={{ width: "23%" }}
           />
           <Column
             header="UND. XML"
-            body={(rowData) => (
-              <div className="flex flex-column align-items-center gap-1">
-                <span className="surface-100 text-primary-700 font-bold px-3 py-1 border-round-xl text-sm border-1 border-primary-100 shadow-1">
-                  {rowData.unidadXMLNombre || "Unidad"}
-                </span>
-                <span className="text-xs font-medium text-500">
-                  Código: {rowData.unidadXML}
-                </span>
-              </div>
-            )}
-            style={{ width: "12%" }}
+            body={(rowData) => {
+              const nombre = rowData.unidadXMLNombre || "";
+              const isTechnical = nombre.toLowerCase().includes("código") || nombre.toLowerCase().includes("codigo");
+              return (
+                <div className="flex flex-column align-items-center gap-1">
+                  <span className="unit-tag-inline shadow-sm px-3 py-1 bg-white border-1 border-slate-300 text-slate-800 font-bold uppercase text-xs">
+                    {isTechnical ? rowData.unidadXML : (nombre || rowData.unidadXML)}
+                  </span>
+                  {isTechnical && nombre && (
+                    <span className="text-slate-400 font-medium" style={{ fontSize: '10px' }}>
+                      Ref: {rowData.unidadXML}
+                    </span>
+                  )}
+                </div>
+              );
+            }}
+            style={{ width: "7%" }}
             align="center"
           />
           <Column
             header="EQUIVALENCIA EN ERP"
             body={productErpTemplate}
-            style={{ width: "35%" }}
+            style={{ width: "45%" }}
           />
 
           <Column
             header="CONVERSIÓN (FACTOR)"
             body={factorEditor}
-            style={{ width: "15%" }}
+            style={{ width: "12%" }}
           />
 
           <Column
             field="estado"
             header="ESTADO"
             body={statusBodyTemplate}
-            style={{ width: "10%" }}
+            style={{ width: "7%" }}
             align="center"
           />
 
