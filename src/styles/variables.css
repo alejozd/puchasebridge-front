@@ -1,6 +1,11 @@
 /* styles/variables.css */
 
 :root {
+  /* Standard Colors */
+  --primary-color: #2563eb;
+  --text-color: #1e293b;
+  --border-color: #e2e8f0;
+
   /* Primary */
   --color-primary: #4059aa;
   --color-primary-dim: #334d9d;
@@ -63,6 +68,27 @@
   color: #1d4ed8 !important; /* azul */
   font-size: 1.5rem;
   margin: 0 0 0.5rem 0;
+}
+
+.app-title {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.w-full {
+  width: 100% !important;
+}
+
+.w-85 {
+  width: 85% !important;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
 }
 
 /* Global Metric/KPI Card Styling */

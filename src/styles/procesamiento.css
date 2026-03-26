@@ -141,6 +141,16 @@
 }
 
 /* Dialog Styles */
-.generated-doc-dialog .p-dialog-content {
-    padding: 1.5rem !important;
+
+.col-description {
+    min-width: 250px;
+}
+
+.col-qty {
+    width: 5rem;
+}
+
+
+.col-homologation {
+    width: 8rem;
 }

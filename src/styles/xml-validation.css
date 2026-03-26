@@ -70,15 +70,15 @@
 }
 
 .validation-table .p-datatable-thead > tr > th {
-    background-color: var(--color-surface-container-low);
+    background-color: var(--color-surface-container-low) !important;
     font-size: 0.6875rem;
     color: var(--color-secondary);
     letter-spacing: 0.05em;
-    padding: 1rem;
+    padding: 1rem !important;
 }
 
 .validation-table .p-datatable-tbody > tr > td {
-    padding: 1rem;
+    padding: 1rem !important;
     font-size: 0.875rem;
 }
 
@@ -173,3 +173,25 @@
 .text-error { color: var(--color-error); }
 .text-primary { color: var(--color-primary); }
 .italic { font-style: italic; }
+
+.validation-dialog {
+    width: 50vw;
+    max-width: 600px;
+}
+
+.validation-icon-large {
+    font-size: 3rem;
+}
+
+.validation-icon-header {
+    font-size: 1.5rem;
+}
+
+.xml-detail-dialog {
+    width: 85vw;
+    max-width: 1200px;
+}
+
+.loading-icon-primary {
+    color: var(--color-primary);
+}

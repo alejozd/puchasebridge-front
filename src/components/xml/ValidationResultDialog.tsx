@@ -24,16 +24,16 @@ const ValidationResultDialog: React.FC<ValidationResultDialogProps> = ({
         <Dialog
             header={
                 <div className="flex align-items-center gap-2">
-                    <i className={`pi ${errores.length > 0 ? 'pi-exclamation-triangle text-red-500' : 'pi-info-circle text-blue-500'}`} style={{ fontSize: '1.5rem' }}></i>
+                    <i className={`pi ${errores.length > 0 ? 'pi-exclamation-triangle text-red-500' : 'pi-info-circle text-blue-500'} validation-icon-header`}></i>
                     <div>
-                        <h3 className="m-0">Resultado de Validación</h3>
+                        <h3 className="m-0 app-title">Resultado de Validación</h3>
                         <small className="text-secondary">{fixEncoding(fileName)}</small>
                     </div>
                 </div>
             }
             visible={visible}
             onHide={onHide}
-            style={{ width: '50vw', maxWidth: '600px' }}
+            className="validation-dialog"
             footer={
                 <div className="flex justify-content-end">
                     <Button label="Cerrar" icon="pi pi-times" onClick={onHide} className="p-button-text" />
@@ -44,7 +44,7 @@ const ValidationResultDialog: React.FC<ValidationResultDialogProps> = ({
         >
             {!hasIssues ? (
                 <div className="text-center py-4">
-                    <i className="pi pi-check-circle text-green-500 mb-3" style={{ fontSize: '3rem' }}></i>
+                    <i className="pi pi-check-circle text-green-500 mb-3 validation-icon-large"></i>
                     <p className="m-0 text-xl font-medium">Validación Exitosa</p>
                     <p className="text-secondary">No se encontraron errores ni advertencias.</p>
                 </div>

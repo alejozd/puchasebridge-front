@@ -18,12 +18,11 @@ const XMLDetailDialog: React.FC<XMLDetailDialogProps> = ({ visible, onHide, xmlD
             header={
                 <div className="detail-modal-header">
                     <div className="doc-type-tag">XML DOCUMENT</div>
-                    <h2 className="detail-modal-title">Detalle del Documento XML</h2>
+                    <h2 className="detail-modal-title app-title">Detalle del Documento XML</h2>
                 </div>
             }
             visible={visible}
-            className="detail-dialog-v2"
-            style={{ width: '85vw', maxWidth: '1200px' }}
+            className="detail-dialog-v2 xml-detail-dialog"
             onHide={onHide}
             footer={
                 <div className="detail-modal-footer">
@@ -43,7 +42,7 @@ const XMLDetailDialog: React.FC<XMLDetailDialogProps> = ({ visible, onHide, xmlD
         >
             {loading ? (
                 <div className="flex flex-column justify-content-center align-items-center py-8">
-                    <i className="pi pi-spin pi-spinner text-4xl mb-3" style={{ color: 'var(--color-primary)' }}></i>
+                    <i className="pi pi-spin pi-spinner text-4xl mb-3 loading-icon-primary"></i>
                     <span className="text-xl font-medium text-secondary">Cargando detalle del XML...</span>
                 </div>
             ) : xmlDetail ? (

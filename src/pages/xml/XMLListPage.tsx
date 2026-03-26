@@ -101,7 +101,7 @@ const XMLListPage: React.FC = () => {
         const isError = rowData.estado === 'Con errores';
         return (
             <div className="filename-cell">
-                <i className={`pi pi-file ${isError ? 'text-error' : 'text-primary'}`} style={{ color: isError ? 'var(--color-error)' : 'var(--color-primary)' }}></i>
+                <i className={`pi pi-file ${isError ? 'text-error' : 'text-primary'}`}></i>
                 <span className="filename-text">{rowData.fileName}</span>
             </div>
         );
@@ -510,8 +510,7 @@ const XMLListPage: React.FC = () => {
                     dataKey="fileName"
                     paginator
                     rows={10}
-                    className="p-datatable-sm xml-table"
-                    style={{ width: '100%' }}
+                    className="p-datatable-sm xml-table w-full"
                     rowHover
                     tableStyle={{ minWidth: '50rem' }}
                     emptyMessage="No se encontraron archivos XML."
@@ -541,7 +540,7 @@ const XMLListPage: React.FC = () => {
                         <div className="modal-header-icon" style={{ backgroundColor: 'var(--color-error-container)', color: 'var(--color-error)' }}>
                             <i className="pi pi-exclamation-triangle"></i>
                         </div>
-                        <h3 className="modal-header-title">Errores de Validación</h3>
+                        <h3 className="modal-header-title app-title">Errores de Validación</h3>
                     </div>
                 }
                 visible={displayErrorModal}
@@ -572,7 +571,7 @@ const XMLListPage: React.FC = () => {
                         <div className="modal-header-icon">
                             <i className="pi pi-upload"></i>
                         </div>
-                        <h3 className="modal-header-title">Subir Archivo XML</h3>
+                        <h3 className="modal-header-title app-title">Subir Archivo XML</h3>
                     </div>
                 }
                 visible={displayUploadModal}

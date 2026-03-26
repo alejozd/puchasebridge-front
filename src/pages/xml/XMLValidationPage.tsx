@@ -112,7 +112,7 @@ const XMLValidationPage: React.FC = () => {
         const isError = rowData.estado === 'Con errores';
         return (
             <div className="filename-cell">
-                <i className={`pi pi-file ${isError ? 'text-error' : 'text-primary'}`} style={{ color: isError ? 'var(--color-error)' : 'var(--color-primary)' }}></i>
+                <i className={`pi pi-file ${isError ? 'text-error' : 'text-primary'}`}></i>
                 <span className="filename-text">{rowData.fileName}</span>
             </div>
         );
@@ -272,7 +272,7 @@ const XMLValidationPage: React.FC = () => {
 
             <div className="table-card">
                 <div className="table-header">
-                    <h3>Documentos Recientes</h3>
+                    <h3 className="app-title">Documentos Recientes</h3>
                     <div className="table-actions">
                         <Button label="Filtros Avanzados" icon="pi pi-filter" text className="btn-table-action" />
                         <Button label="Exportar" icon="pi pi-download" text className="btn-table-action" />
@@ -288,8 +288,7 @@ const XMLValidationPage: React.FC = () => {
                     dataKey="fileName"
                     paginator
                     rows={10}
-                    className="p-datatable-sm validation-table"
-                    style={{ width: '100%' }}
+                    className="p-datatable-sm validation-table w-full"
                     emptyMessage="No hay archivos XML para validar."
                     rowHover
                 >
@@ -346,7 +345,7 @@ const XMLValidationPage: React.FC = () => {
                             <span className="progress-percent">85%</span>
                         </div>
                         <div className="progress-track">
-                            <div className="progress-fill" style={{ width: '85%' }}></div>
+                            <div className="progress-fill w-85"></div>
                         </div>
                     </div>
                     <Button label="Cancelar proceso" text severity="secondary" className="btn-cancel-process" />

@@ -3,6 +3,7 @@ import { DataTable, type DataTableSelectionMultipleChangeEvent } from 'primereac
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import type { XMLFileItem } from '../../types/xml';
+import '../../styles/procesamiento.css';
 
 interface XmlTableProps {
   files: XMLFileItem[];
@@ -45,8 +46,7 @@ const XmlTable: React.FC<XmlTableProps> = ({
         selection={selectedFiles}
         onSelectionChange={onSelectionChange}
         dataKey="id"
-        className="procesamiento-table"
-        style={{ width: '100%' }}
+        className="procesamiento-table w-full"
         rowHover
         selectionMode="multiple"
         loading={loading}
