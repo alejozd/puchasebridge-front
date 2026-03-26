@@ -1,189 +1,354 @@
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Card } from "primereact/card";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
 import { Tag } from "primereact/tag";
 import { Button } from "primereact/button";
+import { Skeleton } from "primereact/skeleton";
 import PageTitle from "../components/common/PageTitle";
+import { useXMLStore } from "../store/xmlStore";
+import { getDashboardMetrics } from "../services/xmlService";
+import type { DashboardMetrics, XMLFile } from "../types/xml";
 import "../styles/dashboard.css";
 
-interface ProcessingItem {
-  entity: string;
-  id: string;
-  status: string;
-  date: string;
-  priority: string;
-}
-
 const Dashboard: React.FC = () => {
-  const queueData: ProcessingItem[] = [
+  const { xmlList, loading: loadingFiles, fetchXMLList } = useXMLStore();
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [loadingMetrics, setLoadingMetrics] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      setError(null);
+      setLoadingMetrics(true);
+      const [metricsData] = await Promise.all([
+        getDashboardMetrics(),
+        fetchXMLList(),
+      ]);
+      setMetrics(metricsData);
+    } catch (err) {
+      console.error("Error loading dashboard data:", err);
+      setError(
+        "No se pudieron cargar los datos del dashboard. Reintentando...",
+      );
+    } finally {
+      setLoadingMetrics(false);
+    }
+  }, [fetchXMLList]);
+
+  const silentRefresh = useCallback(async () => {
+    try {
+      const metricsData = await getDashboardMetrics();
+      setMetrics(metricsData);
+      // We don't refresh the XML list here to avoid visual reflow
+    } catch (err) {
+      console.error("Error silent refreshing dashboard metrics:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+    const interval = setInterval(silentRefresh, 30000);
+    return () => clearInterval(interval);
+  }, [loadData, silentRefresh]);
+
+  const statusTag = (estado: string | undefined) => {
+    const status = estado?.toUpperCase() || "CARGADO";
+    let severity: "success" | "secondary" | "info" | "warning" | "danger" =
+      "secondary";
+
+    switch (status) {
+      case "LISTO":
+        severity = "success";
+        break;
+      case "PENDIENTE":
+        severity = "warning";
+        break;
+      case "ERROR":
+        severity = "danger";
+        break;
+      case "PROCESADO":
+        severity = "info";
+        break;
+      default:
+        severity = "secondary";
+    }
+
+    return <Tag value={status} severity={severity} className="status-tag" />;
+  };
+
+  const prioritySort = (data: XMLFile[]) => {
+    const priorityMap: Record<string, number> = {
+      ERROR: 0,
+      PENDIENTE: 1,
+      CARGADO: 2,
+      LISTO: 3,
+      PROCESADO: 4,
+    };
+
+    return [...data].sort((a, b) => {
+      const pA = priorityMap[a.estado?.toUpperCase() || "CARGADO"] ?? 5;
+      const pB = priorityMap[b.estado?.toUpperCase() || "CARGADO"] ?? 5;
+      return pA - pB;
+    });
+  };
+
+  const sortedXmlList = prioritySort(xmlList);
+
+  const processingSuccessRate =
+    metrics && metrics.total > 0
+      ? ((metrics.procesados / metrics.total) * 100).toFixed(2)
+      : "0.00";
+
+  const alerts = [];
+  if (metrics) {
+    if (metrics.errores > 0) {
+      alerts.push({
+        title: `Error de Validación (${metrics.errores})`,
+        desc: "Existen documentos con errores que requieren atención inmediata.",
+        color: "var(--color-error)",
+        bg: "rgba(158, 63, 78, 0.08)",
+        icon: "pi-exclamation-circle",
+        time: "ACTIVO",
+      });
+    }
+    if (metrics.pendientes > 0) {
+      alerts.push({
+        title: "Homologación Pendiente",
+        desc: `Hay ${metrics.pendientes} productos nuevos que necesitan ser mapeados.`,
+        color: "var(--color-warning)",
+        bg: "rgba(245, 158, 11, 0.08)",
+        icon: "pi-sync",
+        time: "PENDIENTE",
+      });
+    }
+    if (metrics.procesadosHoy > 0) {
+      alerts.push({
+        title: "Procesamiento Exitoso",
+        desc: `Se han procesado ${metrics.procesadosHoy} documentos el día de hoy.`,
+        color: "var(--color-success)",
+        bg: "rgba(22, 163, 74, 0.08)",
+        icon: "pi-check-circle",
+        time: "HOY",
+      });
+    }
+  }
+
+  const kpiCards = [
     {
-      entity: "Logistics Solutions S.A.",
-      id: "XML-2023-0984",
-      status: "EN PROCESO",
-      date: "24 Oct, 2023",
-      priority: "Alta",
+      label: "COLA",
+      title: "En Cola",
+      value: metrics ? metrics.cargados + metrics.pendientes : 0,
+      desc: metrics?.pendientes
+        ? `${metrics.pendientes} pendientes de acción`
+        : "Flujo normal",
+      icon: "pi-clock",
+      color: "warning",
     },
     {
-      entity: "TechGlobal Dynamics",
-      id: "XML-2023-1122",
-      status: "EN COLA",
-      date: "24 Oct, 2023",
-      priority: "Media",
+      label: "VALIDACIÓN",
+      title: "Listos",
+      value: metrics?.listos || 0,
+      desc: metrics?.listos
+        ? "Listos para enviar a ERP"
+        : "Sin documentos listos",
+      icon: "pi-check-circle",
+      color: "success",
     },
     {
-      entity: "Nordic Power Systems",
-      id: "XML-2023-0751",
-      status: "VALIDADO",
-      date: "23 Oct, 2023",
-      priority: "Baja",
+      label: "PROCESAMIENTO",
+      title: "Procesados Hoy",
+      value: metrics?.procesadosHoy || 0,
+      desc: metrics?.procesadosHoy
+        ? "Procesamiento activo"
+        : "Sin actividad hoy",
+      icon: "pi-database",
+      color: "primary",
     },
   ];
 
-  const statusBodyTemplate = (rowData: ProcessingItem) => {
-    const severity = rowData.status === "EN PROCESO" ? "warning" : rowData.status === "EN COLA" ? "info" : "success";
-    return <Tag value={rowData.status} severity={severity} className="status-tag" />;
-  };
-
-  const priorityBodyTemplate = (rowData: ProcessingItem) => {
-    const colorClass = rowData.priority === "Alta" ? "text-error" : rowData.priority === "Media" ? "text-secondary" : "text-outline";
-    const bgClass = rowData.priority === "Alta" ? "bg-error" : rowData.priority === "Media" ? "bg-secondary" : "bg-outline";
-    return (
-      <span className={`priority-cell ${colorClass}`}>
-        <span className={`priority-dot ${bgClass}`}></span>
-        {rowData.priority}
-      </span>
-    );
-  };
-
-  const entityBodyTemplate = (rowData: ProcessingItem) => {
-    return (
-      <div className="entity-cell">
-        <span className="entity-name">{rowData.entity}</span>
-        <span className="entity-id">{rowData.id}</span>
-      </div>
-    );
-  };
-
-  const actionBodyTemplate = () => {
-    return <Button icon="pi pi-ellipsis-h" text rounded severity="secondary" />;
-  };
-
   return (
     <div className="dashboard-container">
-      <header>
-        <PageTitle title="Panel de Control" />
-        <p className="dashboard-header-desc">Vista en tiempo real del estado de procesamiento y cola de integración ERP.</p>
-      </header>
-
-      <section className="summary-grid">
-        <Card className="summary-card border-primary">
-          <div className="summary-card-header">
-            <div>
-              <p className="summary-card-label">Estado de la Cola</p>
-              <h3 className="summary-card-title">XML Pendientes</h3>
-            </div>
-            <div className="summary-card-icon-container bg-primary-container text-primary">
-              <i className="pi pi-file-import"></i>
-            </div>
-          </div>
-          <div className="summary-card-value">124</div>
-          <p className="summary-card-footer">
-            <span className="text-error flex align-items-center"><i className="pi pi-arrow-up text-[10px]"></i> 12%</span>
-            de incremento desde ayer
+      <header className="dashboard-header">
+        <div>
+          <PageTitle title="Panel de Control" />
+          <p className="dashboard-header-desc">
+            Vista en tiempo real del estado de procesamiento y cola de
+            integración ERP.
           </p>
-        </Card>
+        </div>
+        <div className="dashboard-header-stats">
+          {metrics && metrics.errores > 0 && (
+            <Tag
+              severity="danger"
+              value={`${metrics.errores} Errores`}
+              icon="pi pi-exclamation-triangle"
+              className="error-badge-pulse"
+            />
+          )}
+          {error && (
+            <Tag
+              severity="danger"
+              value={error}
+              style={{ marginLeft: "1rem" }}
+              icon="pi pi-exclamation-circle"
+            />
+          )}
+        </div>
+        <p className="live-indicator">● Actualización automática cada 30s</p>
+      </header>
+      {alerts.length > 0 && (
+        <div className="alerts-banner">
+          {alerts.slice(0, 3).map((alert, idx) => (
+            <div
+              key={idx}
+              className="alert-banner-item"
+              style={{ borderLeft: `4px solid ${alert.color}` }}
+            >
+              <i
+                className={`pi ${alert.icon}`}
+                style={{ color: alert.color }}
+              />
+              <div>
+                <strong>{alert.title}</strong>
+                <p>{alert.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-        <Card className="summary-card border-tertiary">
-          <div className="summary-card-header">
-            <div>
-              <p className="summary-card-label">Control de Integridad</p>
-              <h3 className="summary-card-title">Esperando Validación</h3>
+      <section className="summary-grid-compact">
+        {kpiCards.map((kpi, idx) => (
+          <Card key={idx} className={`summary-card border-${kpi.color}`}>
+            <div className="summary-card-header">
+              <div>
+                <p className="summary-card-label">{kpi.label}</p>
+                <h3 className="summary-card-title">{kpi.title}</h3>
+              </div>
+              <div
+                className={`summary-card-icon-container bg-${kpi.color}-container text-${kpi.color}`}
+              >
+                <i className={`pi ${kpi.icon}`}></i>
+              </div>
             </div>
-            <div className="summary-card-icon-container bg-tertiary-container text-tertiary">
-              <i className="pi pi-check-square"></i>
-            </div>
-          </div>
-          <div className="summary-card-value">42</div>
-          <div className="progress-bar-container">
-            <div className="progress-bar-fill w-[60%] bg-tertiary"></div>
-          </div>
-          <p className="summary-card-footer-small">60% de capacidad diaria alcanzada</p>
-        </Card>
-
-        <Card className="summary-card border-info-alt">
-          <div className="summary-card-header">
-            <div>
-              <p className="summary-card-label">Etapa Final</p>
-              <h3 className="summary-card-title">Listo para Homologación</h3>
-            </div>
-            <div className="summary-card-icon-container bg-info-alt-container text-info-alt">
-              <i className="pi pi-share-alt"></i>
-            </div>
-          </div>
-          <div className="summary-card-value">89</div>
-          <p className="summary-card-footer">Optimizado y listo para transferencia</p>
-        </Card>
+            {loadingMetrics ? (
+              <Skeleton width="4rem" height="2.5rem" />
+            ) : (
+              <div className="summary-card-value">{kpi.value}</div>
+            )}
+            <p className="summary-card-footer">Actualizado en tiempo real</p>
+            <p className="summary-card-desc">{kpi.desc}</p>
+          </Card>
+        ))}
       </section>
 
-      <div className="dashboard-main-grid">
-        <Card className="queue-card" style={{ borderRadius: 'var(--radius-xl)', padding: '0.5rem', minWidth: '0' }}>
-          <div className="queue-card-header">
-            <h3 className="queue-card-title">Cola de Procesamiento Activa</h3>
-            <Button label="Ver registro completo" icon="pi pi-arrow-right" iconPos="right" text size="small" style={{ fontWeight: 600 }} />
+      <div className="dashboard-main-grid-refactored">
+        <section className="processing-section">
+          <div className="section-header">
+            <h3 className="queue-card-title">Cola de Procesamiento</h3>
+            <Button
+              label="Ver todo"
+              icon="pi pi-external-link"
+              text
+              size="small"
+            />
           </div>
-          <DataTable value={queueData} scrollable scrollHeight="400px" tableStyle={{ minWidth: '50rem' }} className="p-datatable-sm">
-            <Column field="entity" header="ENTIDAD / ID" body={entityBodyTemplate} headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
-            <Column field="status" header="ESTADO" body={statusBodyTemplate} headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
-            <Column field="date" header="FECHA RECIBIDO" headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }} style={{ color: 'var(--color-secondary)', fontSize: '0.875rem' }}></Column>
-            <Column field="priority" header="PRIORIDAD" body={priorityBodyTemplate} headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
-            <Column header="ACCIÓN" body={actionBodyTemplate} headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }} style={{ textAlign: 'right' }}></Column>
-          </DataTable>
-        </Card>
+          <div className="processing-list-container">
+            {loadingFiles ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="processing-item-skeleton">
+                  <Skeleton width="100%" height="4rem" borderRadius="8px" />
+                </div>
+              ))
+            ) : sortedXmlList.length === 0 ? (
+              <div className="empty-state">No hay documentos en cola</div>
+            ) : (
+              sortedXmlList.map((item, idx) => (
+                <div key={idx} className="processing-card-compact">
+                  <div className="item-main-info">
+                    <span className="item-filename" title={item.fileName}>
+                      {item.fileName}
+                    </span>
+                    <span className="item-provider">
+                      {item.proveedor || "Proveedor Desconocido"}
+                    </span>
+                  </div>
+                  <div className="item-status">{statusTag(item.estado)}</div>
+                  <div className="item-dates">
+                    <div className="date-group">
+                      <span className="date-label">CARGA</span>
+                      <span className="date-value">
+                        {item.lastModified || "-"}
+                      </span>
+                    </div>
+                    {item.fechaProceso && (
+                      <div className="date-group">
+                        <span className="date-label">PROCESO</span>
+                        <span className="date-value">{item.fechaProceso}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
 
-        <div className="alerts-column" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div className="availability-card">
-            <h4 className="availability-label">Disponibilidad del Bridge</h4>
-            <div className="availability-value">99.98%</div>
-            <p className="availability-desc">Rendimiento operativo en todos los nodos en los últimos 30 días.</p>
+        <section className="alerts-section">
+          <div className="availability-card-refined">
+            <h4 className="availability-label">
+              Tasa de Procesamiento Exitoso
+            </h4>
+            {loadingMetrics ? (
+              <Skeleton
+                width="6rem"
+                height="3rem"
+                style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+              />
+            ) : (
+              <div className="availability-value">{processingSuccessRate}%</div>
+            )}
+            <p className="availability-desc">
+              Porcentaje de integración histórica exitosa.
+            </p>
             <div className="availability-bars">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className={`availability-bar ${i === 4 ? 'active' : ''}`}></div>
+                <div
+                  key={i}
+                  className={`availability-bar ${i === 4 ? "active" : ""}`}
+                ></div>
               ))}
             </div>
-            <div className="availability-decoration"></div>
           </div>
 
-          <Card style={{ borderRadius: 'var(--radius-xl)', backgroundColor: 'var(--color-surface-container-low)' }}>
-            <h4 className="alerts-card-title">Alertas del Sistema</h4>
+          <div className="alerts-container-refined">
+            <h4 className="alerts-card-title">Alertas Operativas</h4>
             <div className="alerts-list">
-              <div className="alert-item">
-                <div className="alert-dot" style={{ backgroundColor: 'var(--color-error)' }}></div>
-                <div>
-                  <p className="alert-content-title">Error de Validación en XML-2023-044</p>
-                  <p className="alert-content-desc">Discrepancia de esquema detectada en el encabezado.</p>
-                  <span className="alert-content-time">hace 2 min</span>
-                </div>
-              </div>
-              <div className="alert-item">
-                <div className="alert-dot" style={{ backgroundColor: '#3b82f6' }}></div>
-                <div>
-                  <p className="alert-content-title">Homologación Completa</p>
-                  <p className="alert-content-desc">Lote #422 enviado a SAP Finance.</p>
-                  <span className="alert-content-time">hace 14 min</span>
-                </div>
-              </div>
-              <div className="alert-item">
-                <div className="alert-dot" style={{ backgroundColor: 'var(--color-surface-container-highest)' }}></div>
-                <div>
-                  <p className="alert-content-title">Respaldo Programado</p>
-                  <p className="alert-content-desc">Snapshot semanal programado para las 02:00 UTC.</p>
-                  <span className="alert-content-time">hace 1 hora</span>
-                </div>
-              </div>
+              {alerts.length === 0 ? (
+                <div className="empty-alerts">Sin alertas operativas</div>
+              ) : (
+                alerts.slice(0, 3).map((alert, idx) => (
+                  <div
+                    key={idx}
+                    className="alert-item-modern"
+                    style={{
+                      backgroundColor: alert.bg,
+                      borderLeft: `4px solid ${alert.color}`,
+                    }}
+                  >
+                    <i
+                      className={`pi ${alert.icon} alert-icon`}
+                      style={{ color: alert.color }}
+                    ></i>
+                    <div className="alert-content">
+                      <p className="alert-title">{alert.title}</p>
+                      <p className="alert-desc">{alert.desc}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
-          </Card>
-        </div>
+          </div>
+        </section>
       </div>
     </div>
   );

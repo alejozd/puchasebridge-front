@@ -9,8 +9,15 @@ import type {
   XMLProcesarResponse,
   ProductoPendiente,
   HomologarPayload,
-  DocumentoProductosResponse
+  DocumentoProductosResponse,
+  DashboardMetrics
 } from "../types/xml";
+
+export const getDashboardMetrics = async (): Promise<DashboardMetrics> => {
+  console.log('[API CALL]', { method: 'GET', url: '/dashboard/metrics' });
+  const response = await axiosClient.get<DashboardMetrics>("/dashboard/metrics");
+  return response.data;
+};
 
 export const getXMLList = async (): Promise<XMLFile[]> => {
   console.log('[API CALL]', { method: 'GET', url: '/xml/list' });

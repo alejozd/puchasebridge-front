@@ -32,6 +32,7 @@ export const useXMLStore = create<XMLState>((set, get) => ({
         proveedor: item.proveedor,
         estado: item.estado as XMLFile['estado'],
         lastModified: item.fechaCarga,
+        fechaProceso: item.fecha_proceso,
         size: item.size,
         tipoDocumento: 'Factura'
       }));
