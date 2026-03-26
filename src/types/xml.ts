@@ -151,6 +151,7 @@ export interface HomologarPayload {
   codigoH: number;
   subCodigoH: number;
   nombreH: string;
+  referenciaErp: string;
   unidadErp: string;
   factor: number;
 }

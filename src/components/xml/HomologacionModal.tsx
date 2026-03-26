@@ -192,6 +192,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
         codigoH: rowData.codigoErp!,
         subCodigoH: rowData.subcodigoErp!,
         nombreH: rowData.nombreErp!,
+        referenciaErp: rowData.referenciaErp,
         unidadErp: rowData.unidadErp,
         factor: rowData.factor,
       };

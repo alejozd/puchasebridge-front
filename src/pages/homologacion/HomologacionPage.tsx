@@ -171,6 +171,7 @@ const HomologacionPage: React.FC = () => {
                 codigoH: item.codigoErp!,
                 subCodigoH: item.subcodigoErp!,
                 nombreH: item.nombreErp!,
+                referenciaErp: item.referenciaErp,
                 unidadErp: item.unidadErp,
                 factor: item.factor
             };
