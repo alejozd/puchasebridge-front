@@ -76,6 +76,14 @@
     padding: 0.2rem 0.4rem !important;
 }
 
+.status-tag-large {
+    font-size: 0.75rem !important;
+    font-weight: 800 !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: var(--radius-xl) !important;
+    letter-spacing: 0.05em !important;
+}
+
 /* Detail Styles */
 .detail-empty-state {
     height: 100%;
@@ -119,6 +127,114 @@
 
 .alert-warning i {
     color: #d97706;
+}
+
+/* Stepper Visual */
+.stepper-visual {
+    position: relative;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 1;
+    width: 80px;
+}
+
+.step-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--color-surface-container-high);
+    color: var(--color-outline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.125rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-outline);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.step-item.active .step-circle {
+    background-color: white;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    box-shadow: 0 0 0 4px var(--color-primary-container);
+}
+
+.step-item.active .step-label {
+    color: var(--color-primary);
+}
+
+.step-item.completed .step-circle {
+    background-color: var(--color-success);
+    color: white;
+}
+
+.step-item.completed .step-label {
+    color: var(--color-success);
+}
+
+.step-connector {
+    height: 2px;
+    background-color: var(--color-surface-container-high);
+    width: 100px;
+    margin-top: -1.25rem;
+}
+
+.step-item.completed + .step-connector {
+    background-color: var(--color-success);
+}
+
+/* Validation Result Panel */
+.validation-result-panel {
+    border-left: 4px solid transparent;
+}
+
+.bg-green-50 { background-color: #f0fdf4; border-left-color: #22c55e; }
+.bg-red-50 { background-color: #fef2f2; border-left-color: #ef4444; }
+.text-green-800 { color: #166534; }
+.text-red-800 { color: #991b1b; }
+.text-green-500 { color: #22c55e; }
+.text-red-500 { color: #ef4444; }
+.text-red-700 { color: #b91c1c; }
+
+.text-3xs { font-size: 0.4rem; }
+
+/* Generated Doc Highlight */
+.generated-doc-highlight {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--color-primary-container);
+}
+
+.bg-primary-container {
+    background-color: #dbeafe;
+}
+
+.text-primary-on-container {
+    color: #1e40af;
+}
+
+.result-icon-bg {
+    width: 3.5rem;
+    height: 3.5rem;
+    background-color: white;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
 }
 
 /* Column sizes in detail grid */
