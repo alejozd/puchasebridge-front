@@ -118,11 +118,13 @@
     padding: 1rem;
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
-    transition: transform 0.2s ease;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .processing-card-compact:hover {
-    transform: translateX(4px);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
     border-color: var(--color-primary);
 }
 
@@ -296,4 +298,80 @@
 .status-tag {
     font-size: 10px;
     font-weight: bold;
+}
+
+.summary-card-value {
+    font-size: 2.25rem;
+    font-weight: 800;
+    transition: all 0.3s ease;
+}
+
+.alerts-banner {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.alert-banner-item {
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-container-low);
+    align-items: flex-start;
+}
+
+.live-indicator {
+    font-size: 0.75rem;
+    color: var(--color-outline);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.live-indicator::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--color-success);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+.item-filename {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 95%;
+}
+
+.summary-card {
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.summary-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* ESTA ES LA CLAVE */
+.summary-card:hover .summary-card-value {
+    transform: scale(1.08);
+}
+
+/* opcional: iconito también */
+.summary-card:hover .summary-card-icon-container {
+    transform: scale(1.1);
+}
+
+.summary-card-desc {
+    font-size: 0.75rem;
+    color: var(--color-secondary);
+    margin-top: 0.25rem;
 }
