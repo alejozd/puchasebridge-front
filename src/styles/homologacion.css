@@ -180,6 +180,35 @@
     background-color: #f1f5f9 !important; /* slate 100 */
 }
 
+.row-suggested {
+    background-color: #eff6ff !important; /* light blue 50 */
+    border-left: 4px solid #60a5fa !important; /* blue 400 */
+}
+
+.row-suggested:hover {
+    background-color: #dbeafe !important; /* light blue 100 */
+}
+
+.row-editing {
+    background-color: #fffbeb !important; /* amber 50 */
+    border-left: 4px solid #f59e0b !important; /* amber 500 */
+}
+
+.truncate-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.text-success {
+    color: #22c55e !important;
+}
+
+.text-warning {
+    color: #f59e0b !important;
+}
+
 /* Modal specific overrides if needed */
 .p-dialog .items-table .p-datatable-tbody > tr.row-pending {
     background-color: #f0f9ff !important; /* light blue 50 */
@@ -396,11 +425,16 @@
     background-color: var(--color-primary) !important;
     border: none !important;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-    transition: transform 0.2s !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.btn-floating-save.ready {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+    transform: scale(1.05);
 }
 
 .btn-floating-save:hover {
-    transform: scale(1.1) !important;
+    transform: scale(1.15) !important;
 }
 
 .btn-floating-save .p-button-icon {

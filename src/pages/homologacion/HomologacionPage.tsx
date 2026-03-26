@@ -7,6 +7,7 @@ import { Toast } from 'primereact/toast';
 import { AutoComplete, type AutoCompleteCompleteEvent, type AutoCompleteChangeEvent } from 'primereact/autocomplete';
 import { Dropdown, type DropdownChangeEvent } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
+import { Tooltip } from 'primereact/tooltip';
 import PageTitle from '../../components/common/PageTitle';
 import * as xmlService from '../../services/xmlService';
 import * as erpService from '../../services/erpService';
@@ -24,6 +25,7 @@ interface ProductoMapeoPage extends ProductoPendiente {
     factor: number;
     suggestions?: ErpProducto[];
     isEditing?: boolean;
+    isSuggested?: boolean;
 }
 
 const HomologacionPage: React.FC = () => {
@@ -50,23 +52,76 @@ const HomologacionPage: React.FC = () => {
         }
     }, []);
 
+    const getAutoSuggestion = useCallback(async (item: ProductoMapeoPage) => {
+        // Mock suggestion logic: if name contains certain keywords or a simple search returns a close match
+        if (item.estado?.toLowerCase() === 'homologado' || item.productoSistema) return null;
+
+        try {
+            const results = await erpService.searchErpProductos(item.nombreProducto.substring(0, 15));
+            if (results && results.length > 0) {
+                // Return the first match as a suggestion
+                return results[0];
+            }
+        } catch (e) {
+            return null;
+        }
+        return null;
+    }, []);
+
     const loadProducts = useCallback(async (fileName: string) => {
         setLoading(true);
         try {
-            const [pendingProducts, erpUnits] = await Promise.all([
-                xmlService.getProductosPendientes(fileName),
+            const [documentData, erpUnits] = await Promise.all([
+                xmlService.getProductosDocumento(fileName),
                 erpService.getErpUnidades()
             ]);
 
-            setItems(pendingProducts.map(p => ({
+            const mappedItems: ProductoMapeoPage[] = documentData.productos.map(p => ({
                 referenciaXML: p.referenciaXML,
                 nombreProducto: p.nombreProducto,
                 unidadXML: p.unidadXML,
                 unidadXMLNombre: p.unidadXMLNombre,
                 estado: p.estado || 'PENDIENTE',
-                factor: 1
-            })));
+                factor: p.factor || 1,
+                productoSistema: p.referenciaErp ? `[${p.referenciaErp}] - ${p.nombreErp}` : '',
+                referenciaErp: p.referenciaErp,
+                codigoErp: p.codigoErp,
+                subcodigoErp: p.subcodigoErp,
+                nombreErp: p.nombreErp,
+                unidadErp: p.unidadErp
+            }));
+
+            setItems(mappedItems);
             setUnidades(erpUnits);
+
+            // Apply suggestions for pending items in batch to avoid multiple re-renders
+            const pendingItems = mappedItems.filter(i => i.estado?.toLowerCase() === 'pendiente');
+            const suggestionsResults = await Promise.all(
+                pendingItems.map(async (item) => {
+                    const suggestion = await getAutoSuggestion(item);
+                    return { item, suggestion };
+                })
+            );
+
+            setItems(prev => prev.map(p => {
+                const suggestionEntry = suggestionsResults.find(s => s.item.referenciaXML === p.referenciaXML && s.suggestion);
+                if (suggestionEntry && !p.productoSistema) {
+                    const { suggestion } = suggestionEntry;
+                    const matchingUnit = erpUnits.find(u => u.sigla === suggestion!.unidadDefault);
+                    return {
+                        ...p,
+                        productoSistema: `[${suggestion!.referencia}] - ${suggestion!.nombre}`,
+                        referenciaErp: suggestion!.referencia,
+                        codigoErp: suggestion!.codigo,
+                        subcodigoErp: suggestion!.subcodigo,
+                        nombreErp: suggestion!.nombre,
+                        unidadErp: matchingUnit?.codigo || '',
+                        isSuggested: true
+                    };
+                }
+                return p;
+            }));
+
         } catch {
             toast.current?.show({
                 severity: 'error',
@@ -146,7 +201,7 @@ const HomologacionPage: React.FC = () => {
         }));
     };
 
-    const handleSave = async (item: ProductoMapeoPage) => {
+    const handleSave = async (item: ProductoMapeoPage, silent = false) => {
         if (
             !item.referenciaErp ||
             !item.unidadErp ||
@@ -154,13 +209,15 @@ const HomologacionPage: React.FC = () => {
             item.subcodigoErp === undefined ||
             !item.nombreErp
         ) {
-            toast.current?.show({
-                severity: 'warn',
-                summary: 'Atención',
-                detail: 'Debe seleccionar un producto del ERP válido (Código, Subcódigo y Nombre son requeridos).',
-                life: 3000
-            });
-            return;
+            if (!silent) {
+                toast.current?.show({
+                    severity: 'warn',
+                    summary: 'Atención',
+                    detail: 'Debe seleccionar un producto del ERP válido (Código, Subcódigo y Nombre son requeridos).',
+                    life: 3000
+                });
+            }
+            return false;
         }
 
         try {
@@ -178,29 +235,37 @@ const HomologacionPage: React.FC = () => {
 
             const res = await xmlService.homologarProducto(payload);
             if (res.success) {
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: res.mensaje || 'Homologación guardada con éxito.',
-                    life: 3000
-                });
-                // Reload products
-                loadProducts(selectedXml!);
+                if (!silent) {
+                    toast.current?.show({
+                        severity: 'success',
+                        summary: 'Éxito',
+                        detail: res.mensaje || 'Homologación guardada con éxito.',
+                        life: 3000
+                    });
+                    loadProducts(selectedXml!);
+                }
+                return true;
             } else {
+                if (!silent) {
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: res.mensaje,
+                        life: 3000
+                    });
+                }
+                return false;
+            }
+        } catch {
+            if (!silent) {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
-                    detail: res.mensaje,
+                    detail: 'No se pudo guardar la homologación.',
                     life: 3000
                 });
             }
-        } catch {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No se pudo guardar la homologación.',
-                life: 3000
-            });
+            return false;
         }
     };
 
@@ -229,22 +294,126 @@ const HomologacionPage: React.FC = () => {
         ));
     };
 
-    const handleSaveAll = () => {
+    const handleExport = () => {
+        if (!selectedXml || filteredItems.length === 0) return;
+
+        const dataToExport = filteredItems.map(item => ({
+            referenciaXML: item.referenciaXML,
+            nombreXML: item.nombreProducto,
+            referenciaERP: item.referenciaErp || '',
+            nombreERP: item.nombreErp || '',
+            unidadERP: unidades.find(u => u.codigo === item.unidadErp)?.sigla || item.unidadErp || ''
+        }));
+
+        const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `mapeo-${selectedXml}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
         toast.current?.show({
             severity: 'success',
-            summary: 'Homologación guardada',
-            detail: 'Se han actualizado los cambios en el sistema.',
+            summary: 'Exportación completada',
+            detail: 'El archivo de mapeo ha sido descargado.',
             life: 3000
         });
     };
 
+    const handleSaveAll = async () => {
+        const toSave = items.filter(i => i.estado?.toLowerCase() === 'pendiente' && i.referenciaErp);
+
+        if (toSave.length === 0) {
+            toast.current?.show({
+                severity: 'info',
+                summary: 'Sin cambios',
+                detail: 'No hay productos pendientes con asignación ERP para guardar.',
+                life: 3000
+            });
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const results = await Promise.all(toSave.map(item => handleSave(item, true)));
+            const savedCount = results.filter(r => r).length;
+
+            if (savedCount > 0) {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Guardado Masivo',
+                    detail: `Se han guardado ${savedCount} homologaciones con éxito.`,
+                    life: 3000
+                });
+                loadProducts(selectedXml!);
+            } else {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se pudieron guardar los cambios.',
+                    life: 3000
+                });
+            }
+        } catch (e) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Ocurrió un error inesperado al guardar los cambios.',
+                life: 3000
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleProcess = async () => {
+        if (!selectedXml) return;
+
+        setLoading(true);
+        try {
+            const res = await xmlService.procesarArchivo(selectedXml);
+            if (res.success) {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Procesamiento Exitoso',
+                    detail: res.mensaje || 'El archivo ha sido procesado correctamente.',
+                    life: 5000
+                });
+                // Reload list and items
+                loadXmlFiles();
+                loadProducts(selectedXml);
+            } else {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error de Procesamiento',
+                    detail: res.mensaje,
+                    life: 5000
+                });
+            }
+        } catch (e) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo procesar el archivo.',
+                life: 3000
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const statusBodyTemplate = (rowData: ProductoMapeoPage) => {
         const estado = rowData.estado ? rowData.estado.toLowerCase() : 'pendiente';
-        const severity = estado === 'homologado' ? 'success' : 'warning';
+        const isHomologated = estado === 'homologado';
+        const severity = isHomologated ? 'success' : 'warning';
+        const value = isHomologated ? 'COMPLETO' : 'PENDIENTE';
 
         return (
             <Tag
-                value={estado.toUpperCase()}
+                value={value}
                 severity={severity}
                 className="status-tag"
             />
@@ -319,17 +488,17 @@ const HomologacionPage: React.FC = () => {
             return (
                 <div className="actions-cell">
                     <Button
-                        icon="pi pi-check"
+                        icon="pi pi-check-circle"
                         text
                         rounded
                         severity="success"
                         onClick={() => handleSave(rowData)}
-                        tooltip="Guardar Homologación"
+                        tooltip="Confirmar y Guardar"
                         disabled={!rowData.referenciaErp}
                     />
                     {isEditing && (
                          <Button
-                            icon="pi pi-times"
+                            icon="pi pi-times-circle"
                             text
                             rounded
                             severity="secondary"
@@ -338,7 +507,7 @@ const HomologacionPage: React.FC = () => {
                                     item.referenciaXML === rowData.referenciaXML ? { ...item, isEditing: false } : item
                                 ));
                             }}
-                            tooltip="Cancelar Edición"
+                            tooltip="Descartar Cambios"
                         />
                     )}
                 </div>
@@ -353,25 +522,46 @@ const HomologacionPage: React.FC = () => {
                     rounded
                     severity="info"
                     onClick={() => handleEdit(rowData.referenciaXML)}
-                    tooltip="Editar"
+                    tooltip="Editar Homologación"
                 />
                 <Button
-                    icon="pi pi-refresh"
+                    icon="pi pi-trash"
                     text
                     rounded
                     severity="danger"
                     onClick={() => handleClear(rowData.referenciaXML)}
-                    tooltip="Limpiar / Eliminar"
+                    tooltip="Eliminar Homologación"
                 />
             </div>
         );
     };
 
-    const pendingCount = items.filter(i => i.estado === 'pendiente').length;
+    const pendingCount = items.filter(i => i.estado?.toLowerCase() === 'pendiente').length;
+    const isReadyToProcess = items.length > 0 && pendingCount === 0;
+
+    const xmlValueTemplate = (option: any, props: any) => {
+        if (option) {
+            return (
+                <div className="flex align-items-center truncate-text" style={{ maxWidth: '250px' }}>
+                    <span className="truncate-text" data-pr-tooltip={option.label}>{option.label}</span>
+                </div>
+            );
+        }
+        return props.placeholder;
+    };
+
+    const xmlItemTemplate = (option: any) => {
+        return (
+            <div className="flex align-items-center truncate-text">
+                <span className="truncate-text" data-pr-tooltip={option.label}>{option.label}</span>
+            </div>
+        );
+    };
 
     return (
         <div className="homologacion-container">
             <Toast ref={toast} />
+            <Tooltip target=".truncate-text [data-pr-tooltip]" position="top" />
 
             <div className="homologacion-header">
                 <div className="title-area">
@@ -384,12 +574,15 @@ const HomologacionPage: React.FC = () => {
                         icon="pi pi-download"
                         outlined
                         className="btn-export"
+                        onClick={handleExport}
+                        disabled={!selectedXml || filteredItems.length === 0}
                     />
                     <Button
                         label="Guardar Cambios Seleccionados"
                         icon="pi pi-check-circle"
                         onClick={handleSaveAll}
                         className="btn-save-main"
+                        disabled={!selectedXml}
                     />
                 </div>
             </div>
@@ -403,6 +596,8 @@ const HomologacionPage: React.FC = () => {
                         onChange={(e: DropdownChangeEvent) => setSelectedXml(e.value)}
                         placeholder="Seleccionar archivo"
                         className="w-full dropdown-custom"
+                        valueTemplate={xmlValueTemplate}
+                        itemTemplate={xmlItemTemplate}
                     />
                 </div>
                 <div className="filter-card status-filter">
@@ -462,7 +657,9 @@ const HomologacionPage: React.FC = () => {
                         const estado = data.estado ? data.estado.toLowerCase() : 'pendiente';
                         return {
                             'row-pending': estado === 'pendiente',
-                            'row-homologated': estado === 'homologado'
+                            'row-homologated': estado === 'homologado',
+                            'row-suggested': !!data.isSuggested && estado === 'pendiente',
+                            'row-editing': !!data.isEditing
                         };
                     }}
                     emptyMessage={selectedXml ? "No se encontraron productos para homologar en este archivo." : "Por favor seleccione un archivo XML."}
@@ -526,21 +723,27 @@ const HomologacionPage: React.FC = () => {
                     <i className="pi pi-history"></i>
                     <div className="info-content">
                         <h4>Última Actividad</h4>
-                        <p>Usuario 'Admin Global' homologó el archivo NC-2023-0102 hace 45 minutos.</p>
+                        <div className="activity-item-placeholder">
+                            <span className="font-bold">Usuario:</span> Admin Global <br/>
+                            <span className="font-bold">Archivo:</span> {selectedXml || '---'} <br/>
+                            <span className="font-bold">Fecha:</span> {new Date().toLocaleDateString()}
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div className="floating-save">
                 <div className="floating-label-container">
-                    <span>¿Listo para procesar?</span>
-                    <i className="pi pi-arrow-down"></i>
+                    <span>{isReadyToProcess ? 'Listo para procesar 🚀' : 'Faltan productos por homologar'}</span>
+                    <i className={isReadyToProcess ? "pi pi-check-circle text-success" : "pi pi-exclamation-triangle text-warning"}></i>
                 </div>
                 <Button
-                    icon="pi pi-save"
+                    icon={isReadyToProcess ? "pi pi-send" : "pi pi-save"}
                     rounded
-                    className="btn-floating-save"
-                    onClick={handleSaveAll}
+                    className={`btn-floating-save ${isReadyToProcess ? 'ready' : 'not-ready'}`}
+                    onClick={isReadyToProcess ? handleProcess : handleSaveAll}
+                    disabled={!selectedXml || (items.length === 0)}
+                    tooltip={isReadyToProcess ? "Procesar Archivo" : "Guardar cambios pendientes"}
                 />
             </div>
         </div>
