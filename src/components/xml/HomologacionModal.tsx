@@ -534,7 +534,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             };
           }}
         >
-          <Column header="PRODUCTO ORIGEN (XML)" body={productXmlTemplate} style={{ width: "30%" }} />
+          <Column header="PRODUCTO ORIGEN (XML)" body={productXmlTemplate} style={{ width: "34%" }} />
           <Column
             header="UND. XML"
             body={(rowData) => {
@@ -555,19 +555,19 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
                 </div>
               );
             }}
-            style={{ width: "6%" }}
+            style={{ width: "5%" }}
             align="center"
           />
-          <Column header="EQUIVALENCIA EN ERP" body={productErpTemplate} style={{ width: "44%" }} />
-          <Column header="CONVERSIÓN (FACTOR)" body={factorEditor} style={{ width: "10%" }} />
+          <Column header="EQUIVALENCIA EN ERP" body={productErpTemplate} style={{ width: "46%" }} />
+          <Column header="CONVERSIÓN (FACTOR)" body={factorEditor} style={{ width: "8%" }} />
           <Column
             field="estado"
             header="ESTADO"
             body={statusBodyTemplate}
-            style={{ width: "6%" }}
+            style={{ width: "5%" }}
             align="center"
           />
-          <Column header="" body={actionTemplate} style={{ width: "4%" }} align="center" />
+          <Column header="" body={actionTemplate} style={{ width: "2%" }} align="center" />
         </DataTable>
       </div>
     </Dialog>
