@@ -60,14 +60,14 @@ const XMLListPage: React.FC = () => {
 
     const statusBodyTemplate = (rowData: XMLFile) => {
         const severityMap: Record<string, "secondary" | "success" | "danger" | "info" | "warning"> = {
-            'Pendiente': 'secondary',
-            'Validado': 'success',
-            'Con errores': 'danger',
-            'Requiere homologación': 'warning',
+            'CARGADO': 'secondary',
+            'LISTO': 'success',
+            'ERROR': 'danger',
+            'PENDIENTE': 'warning',
             'Procesado': 'info'
         };
 
-        const estado = rowData.estado || 'Pendiente';
+        const estado = rowData.estado || 'CARGADO';
 
         return (
             <div className="flex align-items-center gap-2">
@@ -76,7 +76,7 @@ const XMLListPage: React.FC = () => {
                     severity={severityMap[estado]}
                     className="status-tag"
                 />
-                {estado === 'Con errores' && (
+                {estado === 'ERROR' && (
                     <Button
                         icon="pi pi-info-circle"
                         text
@@ -98,7 +98,7 @@ const XMLListPage: React.FC = () => {
     };
 
     const fileNameBodyTemplate = (rowData: XMLFile) => {
-        const isError = rowData.estado === 'Con errores';
+        const isError = rowData.estado === 'ERROR';
         return (
             <div className="filename-cell">
                 <i className={`pi pi-file ${isError ? 'text-error' : 'text-primary'}`}></i>
@@ -181,7 +181,7 @@ const XMLListPage: React.FC = () => {
     };
 
     const actionBodyTemplate = (rowData: XMLFile) => {
-        const isValidated = rowData.estado === 'Validado';
+        const isValidated = rowData.estado === 'LISTO';
         const isProcessing = loadingRow === rowData.fileName || processing || validating;
 
         return (
@@ -237,7 +237,7 @@ const XMLListPage: React.FC = () => {
     const handleBulkProcess = async () => {
         if (selectedFiles.length === 0) return;
 
-        const unvalidated = selectedFiles.filter(f => f.estado !== 'Validado');
+        const unvalidated = selectedFiles.filter(f => f.estado !== 'LISTO');
         if (unvalidated.length > 0) {
             toast.current?.show({
                 severity: 'warn',
@@ -481,7 +481,7 @@ const XMLListPage: React.FC = () => {
                     <div className="metric-details">
                         <p className="metric-label">Validados</p>
                         <div className="metric-value-wrapper">
-                            <h3 className="metric-value">{xmlList.filter(f => f.estado === 'Validado').length}</h3>
+                            <h3 className="metric-value">{xmlList.filter(f => f.estado === 'LISTO').length}</h3>
                             <span className="metric-badge success">Listos</span>
                         </div>
                     </div>

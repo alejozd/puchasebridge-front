@@ -63,12 +63,12 @@ export const useXMLStore = create<XMLState>((set, get) => ({
     try {
       // Mapping function to convert backend response to internal ValidationResult
       const mapBackendToResult = (res: BackendValidationResponse): ValidationResult => {
-        let estado: 'Validado' | 'Con errores' | 'Requiere homologación' = 'Validado';
+        let estado: 'LISTO' | 'ERROR' | 'PENDIENTE' = 'LISTO';
 
         if (!res.valido) {
-          estado = 'Con errores';
+          estado = 'ERROR';
         } else if (res.requiereHomologacion) {
-          estado = 'Requiere homologación';
+          estado = 'PENDIENTE';
         }
 
         const errores = Array.isArray(res.errores) ? res.errores.map(fixEncoding) : [];
@@ -76,7 +76,6 @@ export const useXMLStore = create<XMLState>((set, get) => ({
         return {
           fileName: res.fileName,
           estado,
-          resultadoValidacion: fixEncoding(res.valido ? (res.requiereHomologacion ? 'Requiere homologación de productos' : 'Documento válido') : 'Errores en validación'),
           errores,
           advertencias: [] // Backend doesn't seem to differentiate warnings in the example, putting all in errores
         };
@@ -124,7 +123,6 @@ export const useXMLStore = create<XMLState>((set, get) => ({
           return {
             ...file,
             estado: result.estado,
-            resultadoValidacion: result.resultadoValidacion,
             erroresValidacion: result.errores,
             advertenciasValidacion: result.advertencias
           };
