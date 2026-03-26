@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Card } from "primereact/card";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
 import { Tag } from "primereact/tag";
 import { Button } from "primereact/button";
 import { Skeleton } from "primereact/skeleton";
@@ -20,6 +18,7 @@ const Dashboard: React.FC = () => {
   const loadData = useCallback(async () => {
     try {
       setError(null);
+      setLoadingMetrics(true);
       const [metricsData] = await Promise.all([
         getDashboardMetrics(),
         fetchXMLList()
@@ -33,17 +32,27 @@ const Dashboard: React.FC = () => {
     }
   }, [fetchXMLList]);
 
+  const silentRefresh = useCallback(async () => {
+    try {
+      const metricsData = await getDashboardMetrics();
+      setMetrics(metricsData);
+      // We don't refresh the XML list here to avoid visual reflow
+    } catch (err) {
+      console.error("Error silent refreshing dashboard metrics:", err);
+    }
+  }, []);
+
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 30000);
+    const interval = setInterval(silentRefresh, 30000);
     return () => clearInterval(interval);
-  }, [loadData]);
+  }, [loadData, silentRefresh]);
 
-  const statusBodyTemplate = (rowData: XMLFile) => {
-    const estado = rowData.estado?.toUpperCase() || 'CARGADO';
+  const statusTag = (estado: string | undefined) => {
+    const status = estado?.toUpperCase() || 'CARGADO';
     let severity: "success" | "secondary" | "info" | "warning" | "danger" = "secondary";
 
-    switch (estado) {
+    switch (status) {
       case 'LISTO': severity = 'success'; break;
       case 'PENDIENTE': severity = 'warning'; break;
       case 'ERROR': severity = 'danger'; break;
@@ -51,7 +60,7 @@ const Dashboard: React.FC = () => {
       default: severity = 'secondary';
     }
 
-    return <Tag value={estado} severity={severity} className="status-tag" />;
+    return <Tag value={status} severity={severity} className="status-tag" />;
   };
 
   const prioritySort = (data: XMLFile[]) => {
@@ -72,7 +81,7 @@ const Dashboard: React.FC = () => {
 
   const sortedXmlList = prioritySort(xmlList);
 
-  const availability = metrics && metrics.total > 0
+  const processingSuccessRate = metrics && metrics.total > 0
     ? ((metrics.procesados / metrics.total) * 100).toFixed(2)
     : "0.00";
 
@@ -83,6 +92,8 @@ const Dashboard: React.FC = () => {
         title: `Error de Validación (${metrics.errores})`,
         desc: "Existen documentos con errores que requieren atención inmediata.",
         color: 'var(--color-error)',
+        bg: 'rgba(158, 63, 78, 0.08)',
+        icon: 'pi-exclamation-circle',
         time: 'ACTIVO'
       });
     }
@@ -91,6 +102,8 @@ const Dashboard: React.FC = () => {
         title: "Homologación Pendiente",
         desc: `Hay ${metrics.pendientes} productos nuevos que necesitan ser mapeados.`,
         color: 'var(--color-warning)',
+        bg: 'rgba(245, 158, 11, 0.08)',
+        icon: 'pi-sync',
         time: 'PENDIENTE'
       });
     }
@@ -99,6 +112,8 @@ const Dashboard: React.FC = () => {
         title: "Procesamiento Exitoso",
         desc: `Se han procesado ${metrics.procesadosHoy} documentos el día de hoy.`,
         color: 'var(--color-success)',
+        bg: 'rgba(22, 163, 74, 0.08)',
+        icon: 'pi-check-circle',
         time: 'HOY'
       });
     }
@@ -106,21 +121,26 @@ const Dashboard: React.FC = () => {
 
   const kpiCards = [
     { label: "ESTADO DE LA COLA", title: "En Cola", value: metrics ? metrics.cargados + metrics.pendientes : 0, icon: "pi-clock", color: "warning" },
-    { label: "MAPEADO DE PRODUCTOS", title: "Pendientes de Homologación", value: metrics?.pendientes || 0, icon: "pi-sync", color: "info" },
     { label: "VALIDACIÓN COMPLETA", title: "Listos para Procesar", value: metrics?.listos || 0, icon: "pi-check-circle", color: "success" },
-    { label: "INTEGRACIÓN ERP", title: "Procesados", value: metrics?.procesados || 0, icon: "pi-database", color: "primary" },
-    { label: "CONTROL DE CALIDAD", title: "Errores", value: metrics?.errores || 0, icon: "pi-exclamation-triangle", color: "danger" },
+    { label: "INTEGRACIÓN ERP", title: "Procesados Hoy", value: metrics?.procesadosHoy || 0, icon: "pi-database", color: "primary" },
   ];
 
   return (
     <div className="dashboard-container">
-      <header>
-        <PageTitle title="Panel de Control" />
-        <p className="dashboard-header-desc">Vista en tiempo real del estado de procesamiento y cola de integración ERP.</p>
-        {error && <Tag severity="danger" value={error} style={{ marginBottom: '1rem' }} icon="pi pi-exclamation-circle" />}
+      <header className="dashboard-header">
+        <div>
+          <PageTitle title="Panel de Control" />
+          <p className="dashboard-header-desc">Vista en tiempo real del estado de procesamiento y cola de integración ERP.</p>
+        </div>
+        <div className="dashboard-header-stats">
+          {metrics && metrics.errores > 0 && (
+            <Tag severity="danger" value={`${metrics.errores} Errores`} icon="pi pi-exclamation-triangle" className="error-badge-pulse" />
+          )}
+          {error && <Tag severity="danger" value={error} style={{ marginLeft: '1rem' }} icon="pi pi-exclamation-circle" />}
+        </div>
       </header>
 
-      <section className="summary-grid">
+      <section className="summary-grid-compact">
         {kpiCards.map((kpi, idx) => (
           <Card key={idx} className={`summary-card border-${kpi.color}`}>
             <div className="summary-card-header">
@@ -137,72 +157,89 @@ const Dashboard: React.FC = () => {
             ) : (
               <div className="summary-card-value">{kpi.value}</div>
             )}
-            <p className="summary-card-footer">Actualizado hace un momento</p>
+            <p className="summary-card-footer">Actualizado en tiempo real</p>
           </Card>
         ))}
       </section>
 
-      <div className="dashboard-main-grid">
-        <Card className="queue-card" style={{ borderRadius: 'var(--radius-xl)', padding: '0.5rem', minWidth: '0' }}>
-          <div className="queue-card-header">
-            <h3 className="queue-card-title">Cola de Procesamiento Activa</h3>
-            <Button label="Ver registro completo" icon="pi pi-arrow-right" iconPos="right" text size="small" style={{ fontWeight: 600 }} />
+      <div className="dashboard-main-grid-refactored">
+        <section className="processing-section">
+          <div className="section-header">
+            <h3 className="queue-card-title">Cola de Procesamiento</h3>
+            <Button label="Ver todo" icon="pi pi-external-link" text size="small" />
           </div>
-          {loadingFiles ? (
-             <div style={{ padding: '1rem' }}>
-                <Skeleton className="mb-2" height="2rem"></Skeleton>
-                <Skeleton className="mb-2" height="2rem"></Skeleton>
-                <Skeleton className="mb-2" height="2rem"></Skeleton>
-                <Skeleton className="mb-2" height="2rem"></Skeleton>
-             </div>
-          ) : (
-            <DataTable value={sortedXmlList} scrollable scrollHeight="400px" tableStyle={{ minWidth: '50rem' }} className="p-datatable-sm">
-              <Column field="fileName" header="ARCHIVO" headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
-              <Column field="proveedor" header="PROVEEDOR" headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
-              <Column field="estado" header="ESTADO" body={statusBodyTemplate} headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
-              <Column field="lastModified" header="FECHA CARGA" headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }} style={{ color: 'var(--color-secondary)', fontSize: '0.875rem' }}></Column>
-              <Column field="fechaProceso" header="FECHA PROCESO" headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }} style={{ color: 'var(--color-secondary)', fontSize: '0.875rem' }}></Column>
-            </DataTable>
-          )}
-        </Card>
+          <div className="processing-list-container">
+            {loadingFiles ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="processing-item-skeleton">
+                   <Skeleton width="100%" height="4rem" borderRadius="8px" />
+                </div>
+              ))
+            ) : sortedXmlList.length === 0 ? (
+              <div className="empty-state">No hay documentos en cola</div>
+            ) : (
+              sortedXmlList.map((item, idx) => (
+                <div key={idx} className="processing-card-compact">
+                  <div className="item-main-info">
+                    <span className="item-filename" title={item.fileName}>{item.fileName}</span>
+                    <span className="item-provider">{item.proveedor || "Proveedor Desconocido"}</span>
+                  </div>
+                  <div className="item-status">
+                    {statusTag(item.estado)}
+                  </div>
+                  <div className="item-dates">
+                    <div className="date-group">
+                      <span className="date-label">CARGA</span>
+                      <span className="date-value">{item.lastModified || "-"}</span>
+                    </div>
+                    {item.fechaProceso && (
+                      <div className="date-group">
+                        <span className="date-label">PROCESO</span>
+                        <span className="date-value">{item.fechaProceso}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
 
-        <div className="alerts-column" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div className="availability-card">
-            <h4 className="availability-label">Disponibilidad del Bridge</h4>
+        <section className="alerts-section">
+          <div className="availability-card-refined">
+            <h4 className="availability-label">Tasa de Procesamiento Exitoso</h4>
             {loadingMetrics ? (
               <Skeleton width="6rem" height="3rem" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
             ) : (
-              <div className="availability-value">{availability}%</div>
+              <div className="availability-value">{processingSuccessRate}%</div>
             )}
-            <p className="availability-desc">Tasa de éxito en el procesamiento histórico de documentos.</p>
+            <p className="availability-desc">Porcentaje de integración histórica exitosa.</p>
             <div className="availability-bars">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className={`availability-bar ${i === 4 ? 'active' : ''}`}></div>
               ))}
             </div>
-            <div className="availability-decoration"></div>
           </div>
 
-          <Card style={{ borderRadius: 'var(--radius-xl)', backgroundColor: 'var(--color-surface-container-low)' }}>
-            <h4 className="alerts-card-title">Alertas del Sistema</h4>
+          <div className="alerts-container-refined">
+            <h4 className="alerts-card-title">Alertas Operativas</h4>
             <div className="alerts-list">
               {alerts.length === 0 ? (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-secondary)' }}>No hay alertas activas en este momento.</p>
+                <div className="empty-alerts">Sin alertas operativas</div>
               ) : (
                 alerts.slice(0, 3).map((alert, idx) => (
-                  <div key={idx} className="alert-item">
-                    <div className="alert-dot" style={{ backgroundColor: alert.color }}></div>
-                    <div>
-                      <p className="alert-content-title">{alert.title}</p>
-                      <p className="alert-content-desc">{alert.desc}</p>
-                      <span className="alert-content-time">{alert.time}</span>
+                  <div key={idx} className="alert-item-modern" style={{ backgroundColor: alert.bg, borderLeft: `4px solid ${alert.color}` }}>
+                    <i className={`pi ${alert.icon} alert-icon`} style={{ color: alert.color }}></i>
+                    <div className="alert-content">
+                      <p className="alert-title">{alert.title}</p>
+                      <p className="alert-desc">{alert.desc}</p>
                     </div>
                   </div>
                 ))
               )}
             </div>
-          </Card>
-        </div>
+          </div>
+        </section>
       </div>
     </div>
   );
