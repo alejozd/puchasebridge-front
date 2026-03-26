@@ -561,7 +561,7 @@ const HomologacionPage: React.FC = () => {
     return (
         <div className="homologacion-container">
             <Toast ref={toast} />
-            <Tooltip target=".truncate-text [data-pr-tooltip]" position="top" />
+            <Tooltip target=".truncate-text[data-pr-tooltip]" position="top" />
 
             <div className="homologacion-header">
                 <div className="title-area">

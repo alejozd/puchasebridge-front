@@ -2,6 +2,8 @@ import React from 'react';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Divider } from 'primereact/divider';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { Message } from 'primereact/message';
 import ProductTable from './ProductTable';
 import type { XMLFileDetail, XMLValidationResult } from '../../types/xml';
 
@@ -28,9 +30,9 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="detail-empty-state">
-        <i className="pi pi-spin pi-spinner text-3xl mb-3"></i>
-        <p>Cargando información del archivo...</p>
+      <div className="detail-empty-state flex-column gap-3">
+        <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" />
+        <p className="font-semibold text-secondary">Cargando información del archivo...</p>
       </div>
     );
   }
@@ -38,13 +40,15 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
   if (!detail) {
     return (
       <div className="detail-empty-state">
-        <i className="pi pi-file-search text-3xl mb-3 opacity-50"></i>
-        <p>Selecciona un archivo para ver su detalle</p>
+        <i className="pi pi-file text-4xl mb-3 opacity-50"></i>
+        <p>Seleccione un archivo para ver el detalle</p>
       </div>
     );
   }
 
   const hasPendingHomologation = detail.productos.some(p => !p.equivalencia_id);
+  const isValidated = detail.estado.toUpperCase() === 'VALIDADO' || detail.estado.toUpperCase() === 'PROCESADO';
+  const isProcessed = detail.estado.toUpperCase() === 'PROCESADO';
 
   const getStatusTag = (status: string) => {
     switch (status.toUpperCase()) {
@@ -87,12 +91,12 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 
       {/* STEPPER VISUAL */}
       <div className="stepper-visual flex align-items-center justify-content-center gap-4 mb-5">
-        <div className={`step-item ${detail.estado.toUpperCase() !== 'CARGADO' ? 'completed' : 'active'}`}>
+        <div className={`step-item ${isValidated ? 'completed' : 'active'}`}>
             <div className="step-circle">1</div>
             <span className="step-label">Validar</span>
         </div>
         <div className="step-connector"></div>
-        <div className={`step-item ${detail.estado.toUpperCase() === 'PROCESADO' ? 'completed' : detail.estado.toUpperCase() === 'VALIDADO' ? 'active' : 'pending'}`}>
+        <div className={`step-item ${isProcessed ? 'completed' : detail.estado.toUpperCase() === 'VALIDADO' ? 'active' : 'pending'}`}>
             <div className="step-circle">2</div>
             <span className="step-label">Procesar</span>
         </div>
@@ -128,12 +132,12 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
             </div>
             <div>
                 <span className="block text-xs font-bold uppercase tracking-wider opacity-70">Documento Generado en Helisa</span>
-                <span className="block text-xl font-mono font-bold">{generatedDoc}</span>
+                <span className="block text-xl font-mono font-bold text-primary">{generatedDoc}</span>
             </div>
         </div>
       )}
 
-      {hasPendingHomologation && !validationResult && (
+      {hasPendingHomologation && !validationResult && detail.estado.toUpperCase() === 'CARGADO' && (
         <div className="alert-warning p-3 border-round mb-4 flex align-items-center gap-2">
           <i className="pi pi-exclamation-triangle"></i>
           <span className="text-sm font-semibold">Existen productos pendientes de homologación</span>
@@ -149,14 +153,13 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 
       <Divider />
 
-      {/* FOOTER ACTIONS - SMART BUTTONS */}
+      {/* FOOTER ACTIONS - DYNAMIC SMART BUTTONS */}
       <div className="detail-footer-actions flex justify-content-end align-items-center py-2">
-        {detail.estado.toUpperCase() === 'PROCESADO' ? (
-            <div className="flex align-items-center gap-2 text-green-600 font-bold bg-green-50 p-3 border-round">
-                <i className="pi pi-check-circle"></i>
-                <span>Este documento ya fue procesado y enviado al ERP</span>
-            </div>
-        ) : detail.estado.toUpperCase() === 'VALIDADO' || (validationResult?.valido) ? (
+        {detail.estado.toUpperCase() === 'PROCESADO' && (
+             <Message severity="success" text="Este documento ya fue procesado y enviado al ERP" className="w-full" />
+        )}
+
+        {detail.estado.toUpperCase() === 'VALIDADO' && (
             <Button
                 label="Procesar ahora"
                 icon="pi pi-play-circle"
@@ -165,7 +168,9 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
                 disabled={validating || loading}
                 className="p-button-lg p-button-success shadow-2"
             />
-        ) : (
+        )}
+
+        {detail.estado.toUpperCase() === 'CARGADO' && (
             <Button
                 label="Iniciar Validación"
                 icon="pi pi-shield"
