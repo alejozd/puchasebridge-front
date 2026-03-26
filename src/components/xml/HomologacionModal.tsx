@@ -325,26 +325,24 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
         <span className="factor-relation text-xs">
           1 {displayUnit} = {rowData.factor} {rowData.unidadErpLabel || "ERP"}
         </span>
-        <div className="factor-input-wrap">
-          <span className="factor-eq">Factor</span>
-          <InputNumber
-            value={rowData.factor}
-            onValueChange={(e) =>
-              updateRowState(rowData.referenciaXML, { factor: e.value ?? 1 })
-            }
-            min={0}
-            minFractionDigits={0}
-            maxFractionDigits={4}
-            mode="decimal"
-            showButtons
-            buttonLayout="horizontal"
-            decrementButtonClassName="p-button-text p-button-sm"
-            incrementButtonClassName="p-button-text p-button-sm"
-            incrementButtonIcon="pi pi-plus"
-            decrementButtonIcon="pi pi-minus"
-            inputClassName="p-inputtext-sm text-center font-bold"
-          />
-        </div>
+        <InputNumber
+          value={rowData.factor}
+          onValueChange={(e) =>
+            updateRowState(rowData.referenciaXML, { factor: e.value ?? 1 })
+          }
+          min={0}
+          minFractionDigits={0}
+          maxFractionDigits={4}
+          mode="decimal"
+          showButtons
+          buttonLayout="horizontal"
+          decrementButtonClassName="p-button-text p-button-sm"
+          incrementButtonClassName="p-button-text p-button-sm"
+          incrementButtonIcon="pi pi-plus"
+          decrementButtonIcon="pi pi-minus"
+          className="factor-input-compact"
+          inputClassName="p-inputtext-sm text-center font-bold"
+        />
       </div>
     );
   };
@@ -534,7 +532,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             };
           }}
         >
-          <Column header="PRODUCTO ORIGEN (XML)" body={productXmlTemplate} style={{ width: "34%" }} />
+          <Column header="PRODUCTO ORIGEN (XML)" body={productXmlTemplate} style={{ width: "36%" }} />
           <Column
             header="UND. XML"
             body={(rowData) => {
@@ -555,16 +553,16 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
                 </div>
               );
             }}
-            style={{ width: "5%" }}
+            style={{ width: "4%" }}
             align="center"
           />
-          <Column header="EQUIVALENCIA EN ERP" body={productErpTemplate} style={{ width: "46%" }} />
-          <Column header="CONVERSIÓN (FACTOR)" body={factorEditor} style={{ width: "8%" }} />
+          <Column header="EQUIVALENCIA EN ERP" body={productErpTemplate} style={{ width: "48%" }} />
+          <Column header="CONVERSIÓN (FACTOR)" body={factorEditor} style={{ width: "6%" }} />
           <Column
             field="estado"
             header="ESTADO"
             body={statusBodyTemplate}
-            style={{ width: "5%" }}
+            style={{ width: "4%" }}
             align="center"
           />
           <Column header="" body={actionTemplate} style={{ width: "2%" }} align="center" />

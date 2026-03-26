@@ -166,12 +166,12 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 6px 8px;
+  padding: 5px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  max-width: 170px;
+  gap: 4px;
+  max-width: 145px;
   margin: 0 auto;
 }
 
@@ -190,39 +190,25 @@
   border: none !important;
   background: transparent !important;
   padding: 0 !important;
-  font-size: 0.95rem !important;
+  font-size: 0.9rem !important;
 }
 
-.factor-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.factor-eq {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.factor-input-wrap .p-inputnumber {
+.factor-input-compact.p-inputnumber {
   border: 1px solid #d8e1ec;
   border-radius: 8px;
-  padding: 0.15rem 0.45rem;
+  padding: 0.1rem 0.3rem;
   background: #f8fafc;
 }
 
-.factor-input-wrap .p-inputnumber .p-inputnumber-input {
-  width: 42px;
+.factor-input-compact.p-inputnumber .p-inputnumber-input {
+  width: 36px;
   text-align: center;
 }
 
-.factor-input-wrap .p-button {
+.factor-input-compact.p-inputnumber .p-button {
   color: #2563eb !important;
-  width: 1.45rem;
-  min-width: 1.45rem;
+  width: 1.2rem;
+  min-width: 1.2rem;
 }
 
 .homologado-erp-label {
