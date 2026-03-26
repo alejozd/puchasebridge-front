@@ -34,6 +34,11 @@
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.modern-erp-table .p-datatable-tbody > tr > td {
+  padding: 0.4rem 0.5rem !important;
+  font-size: 0.875rem !important;
+}
+
 .modern-erp-table .p-datatable-tbody > tr:hover {
   background-color: #f8fafc !important;
 }
@@ -163,22 +168,22 @@
 .factor-wrapper {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 5px 6px;
+  border-radius: 6px;
+  padding: 3px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  max-width: 145px;
+  gap: 2px;
+  max-width: 130px;
   margin: 0 auto;
 }
 
 .factor-relation {
-  font-size: 11px;
+  font-size: 10px;
   color: #15803d;
   font-weight: 700;
   background: #f0fdf4;
-  padding: 2px 8px;
+  padding: 1px 6px;
   border-radius: 4px;
   border: 1px solid #dcfce7;
   white-space: nowrap;
@@ -188,25 +193,26 @@
   border: none !important;
   background: transparent !important;
   padding: 0 !important;
-  font-size: 0.9rem !important;
+  font-size: 0.85rem !important;
 }
 
 .factor-input-compact.p-inputnumber {
   border: 1px solid #d8e1ec;
-  border-radius: 8px;
-  padding: 0.1rem 0.3rem;
+  border-radius: 6px;
+  padding: 0.05rem 0.2rem;
   background: #f8fafc;
+  height: 24px;
 }
 
 .factor-input-compact.p-inputnumber .p-inputnumber-input {
-  width: 36px;
+  width: 30px;
   text-align: center;
 }
 
 .factor-input-compact.p-inputnumber .p-button {
   color: #2563eb !important;
-  width: 1.2rem;
-  min-width: 1.2rem;
+  width: 1rem;
+  min-width: 1rem;
 }
 
 .homologado-erp-label {
