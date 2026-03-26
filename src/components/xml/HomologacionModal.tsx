@@ -34,6 +34,9 @@ interface HomologacionModalProps {
 
 interface ProductoMapeo extends ProductoPendiente {
   referenciaErp: string;
+  codigoErp?: number;
+  subcodigoErp?: number;
+  nombreErp?: string;
   productoSistema?: string;
   unidadErp: string;
   unidadErpLabel?: string;
@@ -79,6 +82,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
         unidadXMLNombre: p.unidadXMLNombre,
         estado: p.estado,
         referenciaErp: p.referenciaErp || "",
+        codigoErp: p.codigoErp,
+        subcodigoErp: p.subcodigoErp,
+        nombreErp: p.nombreErp || "",
         productoSistema: p.referenciaErp
           ? `[${p.referenciaErp}] - ${p.nombreErp || ""}`
           : "",
@@ -150,11 +156,18 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
   };
 
   const handleSaveRow = async (rowData: ProductoMapeo) => {
-    if (!rowData.referenciaErp || !rowData.unidadErp) {
+    if (
+      !rowData.referenciaErp ||
+      !rowData.unidadErp ||
+      !rowData.codigoErp ||
+      rowData.subcodigoErp === undefined ||
+      !rowData.nombreErp
+    ) {
       toast.current?.show({
         severity: "warn",
         summary: "Campos requeridos",
-        detail: "Referencia ERP y Unidad ERP son obligatorios.",
+        detail:
+          "Debe seleccionar un producto del ERP válido (Código, Subcódigo y Nombre son requeridos).",
         life: 3000,
       });
       return;
@@ -176,7 +189,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
         fileName,
         referenciaXml: rowData.referenciaXML,
         unidadXml: rowData.unidadXML,
-        codigoH: rowData.referenciaErp,
+        codigoH: rowData.codigoErp!,
+        subCodigoH: rowData.subcodigoErp!,
+        nombreH: rowData.nombreErp!,
         unidadErp: rowData.unidadErp,
         factor: rowData.factor,
       };
@@ -240,6 +255,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
 
     updateRowState(rowData.referenciaXML, {
       referenciaErp: selected.referencia,
+      codigoErp: selected.codigo,
+      subcodigoErp: selected.subcodigo,
+      nombreErp: selected.nombre,
       productoSistema: `[${selected.referencia}] - ${selected.nombre}`,
       unidadErp: matchingUnit?.codigo || "",
       unidadErpLabel: matchingUnit?.sigla || "",

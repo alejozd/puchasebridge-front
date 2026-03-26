@@ -129,6 +129,8 @@ export interface ProductoDocumento {
   unidadXMLNombre: string;
   estado: string;
   referenciaErp: string;
+  codigoErp?: number;
+  subcodigoErp?: number;
   nombreErp: string;
   unidadErp: string;
   unidadErpNombre: string;
@@ -146,7 +148,9 @@ export interface HomologarPayload {
   fileName: string;
   referenciaXml: string;
   unidadXml: string;
-  codigoH: string;
+  codigoH: number;
+  subCodigoH: number;
+  nombreH: string;
   unidadErp: string;
   factor: number;
 }
