@@ -14,7 +14,20 @@ export const useXmlDetail = () => {
     setError(null);
     try {
       const data = await getXMLFileDetail(id);
-      setDetail(data);
+      console.log('DETAIL RESPONSE:', data);
+
+      // Normalize mapping to ensure consistency
+      const normalizedDetail: XMLFileDetail = {
+        id: data.id,
+        file_name: data.file_name,
+        proveedor_nombre: data.proveedor_nombre,
+        proveedor_nit: data.proveedor_nit,
+        fecha_documento: data.fecha_documento,
+        estado: data.estado,
+        productos: data.productos || []
+      };
+
+      setDetail(normalizedDetail);
     } catch (err) {
       setError('Error al cargar el detalle del archivo XML');
       console.error(err);

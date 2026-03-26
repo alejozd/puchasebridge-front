@@ -50,7 +50,7 @@ const XmlTable: React.FC<XmlTableProps> = ({
         rowHover
         selectionMode="multiple"
         loading={loading}
-        onRowClick={(e) => onRowClick((e.data as XMLFileItem).id)}
+        onRowClick={(e) => onRowClick(e.data.id)}
         rowClassName={(data) => ({ 'row-selected': (data as XMLFileItem).id === selectedId })}
         emptyMessage="No se encontraron archivos XML."
         scrollable
@@ -58,21 +58,21 @@ const XmlTable: React.FC<XmlTableProps> = ({
       >
         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
         <Column
-          field="file_name"
+          field="fileName"
           header="Archivo"
-          body={(rowData: XMLFileItem) => <span className="filename-column">{rowData.file_name}</span>}
+          body={(rowData: XMLFileItem) => <span className="filename-column">{rowData.fileName}</span>}
           sortable
         />
         <Column
-          field="proveedor_nombre"
+          field="proveedorNombre"
           header="Proveedor"
-          body={(rowData: XMLFileItem) => <span className="provider-column">{rowData.proveedor_nombre}</span>}
+          body={(rowData: XMLFileItem) => <span className="provider-column">{rowData.proveedorNombre}</span>}
           sortable
         />
         <Column
-          field="fecha_documento"
+          field="fechaDocumento"
           header="Fecha"
-          body={(rowData: XMLFileItem) => <span className="date-column">{rowData.fecha_documento}</span>}
+          body={(rowData: XMLFileItem) => <span className="date-column">{rowData.fechaDocumento}</span>}
           sortable
         />
         <Column

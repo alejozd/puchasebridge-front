@@ -41,7 +41,7 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
     return (
       <div className="detail-empty-state">
         <i className="pi pi-file text-4xl mb-3 opacity-50"></i>
-        <p>Seleccione un archivo para ver el detalle</p>
+        <p>No hay información del documento</p>
       </div>
     );
   }
@@ -64,6 +64,9 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 
   return (
     <div className="xml-detail-container h-full flex flex-column">
+      {/* DEBUG RENDER */}
+      <pre style={{ display: 'none' }}>{JSON.stringify(detail, null, 2)}</pre>
+
       {/* PROFESSIONAL HEADER */}
       <div className="detail-header-professional mb-4">
         <div className="flex justify-content-between align-items-start">
