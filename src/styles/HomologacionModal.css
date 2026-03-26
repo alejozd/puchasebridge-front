@@ -21,12 +21,10 @@
 .modern-erp-table.p-datatable-sm .p-datatable-thead > tr > th {
   background: #f8fafc !important;
   color: #0f172a !important;
-  font-size: 1.12rem !important;
-  line-height: 1.25 !important;
+  font-size: 0.8rem !important;
+  line-height: 1.0 !important;
   font-weight: 800 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.07em !important;
-  padding: 1rem 0.75rem !important;
+  text-transform: uppercase;  
   border: none !important;
   border-bottom: 2px solid #e2e8f0 !important;
 }
@@ -57,7 +55,7 @@
 .product-xml-container {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 1px;
 }
 
 .ref-mono {

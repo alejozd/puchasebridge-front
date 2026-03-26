@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import { Dialog } from "primereact/dialog";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -228,7 +234,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
     selected: ErpProducto,
     rowData: ProductoMapeo,
   ) => {
-    const matchingUnit = unidades.find((u) => u.sigla === selected.unidadDefault);
+    const matchingUnit = unidades.find(
+      (u) => u.sigla === selected.unidadDefault,
+    );
 
     updateRowState(rowData.referenciaXML, {
       referenciaErp: selected.referencia,
@@ -255,7 +263,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             {rowData.productoSistema || rowData.referenciaErp}
           </span>
           <div className="flex align-items-center gap-1">
-            <span className="text-xs text-secondary font-medium">Unidad ERP:</span>
+            <span className="text-xs text-secondary font-medium">
+              Unidad ERP:
+            </span>
             <span className="text-xs font-bold text-dark">
               {rowData.unidadErpLabel || rowData.unidadErp || "---"}
             </span>
@@ -270,7 +280,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
           <span className="erp-item-code font-bold text-sm text-primary">
             [{item.referencia}]
           </span>
-          <span className="erp-item-name text-xs text-secondary mt-1">{item.nombre}</span>
+          <span className="erp-item-name text-xs text-secondary mt-1">
+            {item.nombre}
+          </span>
         </div>
       );
     };
@@ -289,7 +301,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
                   : `[${e.value.referencia}] - ${e.value.nombre}`;
               updateRowState(rowData.referenciaXML, { productoSistema: val });
             }}
-            onSelect={(e) => onErpProductSelect(e.value as ErpProducto, rowData)}
+            onSelect={(e) =>
+              onErpProductSelect(e.value as ErpProducto, rowData)
+            }
             itemTemplate={itemTemplate}
             placeholder="Buscar producto en ERP..."
             className="w-full"
@@ -299,7 +313,10 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             delay={300}
             minLength={1}
           />
-          <i className="pi pi-search text-xs" style={{ right: "0.75rem", zIndex: 1 }} />
+          <i
+            className="pi pi-search text-xs"
+            style={{ right: "0.75rem", zIndex: 1 }}
+          />
         </div>
         {rowData.referenciaErp && (
           <div className="flex align-items-center gap-1 mt-1">
@@ -349,7 +366,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
 
   const productXmlTemplate = (rowData: ProductoMapeo) => (
     <div className="product-xml-container">
-      <span className="text-sm font-bold text-gray-800 line-height-2">{rowData.nombreProducto}</span>
+      <span className="text-sm font-bold text-gray-800 line-height-2">
+        {rowData.nombreProducto}
+      </span>
       <span className="ref-mono text-xs">{rowData.referenciaXML}</span>
     </div>
   );
@@ -369,7 +388,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             severity="success"
             onClick={() => handleSaveRow(rowData)}
             loading={rowData.loading}
-            disabled={rowData.loading || rowData.searching || !rowData.referenciaErp}
+            disabled={
+              rowData.loading || rowData.searching || !rowData.referenciaErp
+            }
             tooltip="Guardar cambios"
           />
           <Button
@@ -377,7 +398,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             text
             rounded
             severity="secondary"
-            onClick={() => updateRowState(rowData.referenciaXML, { isEditing: false })}
+            onClick={() =>
+              updateRowState(rowData.referenciaXML, { isEditing: false })
+            }
             tooltip="Cancelar"
           />
         </div>
@@ -392,7 +415,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             text
             rounded
             severity="info"
-            onClick={() => updateRowState(rowData.referenciaXML, { isEditing: true })}
+            onClick={() =>
+              updateRowState(rowData.referenciaXML, { isEditing: true })
+            }
             tooltip="Editar homologación"
           />
         </div>
@@ -408,7 +433,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
           severity="success"
           onClick={() => handleSaveRow(rowData)}
           loading={rowData.loading}
-          disabled={rowData.loading || rowData.searching || !rowData.referenciaErp}
+          disabled={
+            rowData.loading || rowData.searching || !rowData.referenciaErp
+          }
           tooltip="Guardar"
         />
       </div>
@@ -423,7 +450,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             <i className="pi pi-sync text-primary text-xl"></i>
           </div>
           <div className="header-title-block">
-            <h2 className="m-0 text-lg font-bold text-slate-800">Homologación de productos</h2>
+            <h2 className="m-0 text-lg font-bold text-slate-800">
+              Homologación de productos
+            </h2>
             <div className="header-file-name">{fileName}</div>
           </div>
         </div>
@@ -446,15 +475,23 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
               <div className="flex align-items-center gap-2">
                 <i className="pi pi-info-circle text-xs"></i>
                 <span className="text-xs">
-                  Tip: puedes buscar por nombre/referencia XML o por referencia ERP.
+                  Tip: puedes buscar por nombre/referencia XML o por referencia
+                  ERP.
                 </span>
               </div>
             }
           />
           <div className="flex align-items-center gap-4">
             <div className="text-xs text-slate-500 font-medium">
-              Estado: <span className="text-slate-700 font-bold">{totales.totalHomologados}</span> de{" "}
-              <span className="text-slate-700 font-bold">{totales.totalProductos}</span> homologados
+              Estado:{" "}
+              <span className="text-slate-700 font-bold">
+                {totales.totalHomologados}
+              </span>{" "}
+              de{" "}
+              <span className="text-slate-700 font-bold">
+                {totales.totalProductos}
+              </span>{" "}
+              homologados
             </div>
             <Button
               label="Cerrar"
@@ -467,16 +504,32 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
       }
     >
       <Toast ref={toast} />
-      <div className="modal-body-content py-0">
+      <div className="homologacion-content">
         <div className="toolbar-grid mb-2">
           <div className="toolbar-stats">
-            <Tag value={`Total: ${totales.totalProductos}`} severity="info" rounded />
-            <Tag value={`Pendientes: ${totales.totalPendientes}`} severity="warning" rounded />
-            <Tag value={`Homologados: ${totales.totalHomologados}`} severity="success" rounded />
+            <Tag
+              value={`Total: ${totales.totalProductos}`}
+              severity="info"
+              rounded
+            />
+            <Tag
+              value={`Pendientes: ${totales.totalPendientes}`}
+              severity="warning"
+              rounded
+            />
+            <Tag
+              value={`Homologados: ${totales.totalHomologados}`}
+              severity="success"
+              rounded
+            />
           </div>
 
           <div className="toolbar-actions">
-            <div className="estado-filtros" role="group" aria-label="Filtrar estado">
+            <div
+              className="estado-filtros"
+              role="group"
+              aria-label="Filtrar estado"
+            >
               <Button
                 label="Todos"
                 onClick={() => setEstadoFiltro("todos")}
@@ -524,7 +577,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
           stripedRows
           rowHover
           rowClassName={(data) => {
-            const estado = data.estado ? data.estado.toLowerCase() : "pendiente";
+            const estado = data.estado
+              ? data.estado.toLowerCase()
+              : "pendiente";
             return {
               "row-pending": estado !== "homologado" && !data.isEditing,
               "row-homologado": estado === "homologado" && !data.isEditing,
@@ -532,7 +587,11 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             };
           }}
         >
-          <Column header="PRODUCTO ORIGEN (XML)" body={productXmlTemplate} style={{ width: "36%" }} />
+          <Column
+            header="PRODUCTO ORIGEN (XML)"
+            body={productXmlTemplate}
+            // style={{ width: "80%" }}
+          />
           <Column
             header="UND. XML"
             body={(rowData) => {
@@ -543,10 +602,15 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
               return (
                 <div className="flex flex-column align-items-center gap-1">
                   <span className="unit-tag-inline shadow-sm px-3 py-1 bg-white border-1 border-slate-300 text-slate-800 font-bold uppercase text-xs">
-                    {isTechnical ? rowData.unidadXML : nombre || rowData.unidadXML}
+                    {isTechnical
+                      ? rowData.unidadXML
+                      : nombre || rowData.unidadXML}
                   </span>
                   {isTechnical && nombre && (
-                    <span className="text-slate-400 font-medium" style={{ fontSize: "10px" }}>
+                    <span
+                      className="text-slate-400 font-medium"
+                      style={{ fontSize: "10px" }}
+                    >
                       Ref: {rowData.unidadXML}
                     </span>
                   )}
@@ -556,8 +620,16 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             style={{ width: "4%" }}
             align="center"
           />
-          <Column header="EQUIVALENCIA EN ERP" body={productErpTemplate} style={{ width: "48%" }} />
-          <Column header="CONVERSIÓN (FACTOR)" body={factorEditor} style={{ width: "6%" }} />
+          <Column
+            header="EQUIVALENCIA EN ERP"
+            body={productErpTemplate}
+            style={{ width: "48%" }}
+          />
+          <Column
+            header="CONVERSIÓN (FACTOR)"
+            body={factorEditor}
+            style={{ width: "6%" }}
+          />
           <Column
             field="estado"
             header="ESTADO"
@@ -565,7 +637,12 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             style={{ width: "4%" }}
             align="center"
           />
-          <Column header="" body={actionTemplate} style={{ width: "2%" }} align="center" />
+          <Column
+            header=""
+            body={actionTemplate}
+            style={{ width: "2%" }}
+            align="center"
+          />
         </DataTable>
       </div>
     </Dialog>
