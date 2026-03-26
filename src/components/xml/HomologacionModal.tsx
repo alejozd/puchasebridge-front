@@ -469,10 +469,8 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             <i className="pi pi-sync text-primary text-xl"></i>
           </div>
           <div className="header-title-block">
-            <h2 className="m-0 text-lg font-bold text-slate-800">
-              Homologación de productos
-            </h2>
-            <div className="header-file-name">{fileName}</div>
+            <h2 className="header-title">Homologación de productos</h2>
+            <span className="header-subtitle">{fileName}</span>
           </div>
         </div>
       }

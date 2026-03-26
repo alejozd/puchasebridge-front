@@ -1,16 +1,18 @@
 /* HomologacionModal.css */
 
 .detail-dialog-v2 .p-dialog-header {
-  padding-top: 0.5rem !important;
-  padding-bottom: 0.45rem !important;
+  padding: 1rem 1.5rem !important;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
 }
 
 .detail-dialog-v2 .p-dialog-header .p-dialog-title {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
   width: 100%;
-  text-align: left;
+}
+
+.detail-dialog-v2 .p-dialog-header .p-dialog-title,
+.detail-dialog-v2 .p-dialog-header .p-dialog-title > div {
+  width: 100%;
 }
 
 .detail-dialog-v2 .p-dialog-content {
@@ -222,25 +224,59 @@
 
 .header-icon-container {
   background: #eff6ff;
-  padding: 7px;
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.header-icon-container i {
+  font-size: 1.5rem;
+  color: #3b82f6;
 }
 
 .homologacion-header {
   display: flex;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: 0.75rem;
   width: 100%;
-  padding: 0.2rem 0;
+  padding: 0;
 }
 
-.header-title-block {
+.header-title-block {  
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.header-title {
+  margin: 0;
+  padding: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #3b57f6;
+  letter-spacing: -0.01em;
+}
+
+.header-subtitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  background: #f1f5f9;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .header-file-name {
@@ -317,5 +353,31 @@
   .search-pill {
     width: 100% !important;
     min-width: 240px;
+  }
+}
+
+/* Opcional: Si quieres que el subtítulo se ajuste en móviles */
+@media (max-width: 768px) {
+  .homologacion-header {
+    gap: 0.5rem;
+  }
+  
+  .header-icon-container {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .header-icon-container i {
+    font-size: 1.25rem;
+  }
+  
+  .header-title {
+    font-size: 1rem;
+  }
+  
+  .header-subtitle {
+    font-size: 0.7rem;
+    white-space: normal;
+    word-break: break-all;
   }
 }
