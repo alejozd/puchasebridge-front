@@ -36,11 +36,6 @@
     gap: 0.75rem;
 }
 
-.filename-icon {
-    font-size: 1.1rem;
-    opacity: 0.7;
-}
-
 .filename-text {
     font-size: 0.875rem;
     font-weight: 600;
@@ -97,48 +92,6 @@
     box-shadow: var(--shadow-lg) !important;
 }
 
-.upload-area {
-    border: 2px dashed var(--color-outline-variant);
-    border-radius: var(--radius-xl);
-    padding: 3rem;
-    text-align: center;
-    background-color: var(--color-surface-container-low);
-    transition: all 0.2s;
-    cursor: pointer;
-}
-
-.upload-area:hover {
-    border-color: var(--color-primary);
-    background-color: var(--color-primary-container);
-}
-
-.upload-icon-container {
-    width: 4rem;
-    height: 4rem;
-    background-color: var(--color-surface-container-lowest);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    box-shadow: var(--shadow);
-}
-
-.upload-icon-container i {
-    font-size: 2rem;
-    color: var(--color-primary);
-}
-
-.upload-text-main {
-    font-weight: 600;
-    color: var(--color-on-surface);
-    margin-bottom: 0.25rem;
-}
-
-.upload-text-sub {
-    font-size: 0.75rem;
-    color: var(--color-secondary);
-}
 
 .modal-header-container {
     display: flex;
@@ -314,11 +267,6 @@
 }
 
 /* Detail Modal V2 Styles */
-.detail-dialog-v2 .p-dialog-header {
-    border-bottom: 1px solid #f1f5f9;
-    padding: 1.5rem 2rem;
-}
-
 .detail-modal-header {
     display: flex;
     align-items: center;
@@ -340,11 +288,6 @@
     font-size: 1.5rem;
     font-weight: 700;
     color: #1e3a8a;
-}
-
-.detail-dialog-v2 .p-dialog-content {
-    background-color: #f8fafc;
-    padding: 2rem;
 }
 
 .detail-modal-content {
@@ -429,9 +372,6 @@
     font-weight: 500;
 }
 
-.products-detail-table .col-ref {
-    color: #64748b;
-}
 
 .products-detail-table .col-total {
     color: #000;
@@ -500,12 +440,6 @@
 }
 
 /* Footer V2 */
-.detail-dialog-v2 .p-dialog-footer {
-    padding: 1.5rem 2rem;
-    background-color: #f8fafc;
-    border-top: 1px solid #f1f5f9;
-}
-
 .detail-modal-footer {
     display: flex;
     justify-content: space-between;

@@ -332,15 +332,12 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             delay={100}
             minLength={1}
           />
-          <i
-            className="pi pi-search text-xs"
-            style={{ right: "0.75rem", zIndex: 1 }}
-          />
+          <i className="pi pi-search text-xs erp-search-icon" />
         </div>
         {rowData.referenciaErp && (
           <div className="flex align-items-center gap-1 mt-1">
             <span className="unit-tag-inline">
-              <i className="pi pi-tag" style={{ fontSize: "9px" }}></i>
+              <i className="pi pi-tag unit-tag-icon"></i>
               UND: {rowData.unidadErpLabel || rowData.unidadErp || "---"}
             </span>
           </div>
@@ -469,12 +466,12 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             <i className="pi pi-sync text-primary text-xl"></i>
           </div>
           <div className="header-title-block">
-            <h2 className="header-title">Homologación de productos</h2>
+            <h2 className="header-title app-title">Homologación de productos</h2>
             <span className="header-subtitle">{fileName}</span>
           </div>
         </div>
       }
-      headerStyle={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}
+      headerClassName="homologacion-header-container"
       visible={visible}
       onHide={onHide}
       className="detail-dialog-v2"
@@ -624,10 +621,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
                       : nombre || rowData.unidadXML}
                   </span>
                   {isTechnical && nombre && (
-                    <span
-                      className="text-slate-400 font-medium"
-                      style={{ fontSize: "10px" }}
-                    >
+                    <span className="text-slate-400 font-medium unit-ref-text">
                       Ref: {rowData.unidadXML}
                     </span>
                   )}

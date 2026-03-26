@@ -3,6 +3,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import type { XMLProduct } from '../../types/xml';
+import '../../styles/procesamiento.css';
 
 interface ProductTableProps {
   productos: XMLProduct[];
@@ -33,8 +34,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
     <div className="product-table-wrapper h-full">
       <DataTable
         value={productos}
-        className="procesamiento-table h-full"
-        style={{ width: '100%' }}
+        className="procesamiento-table h-full w-full"
         scrollable
         scrollHeight="flex"
         rowHover
@@ -49,13 +49,13 @@ const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
               <span className="ref-column text-xs text-secondary opacity-70 font-mono">{rowData.referencia}</span>
             </div>
           )}
-          style={{ minWidth: '250px' }}
+          className="col-description"
         />
         <Column
           field="cantidad"
           header="Cant"
           body={(rowData) => <span className="text-sm font-bold">{rowData.cantidad}</span>}
-          style={{ width: '5rem' }}
+          className="col-qty"
         />
         <Column
           field="unidad"
@@ -66,18 +66,18 @@ const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
           field="valor_unitario"
           header="Unitario"
           body={(rowData) => currencyBodyTemplate(rowData, 'valor_unitario')}
-          style={{ textAlign: 'right' }}
+          className="text-right"
         />
         <Column
           field="valor_total"
           header="Total"
           body={(rowData) => currencyBodyTemplate(rowData, 'valor_total')}
-          style={{ textAlign: 'right' }}
+          className="text-right"
         />
         <Column
           header="Homologación"
           body={homologationBodyTemplate}
-          style={{ textAlign: 'center', width: '8rem' }}
+          className="text-center col-homologation"
         />
       </DataTable>
     </div>
