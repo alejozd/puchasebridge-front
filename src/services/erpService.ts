@@ -1,10 +1,11 @@
 import axiosClient from "../api/axiosClient";
 
 export interface ErpProducto {
-    id: string;
-    codigo: string;
+    codigo: number;
+    subcodigo: number;
     nombre: string;
     referencia: string;
+    unidad?: number;
     unidadDefault?: string;
 }
 

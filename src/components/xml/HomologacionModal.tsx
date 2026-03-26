@@ -34,6 +34,9 @@ interface HomologacionModalProps {
 
 interface ProductoMapeo extends ProductoPendiente {
   referenciaErp: string;
+  codigoErp?: number;
+  subcodigoErp?: number;
+  nombreErp?: string;
   productoSistema?: string;
   unidadErp: string;
   unidadErpLabel?: string;
@@ -79,6 +82,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
         unidadXMLNombre: p.unidadXMLNombre,
         estado: p.estado,
         referenciaErp: p.referenciaErp || "",
+        codigoErp: p.codigoErp,
+        subcodigoErp: p.subcodigoErp,
+        nombreErp: p.nombreErp || "",
         productoSistema: p.referenciaErp
           ? `[${p.referenciaErp}] - ${p.nombreErp || ""}`
           : "",
@@ -150,11 +156,18 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
   };
 
   const handleSaveRow = async (rowData: ProductoMapeo) => {
-    if (!rowData.referenciaErp || !rowData.unidadErp) {
+    if (
+      !rowData.referenciaErp ||
+      !rowData.unidadErp ||
+      !rowData.codigoErp ||
+      rowData.subcodigoErp === undefined ||
+      !rowData.nombreErp
+    ) {
       toast.current?.show({
         severity: "warn",
         summary: "Campos requeridos",
-        detail: "Referencia ERP y Unidad ERP son obligatorios.",
+        detail:
+          "Debe seleccionar un producto del ERP válido (Código, Subcódigo y Nombre son requeridos).",
         life: 3000,
       });
       return;
@@ -176,6 +189,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
         fileName,
         referenciaXml: rowData.referenciaXML,
         unidadXml: rowData.unidadXML,
+        codigoH: rowData.codigoErp!,
+        subCodigoH: rowData.subcodigoErp!,
+        nombreH: rowData.nombreErp!,
         referenciaErp: rowData.referenciaErp,
         unidadErp: rowData.unidadErp,
         factor: rowData.factor,
@@ -240,6 +256,9 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
 
     updateRowState(rowData.referenciaXML, {
       referenciaErp: selected.referencia,
+      codigoErp: selected.codigo,
+      subcodigoErp: selected.subcodigo,
+      nombreErp: selected.nombre,
       productoSistema: `[${selected.referencia}] - ${selected.nombre}`,
       unidadErp: matchingUnit?.codigo || "",
       unidadErpLabel: matchingUnit?.sigla || "",
@@ -310,7 +329,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             inputClassName="p-inputtext-sm w-full pr-5"
             panelClassName="erp-autocomplete-panel"
             loadingIcon="pi pi-spin pi-spinner"
-            delay={300}
+            delay={100}
             minLength={1}
           />
           <i
@@ -450,10 +469,8 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             <i className="pi pi-sync text-primary text-xl"></i>
           </div>
           <div className="header-title-block">
-            <h2 className="m-0 text-lg font-bold text-slate-800">
-              Homologación de productos
-            </h2>
-            <div className="header-file-name">{fileName}</div>
+            <h2 className="header-title">Homologación de productos</h2>
+            <span className="header-subtitle">{fileName}</span>
           </div>
         </div>
       }
@@ -590,7 +607,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
           <Column
             header="PRODUCTO ORIGEN (XML)"
             body={productXmlTemplate}
-            // style={{ width: "80%" }}
+            style={{ width: "32%" }}
           />
           <Column
             header="UND. XML"
@@ -617,30 +634,30 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
                 </div>
               );
             }}
-            style={{ width: "4%" }}
+            style={{ width: "8%" }}
             align="center"
           />
           <Column
             header="EQUIVALENCIA EN ERP"
             body={productErpTemplate}
-            style={{ width: "48%" }}
+            style={{ width: "42%" }}
           />
           <Column
             header="CONVERSIÓN (FACTOR)"
             body={factorEditor}
-            style={{ width: "6%" }}
+            style={{ width: "10%" }}
           />
           <Column
             field="estado"
             header="ESTADO"
             body={statusBodyTemplate}
-            style={{ width: "4%" }}
+            style={{ width: "5%" }}
             align="center"
           />
           <Column
             header=""
             body={actionTemplate}
-            style={{ width: "2%" }}
+            style={{ width: "3%" }}
             align="center"
           />
         </DataTable>

@@ -17,6 +17,9 @@ import '../../styles/homologacion.css';
 interface ProductoMapeoPage extends ProductoPendiente {
     productoSistema?: string;
     referenciaErp?: string;
+    codigoErp?: number;
+    subcodigoErp?: number;
+    nombreErp?: string;
     unidadErp?: string;
     factor: number;
     suggestions?: ErpProducto[];
@@ -133,6 +136,9 @@ const HomologacionPage: React.FC = () => {
                     ...item,
                     productoSistema: `[${erpProd.referencia}] - ${erpProd.nombre}`,
                     referenciaErp: erpProd.referencia,
+                    codigoErp: erpProd.codigo,
+                    subcodigoErp: erpProd.subcodigo,
+                    nombreErp: erpProd.nombre,
                     unidadErp: matchingUnit?.codigo || '',
                 };
             }
@@ -141,11 +147,17 @@ const HomologacionPage: React.FC = () => {
     };
 
     const handleSave = async (item: ProductoMapeoPage) => {
-        if (!item.referenciaErp || !item.unidadErp) {
+        if (
+            !item.referenciaErp ||
+            !item.unidadErp ||
+            !item.codigoErp ||
+            item.subcodigoErp === undefined ||
+            !item.nombreErp
+        ) {
             toast.current?.show({
                 severity: 'warn',
                 summary: 'Atención',
-                detail: 'Debe completar la homologación (Producto y Unidad ERP).',
+                detail: 'Debe seleccionar un producto del ERP válido (Código, Subcódigo y Nombre son requeridos).',
                 life: 3000
             });
             return;
@@ -156,6 +168,9 @@ const HomologacionPage: React.FC = () => {
                 fileName: selectedXml!,
                 referenciaXml: item.referenciaXML,
                 unidadXml: item.unidadXML,
+                codigoH: item.codigoErp!,
+                subCodigoH: item.subcodigoErp!,
+                nombreH: item.nombreErp!,
                 referenciaErp: item.referenciaErp,
                 unidadErp: item.unidadErp,
                 factor: item.factor
@@ -196,6 +211,9 @@ const HomologacionPage: React.FC = () => {
                     ...item,
                     productoSistema: '',
                     referenciaErp: '',
+                    codigoErp: undefined,
+                    subcodigoErp: undefined,
+                    nombreErp: '',
                     unidadErp: '',
                     estado: 'pendiente',
                     isEditing: false
@@ -277,7 +295,7 @@ const HomologacionPage: React.FC = () => {
                         className="w-full"
                         inputClassName="product-autocomplete-input pr-5"
                         panelClassName="erp-autocomplete-panel"
-                        delay={300}
+                        delay={100}
                         minLength={1}
                     />
                     <i className="pi pi-search search-icon" style={{ zIndex: 1 }}></i>
