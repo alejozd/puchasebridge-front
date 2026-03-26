@@ -49,17 +49,8 @@ export const useXMLStore = create<XMLState>((set, get) => ({
     try {
       await uploadXML(file);
       // Refresh the list after successful upload
-      const data = await getXMLFiles();
-      const processedData: XMLFile[] = data.map(item => ({
-        fileName: item.fileName,
-        proveedor: item.proveedor,
-        estado: item.estado as XMLFile['estado'],
-        lastModified: item.fechaCarga,
-        size: item.size,
-        tipoDocumento: 'Factura'
-      }));
-      console.log('[MAPPED SIZE]', processedData);
-      set({ xmlList: processedData, loading: false });
+      await get().fetchXMLList();
+      set({ loading: false });
     } catch (error) {
       console.error("Error uploading XML:", error);
       set({ loading: false });
@@ -122,6 +113,9 @@ export const useXMLStore = create<XMLState>((set, get) => ({
 
       const results = backendResults.map(mapBackendToResult);
 
+      // Refresh the list from backend to get updated metadata (like proveedor)
+      await get().fetchXMLList();
+
       // Update the local list with validation results
       const currentList = get().xmlList;
       const updatedList = currentList.map(file => {
@@ -152,15 +146,9 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       const response = await procesarDocumentos(fileNames);
 
       if (response.success) {
-        // Update local status if needed, or just refresh list
-        const currentList = get().xmlList;
-        const updatedList = currentList.map(file => {
-          if (fileNames.includes(file.fileName)) {
-            return { ...file, estado: 'Procesado' as const };
-          }
-          return file;
-        });
-        set({ xmlList: updatedList, processing: false });
+        // Refresh the list to get 'Procesado' status and updated metadata
+        await get().fetchXMLList();
+        set({ processing: false });
       } else {
         set({ processing: false });
       }
