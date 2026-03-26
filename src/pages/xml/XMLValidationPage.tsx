@@ -61,11 +61,12 @@ const XMLValidationPage: React.FC = () => {
 
         try {
             await validateFiles(fileNamesToValidate);
+            await fetchXMLList();
 
             // If single file validation, show issues if any
             if (files.length === 1) {
                 const updatedFile = useXMLStore.getState().xmlList.find(f => f.fileName === files[0].fileName);
-                if (updatedFile && (updatedFile.estado === 'Con errores' || (updatedFile.advertenciasValidacion && updatedFile.advertenciasValidacion.length > 0))) {
+                if (updatedFile && (updatedFile.estado === 'ERROR' || (updatedFile.advertenciasValidacion && updatedFile.advertenciasValidacion.length > 0))) {
                     handleViewIssues(updatedFile);
                 }
             }
@@ -91,13 +92,13 @@ const XMLValidationPage: React.FC = () => {
 
     const statusBodyTemplate = (rowData: XMLFile) => {
         const severityMap: Record<string, "secondary" | "success" | "danger" | "info" | "warning"> = {
-            'Pendiente': 'secondary',
-            'Validado': 'success',
-            'Con errores': 'danger',
-            'Requiere homologación': 'warning'
+            'CARGADO': 'secondary',
+            'LISTO': 'success',
+            'ERROR': 'danger',
+            'PENDIENTE': 'warning'
         };
 
-        const estado = rowData.estado || 'Pendiente';
+        const estado = rowData.estado || 'CARGADO';
 
         return (
             <Tag
@@ -109,7 +110,7 @@ const XMLValidationPage: React.FC = () => {
     };
 
     const fileNameBodyTemplate = (rowData: XMLFile) => {
-        const isError = rowData.estado === 'Con errores';
+        const isError = rowData.estado === 'ERROR';
         return (
             <div className="filename-cell">
                 <i className={`pi pi-file ${isError ? 'text-error' : 'text-primary'}`}></i>
@@ -140,9 +141,9 @@ const XMLValidationPage: React.FC = () => {
     };
 
     const actionBodyTemplate = (rowData: XMLFile) => {
-        const isError = rowData.estado === 'Con errores';
-        const isHomologation = rowData.estado === 'Requiere homologación';
-        const isValidated = rowData.estado === 'Validado' || rowData.estado === 'Procesado';
+        const isError = rowData.estado === 'ERROR';
+        const isHomologation = rowData.estado === 'PENDIENTE';
+        const isValidated = rowData.estado === 'LISTO' || rowData.estado === 'Procesado';
         const isCurrentlyValidating = validatingFiles.includes(rowData.fileName);
 
         return (
@@ -191,10 +192,10 @@ const XMLValidationPage: React.FC = () => {
     };
 
     const stats = {
-        pendientes: xmlList.filter(f => !f.estado || f.estado === 'Pendiente').length,
-        validados: xmlList.filter(f => f.estado === 'Validado').length,
-        homologacion: xmlList.filter(f => f.estado === 'Requiere homologación').length,
-        errores: xmlList.filter(f => f.estado === 'Con errores').length
+        cargados: xmlList.filter(f => f.estado === 'CARGADO').length,
+        pendientes: xmlList.filter(f => f.estado === 'PENDIENTE').length,
+        listos: xmlList.filter(f => f.estado === 'LISTO').length,
+        errores: xmlList.filter(f => f.estado === 'ERROR').length
     };
 
     return (
@@ -225,9 +226,9 @@ const XMLValidationPage: React.FC = () => {
                         <i className="pi pi-clock"></i>
                     </div>
                     <div className="metric-details">
-                        <p className="metric-label">Pendiente</p>
+                        <p className="metric-label">Cargados</p>
                         <div className="metric-value-wrapper">
-                            <h3 className="metric-value">{stats.pendientes}</h3>
+                            <h3 className="metric-value">{stats.cargados}</h3>
                             <span className="metric-badge">Por revisar</span>
                         </div>
                     </div>
@@ -237,9 +238,9 @@ const XMLValidationPage: React.FC = () => {
                         <i className="pi pi-check-circle"></i>
                     </div>
                     <div className="metric-details">
-                        <p className="metric-label">Validado</p>
+                        <p className="metric-label">Listos</p>
                         <div className="metric-value-wrapper">
-                            <h3 className="metric-value">{stats.validados}</h3>
+                            <h3 className="metric-value">{stats.listos}</h3>
                             <span className="metric-badge success">Listos</span>
                         </div>
                     </div>
@@ -249,9 +250,9 @@ const XMLValidationPage: React.FC = () => {
                         <i className="pi pi-sync"></i>
                     </div>
                     <div className="metric-details">
-                        <p className="metric-label">Homologación</p>
+                        <p className="metric-label">Pendientes</p>
                         <div className="metric-value-wrapper">
-                            <h3 className="metric-value">{stats.homologacion}</h3>
+                            <h3 className="metric-value">{stats.pendientes}</h3>
                             <span className="metric-badge warning">Mapeo manual</span>
                         </div>
                     </div>
@@ -261,7 +262,7 @@ const XMLValidationPage: React.FC = () => {
                         <i className="pi pi-exclamation-triangle"></i>
                     </div>
                     <div className="metric-details">
-                        <p className="metric-label">Error</p>
+                        <p className="metric-label">Errores</p>
                         <div className="metric-value-wrapper">
                             <h3 className="metric-value">{stats.errores}</h3>
                             <span className="metric-badge error">Inválido</span>
@@ -297,7 +298,6 @@ const XMLValidationPage: React.FC = () => {
                     <Column field="lastModified" header="FECHA DE CARGA" sortable />
                     <Column field="proveedor" header="PROVEEDOR" body={(rowData: XMLFile) => rowData.proveedor || 'Proveedor Genérico'} sortable />
                     <Column field="estado" header="ESTADO" body={statusBodyTemplate} sortable />
-                    <Column field="resultadoValidacion" header="RESULTADO VALIDACIÓN" body={(rowData: XMLFile) => <span className="text-secondary italic">{rowData.resultadoValidacion || 'En cola de procesamiento...'}</span>} />
                     <Column header="ACCIONES" body={actionBodyTemplate} className="text-right" />
                 </DataTable>
 

@@ -19,6 +19,7 @@ import {
 import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
+import { useXMLStore } from "../../store/xmlStore";
 import * as xmlService from "../../services/xmlService";
 import * as erpService from "../../services/erpService";
 import type { ProductoPendiente, HomologarPayload } from "../../types/xml";
@@ -206,6 +207,10 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
         });
 
         const freshItems = await loadData();
+
+        // Refresh the global XML list in the store
+        await useXMLStore.getState().fetchXMLList();
+
         if (freshItems && freshItems.length === 0) {
           onSuccess();
         }
