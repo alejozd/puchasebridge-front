@@ -310,7 +310,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
             inputClassName="p-inputtext-sm w-full pr-5"
             panelClassName="erp-autocomplete-panel"
             loadingIcon="pi pi-spin pi-spinner"
-            delay={300}
+            delay={100}
             minLength={1}
           />
           <i

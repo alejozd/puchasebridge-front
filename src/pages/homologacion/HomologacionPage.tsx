@@ -277,7 +277,7 @@ const HomologacionPage: React.FC = () => {
                         className="w-full"
                         inputClassName="product-autocomplete-input pr-5"
                         panelClassName="erp-autocomplete-panel"
-                        delay={300}
+                        delay={100}
                         minLength={1}
                     />
                     <i className="pi pi-search search-icon" style={{ zIndex: 1 }}></i>

@@ -17,24 +17,23 @@
   padding-top: 0.45rem !important;
 }
 
-.modern-erp-table .p-datatable-thead > tr > th,
-.modern-erp-table.p-datatable-sm .p-datatable-thead > tr > th {
+.modern-erp-table.p-datatable .p-datatable-thead > tr > th {
   background: #f8fafc !important;
   color: #0f172a !important;
   font-size: 0.8rem !important;
   line-height: 1.0 !important;
   font-weight: 800 !important;
-  text-transform: uppercase;  
+  text-transform: uppercase;
   border: none !important;
   border-bottom: 2px solid #e2e8f0 !important;
 }
 
-.modern-erp-table .p-datatable-tbody > tr {
+.modern-erp-table.p-datatable .p-datatable-tbody > tr {
   border-bottom: 1px solid #eef2f7 !important;
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.modern-erp-table .p-datatable-tbody > tr > td {
+.modern-erp-table.p-datatable .p-datatable-tbody > tr > td {
   padding: 0.4rem 0.5rem !important;
   font-size: 0.875rem !important;
 }
