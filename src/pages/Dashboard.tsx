@@ -1,129 +1,145 @@
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Card } from "primereact/card";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Tag } from "primereact/tag";
 import { Button } from "primereact/button";
+import { Skeleton } from "primereact/skeleton";
 import PageTitle from "../components/common/PageTitle";
+import { useXMLStore } from "../store/xmlStore";
+import { getDashboardMetrics } from "../services/xmlService";
+import type { DashboardMetrics, XMLFile } from "../types/xml";
 import "../styles/dashboard.css";
 
-interface ProcessingItem {
-  entity: string;
-  id: string;
-  status: string;
-  date: string;
-  priority: string;
-}
-
 const Dashboard: React.FC = () => {
-  const queueData: ProcessingItem[] = [
-    {
-      entity: "Logistics Solutions S.A.",
-      id: "XML-2023-0984",
-      status: "EN PROCESO",
-      date: "24 Oct, 2023",
-      priority: "Alta",
-    },
-    {
-      entity: "TechGlobal Dynamics",
-      id: "XML-2023-1122",
-      status: "EN COLA",
-      date: "24 Oct, 2023",
-      priority: "Media",
-    },
-    {
-      entity: "Nordic Power Systems",
-      id: "XML-2023-0751",
-      status: "VALIDADO",
-      date: "23 Oct, 2023",
-      priority: "Baja",
-    },
+  const { xmlList, loading: loadingFiles, fetchXMLList } = useXMLStore();
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [loadingMetrics, setLoadingMetrics] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      setError(null);
+      const [metricsData] = await Promise.all([
+        getDashboardMetrics(),
+        fetchXMLList()
+      ]);
+      setMetrics(metricsData);
+    } catch (err) {
+      console.error("Error loading dashboard data:", err);
+      setError("No se pudieron cargar los datos del dashboard. Reintentando...");
+    } finally {
+      setLoadingMetrics(false);
+    }
+  }, [fetchXMLList]);
+
+  useEffect(() => {
+    loadData();
+    const interval = setInterval(loadData, 30000);
+    return () => clearInterval(interval);
+  }, [loadData]);
+
+  const statusBodyTemplate = (rowData: XMLFile) => {
+    const estado = rowData.estado?.toUpperCase() || 'CARGADO';
+    let severity: "success" | "secondary" | "info" | "warning" | "danger" = "secondary";
+
+    switch (estado) {
+      case 'LISTO': severity = 'success'; break;
+      case 'PENDIENTE': severity = 'warning'; break;
+      case 'ERROR': severity = 'danger'; break;
+      case 'PROCESADO': severity = 'info'; break;
+      default: severity = 'secondary';
+    }
+
+    return <Tag value={estado} severity={severity} className="status-tag" />;
+  };
+
+  const prioritySort = (data: XMLFile[]) => {
+    const priorityMap: Record<string, number> = {
+      'ERROR': 0,
+      'PENDIENTE': 1,
+      'CARGADO': 2,
+      'LISTO': 3,
+      'PROCESADO': 4
+    };
+
+    return [...data].sort((a, b) => {
+      const pA = priorityMap[a.estado?.toUpperCase() || 'CARGADO'] ?? 5;
+      const pB = priorityMap[b.estado?.toUpperCase() || 'CARGADO'] ?? 5;
+      return pA - pB;
+    });
+  };
+
+  const sortedXmlList = prioritySort(xmlList);
+
+  const availability = metrics && metrics.total > 0
+    ? ((metrics.procesados / metrics.total) * 100).toFixed(2)
+    : "0.00";
+
+  const alerts = [];
+  if (metrics) {
+    if (metrics.errores > 0) {
+      alerts.push({
+        title: `Error de Validación (${metrics.errores})`,
+        desc: "Existen documentos con errores que requieren atención inmediata.",
+        color: 'var(--color-error)',
+        time: 'ACTIVO'
+      });
+    }
+    if (metrics.pendientes > 0) {
+      alerts.push({
+        title: "Homologación Pendiente",
+        desc: `Hay ${metrics.pendientes} productos nuevos que necesitan ser mapeados.`,
+        color: 'var(--color-warning)',
+        time: 'PENDIENTE'
+      });
+    }
+    if (metrics.procesadosHoy > 0) {
+      alerts.push({
+        title: "Procesamiento Exitoso",
+        desc: `Se han procesado ${metrics.procesadosHoy} documentos el día de hoy.`,
+        color: 'var(--color-success)',
+        time: 'HOY'
+      });
+    }
+  }
+
+  const kpiCards = [
+    { label: "ESTADO DE LA COLA", title: "En Cola", value: metrics ? metrics.cargados + metrics.pendientes : 0, icon: "pi-clock", color: "warning" },
+    { label: "MAPEADO DE PRODUCTOS", title: "Pendientes de Homologación", value: metrics?.pendientes || 0, icon: "pi-sync", color: "info" },
+    { label: "VALIDACIÓN COMPLETA", title: "Listos para Procesar", value: metrics?.listos || 0, icon: "pi-check-circle", color: "success" },
+    { label: "INTEGRACIÓN ERP", title: "Procesados", value: metrics?.procesados || 0, icon: "pi-database", color: "primary" },
+    { label: "CONTROL DE CALIDAD", title: "Errores", value: metrics?.errores || 0, icon: "pi-exclamation-triangle", color: "danger" },
   ];
-
-  const statusBodyTemplate = (rowData: ProcessingItem) => {
-    const severity = rowData.status === "EN PROCESO" ? "warning" : rowData.status === "EN COLA" ? "info" : "success";
-    return <Tag value={rowData.status} severity={severity} className="status-tag" />;
-  };
-
-  const priorityBodyTemplate = (rowData: ProcessingItem) => {
-    const colorClass = rowData.priority === "Alta" ? "text-error" : rowData.priority === "Media" ? "text-secondary" : "text-outline";
-    const bgClass = rowData.priority === "Alta" ? "bg-error" : rowData.priority === "Media" ? "bg-secondary" : "bg-outline";
-    return (
-      <span className={`priority-cell ${colorClass}`}>
-        <span className={`priority-dot ${bgClass}`}></span>
-        {rowData.priority}
-      </span>
-    );
-  };
-
-  const entityBodyTemplate = (rowData: ProcessingItem) => {
-    return (
-      <div className="entity-cell">
-        <span className="entity-name">{rowData.entity}</span>
-        <span className="entity-id">{rowData.id}</span>
-      </div>
-    );
-  };
-
-  const actionBodyTemplate = () => {
-    return <Button icon="pi pi-ellipsis-h" text rounded severity="secondary" />;
-  };
 
   return (
     <div className="dashboard-container">
       <header>
         <PageTitle title="Panel de Control" />
         <p className="dashboard-header-desc">Vista en tiempo real del estado de procesamiento y cola de integración ERP.</p>
+        {error && <Tag severity="danger" value={error} style={{ marginBottom: '1rem' }} icon="pi pi-exclamation-circle" />}
       </header>
 
       <section className="summary-grid">
-        <Card className="summary-card border-primary">
-          <div className="summary-card-header">
-            <div>
-              <p className="summary-card-label">Estado de la Cola</p>
-              <h3 className="summary-card-title">XML Pendientes</h3>
+        {kpiCards.map((kpi, idx) => (
+          <Card key={idx} className={`summary-card border-${kpi.color}`}>
+            <div className="summary-card-header">
+              <div>
+                <p className="summary-card-label">{kpi.label}</p>
+                <h3 className="summary-card-title">{kpi.title}</h3>
+              </div>
+              <div className={`summary-card-icon-container bg-${kpi.color}-container text-${kpi.color}`}>
+                <i className={`pi ${kpi.icon}`}></i>
+              </div>
             </div>
-            <div className="summary-card-icon-container bg-primary-container text-primary">
-              <i className="pi pi-file-import"></i>
-            </div>
-          </div>
-          <div className="summary-card-value">124</div>
-          <p className="summary-card-footer">
-            <span className="text-error flex align-items-center"><i className="pi pi-arrow-up text-[10px]"></i> 12%</span>
-            de incremento desde ayer
-          </p>
-        </Card>
-
-        <Card className="summary-card border-tertiary">
-          <div className="summary-card-header">
-            <div>
-              <p className="summary-card-label">Control de Integridad</p>
-              <h3 className="summary-card-title">Esperando Validación</h3>
-            </div>
-            <div className="summary-card-icon-container bg-tertiary-container text-tertiary">
-              <i className="pi pi-check-square"></i>
-            </div>
-          </div>
-          <div className="summary-card-value">42</div>
-          <div className="progress-bar-container">
-            <div className="progress-bar-fill w-[60%] bg-tertiary"></div>
-          </div>
-          <p className="summary-card-footer-small">60% de capacidad diaria alcanzada</p>
-        </Card>
-
-        <Card className="summary-card border-info-alt">
-          <div className="summary-card-header">
-            <div>
-              <p className="summary-card-label">Etapa Final</p>
-              <h3 className="summary-card-title">Listo para Homologación</h3>
-            </div>
-            <div className="summary-card-icon-container bg-info-alt-container text-info-alt">
-              <i className="pi pi-share-alt"></i>
-            </div>
-          </div>
-          <div className="summary-card-value">89</div>
-          <p className="summary-card-footer">Optimizado y listo para transferencia</p>
-        </Card>
+            {loadingMetrics ? (
+              <Skeleton width="4rem" height="2.5rem" />
+            ) : (
+              <div className="summary-card-value">{kpi.value}</div>
+            )}
+            <p className="summary-card-footer">Actualizado hace un momento</p>
+          </Card>
+        ))}
       </section>
 
       <div className="dashboard-main-grid">
@@ -132,20 +148,33 @@ const Dashboard: React.FC = () => {
             <h3 className="queue-card-title">Cola de Procesamiento Activa</h3>
             <Button label="Ver registro completo" icon="pi pi-arrow-right" iconPos="right" text size="small" style={{ fontWeight: 600 }} />
           </div>
-          <DataTable value={queueData} scrollable scrollHeight="400px" tableStyle={{ minWidth: '50rem' }} className="p-datatable-sm">
-            <Column field="entity" header="ENTIDAD / ID" body={entityBodyTemplate} headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
-            <Column field="status" header="ESTADO" body={statusBodyTemplate} headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
-            <Column field="date" header="FECHA RECIBIDO" headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }} style={{ color: 'var(--color-secondary)', fontSize: '0.875rem' }}></Column>
-            <Column field="priority" header="PRIORIDAD" body={priorityBodyTemplate} headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
-            <Column header="ACCIÓN" body={actionBodyTemplate} headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }} style={{ textAlign: 'right' }}></Column>
-          </DataTable>
+          {loadingFiles ? (
+             <div style={{ padding: '1rem' }}>
+                <Skeleton className="mb-2" height="2rem"></Skeleton>
+                <Skeleton className="mb-2" height="2rem"></Skeleton>
+                <Skeleton className="mb-2" height="2rem"></Skeleton>
+                <Skeleton className="mb-2" height="2rem"></Skeleton>
+             </div>
+          ) : (
+            <DataTable value={sortedXmlList} scrollable scrollHeight="400px" tableStyle={{ minWidth: '50rem' }} className="p-datatable-sm">
+              <Column field="fileName" header="ARCHIVO" headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
+              <Column field="proveedor" header="PROVEEDOR" headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
+              <Column field="estado" header="ESTADO" body={statusBodyTemplate} headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }}></Column>
+              <Column field="lastModified" header="FECHA CARGA" headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }} style={{ color: 'var(--color-secondary)', fontSize: '0.875rem' }}></Column>
+              <Column field="fechaProceso" header="FECHA PROCESO" headerStyle={{ fontSize: '10px', color: 'var(--color-secondary)', fontWeight: 700, letterSpacing: '0.1em' }} style={{ color: 'var(--color-secondary)', fontSize: '0.875rem' }}></Column>
+            </DataTable>
+          )}
         </Card>
 
         <div className="alerts-column" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="availability-card">
             <h4 className="availability-label">Disponibilidad del Bridge</h4>
-            <div className="availability-value">99.98%</div>
-            <p className="availability-desc">Rendimiento operativo en todos los nodos en los últimos 30 días.</p>
+            {loadingMetrics ? (
+              <Skeleton width="6rem" height="3rem" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
+            ) : (
+              <div className="availability-value">{availability}%</div>
+            )}
+            <p className="availability-desc">Tasa de éxito en el procesamiento histórico de documentos.</p>
             <div className="availability-bars">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className={`availability-bar ${i === 4 ? 'active' : ''}`}></div>
@@ -157,30 +186,20 @@ const Dashboard: React.FC = () => {
           <Card style={{ borderRadius: 'var(--radius-xl)', backgroundColor: 'var(--color-surface-container-low)' }}>
             <h4 className="alerts-card-title">Alertas del Sistema</h4>
             <div className="alerts-list">
-              <div className="alert-item">
-                <div className="alert-dot" style={{ backgroundColor: 'var(--color-error)' }}></div>
-                <div>
-                  <p className="alert-content-title">Error de Validación en XML-2023-044</p>
-                  <p className="alert-content-desc">Discrepancia de esquema detectada en el encabezado.</p>
-                  <span className="alert-content-time">hace 2 min</span>
-                </div>
-              </div>
-              <div className="alert-item">
-                <div className="alert-dot" style={{ backgroundColor: '#3b82f6' }}></div>
-                <div>
-                  <p className="alert-content-title">Homologación Completa</p>
-                  <p className="alert-content-desc">Lote #422 enviado a SAP Finance.</p>
-                  <span className="alert-content-time">hace 14 min</span>
-                </div>
-              </div>
-              <div className="alert-item">
-                <div className="alert-dot" style={{ backgroundColor: 'var(--color-surface-container-highest)' }}></div>
-                <div>
-                  <p className="alert-content-title">Respaldo Programado</p>
-                  <p className="alert-content-desc">Snapshot semanal programado para las 02:00 UTC.</p>
-                  <span className="alert-content-time">hace 1 hora</span>
-                </div>
-              </div>
+              {alerts.length === 0 ? (
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-secondary)' }}>No hay alertas activas en este momento.</p>
+              ) : (
+                alerts.slice(0, 3).map((alert, idx) => (
+                  <div key={idx} className="alert-item">
+                    <div className="alert-dot" style={{ backgroundColor: alert.color }}></div>
+                    <div>
+                      <p className="alert-content-title">{alert.title}</p>
+                      <p className="alert-content-desc">{alert.desc}</p>
+                      <span className="alert-content-time">{alert.time}</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </Card>
         </div>

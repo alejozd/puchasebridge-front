@@ -2,6 +2,7 @@ export interface XMLFile {
   fileName: string;
   size: number;
   lastModified: string;
+  fechaProceso?: string;
   estado?: 'CARGADO' | 'PENDIENTE' | 'LISTO' | 'ERROR' | 'Procesado';
   tipoDocumento?: string;
   erroresValidacion?: string[];
@@ -77,6 +78,7 @@ export interface XMLFileItem {
   estado: string;
   fechaCarga: string;
   fecha_carga?: string;
+  fecha_proceso?: string;
   size: number;
 }
 
@@ -152,4 +154,15 @@ export interface HomologarPayload {
   referenciaErp: string;
   unidadErp: string;
   factor: number;
+}
+
+export interface DashboardMetrics {
+  total: number;
+  cargados: number;
+  pendientes: number;
+  listos: number;
+  procesados: number;
+  errores: number;
+  procesadosHoy: number;
+  erroresHoy: number;
 }
