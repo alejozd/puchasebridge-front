@@ -176,7 +176,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
         fileName,
         referenciaXml: rowData.referenciaXML,
         unidadXml: rowData.unidadXML,
-        referenciaErp: rowData.referenciaErp,
+        codigoH: rowData.referenciaErp,
         unidadErp: rowData.unidadErp,
         factor: rowData.factor,
       };

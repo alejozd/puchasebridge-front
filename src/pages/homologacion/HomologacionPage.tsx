@@ -156,7 +156,7 @@ const HomologacionPage: React.FC = () => {
                 fileName: selectedXml!,
                 referenciaXml: item.referenciaXML,
                 unidadXml: item.unidadXML,
-                referenciaErp: item.referenciaErp,
+                codigoH: item.referenciaErp,
                 unidadErp: item.unidadErp,
                 factor: item.factor
             };
