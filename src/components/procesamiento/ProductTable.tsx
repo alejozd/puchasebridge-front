@@ -12,7 +12,11 @@ interface ProductTableProps {
 
 const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
   const homologationBodyTemplate = (rowData: XMLProduct) => {
-    const isHomologated = rowData.estadoProducto === 'HOMOLOGADO';
+    // Debug for mapping issues
+    if (!rowData.estadoProducto) {
+       console.warn('Missing estadoProducto for:', rowData.descripcion);
+    }
+    const isHomologated = rowData.estadoProducto === 'HOMOLOGADO' || !!rowData.equivalenciaId;
     return (
       <Tag
         value={isHomologated ? 'HOMOLOGADO' : 'PENDIENTE'}
@@ -69,19 +73,27 @@ const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
         <Column
           field="unidad"
           header="Unidad"
-          body={(rowData) => <span className="text-xs uppercase">{rowData.unidad}</span>}
+          body={(rowData: XMLProduct) => <span className="text-xs uppercase font-medium">{rowData.unidad || 'UND'}</span>}
         />
         <Column
           field="valorUnitario"
           header="Unitario"
-          body={(rowData: XMLProduct) => currencyBodyTemplate(rowData.valorUnitario)}
-          className="text-right"
+          body={(rowData: XMLProduct) => (
+            <span className="text-sm">
+               {currencyBodyTemplate(rowData.valorUnitario)}
+            </span>
+          )}
+          className="text-right col-price"
         />
         <Column
           field="valorTotal"
           header="Total"
-          body={(rowData: XMLProduct) => currencyBodyTemplate(rowData.valorTotal)}
-          className="text-right"
+          body={(rowData: XMLProduct) => (
+             <span className="text-sm font-bold text-primary">
+                {currencyBodyTemplate(rowData.valorTotal)}
+             </span>
+          )}
+          className="text-right col-price"
         />
         <Column
           header="Homologación"

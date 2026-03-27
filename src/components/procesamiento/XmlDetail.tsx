@@ -48,19 +48,15 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
   }
 
   const hasPendingHomologation = detail.productos.some(p => !p.equivalenciaId);
-  const isValidated = detail.estado.toUpperCase() === 'VALIDADO' || detail.estado.toUpperCase() === 'PROCESADO';
+  const isValidated = ['VALIDADO', 'LISTO', 'PROCESADO'].includes(detail.estado.toUpperCase());
   const isProcessed = detail.estado.toUpperCase() === 'PROCESADO';
 
   const getStatusTag = (status: string) => {
-    switch (status.toUpperCase()) {
-      case 'PROCESADO':
-        return <Tag value="PROCESADO" severity="success" className="status-tag-large" />;
-      case 'VALIDADO':
-      case 'LISTO':
-        return <Tag value="VALIDADO" severity="info" className="status-tag-large" />;
-      default:
-        return <Tag value="CARGADO" severity="warning" className="status-tag-large" />;
-    }
+    const s = status.toUpperCase();
+    if (s === 'PROCESADO') return <Tag value="PROCESADO" severity="success" className="status-tag-large" />;
+    if (s === 'VALIDADO' || s === 'LISTO') return <Tag value="VALIDADO" severity="info" className="status-tag-large" />;
+    if (s === 'ERROR') return <Tag value="ERROR" severity="danger" className="status-tag-large" />;
+    return <Tag value="CARGADO" severity="warning" className="status-tag-large" />;
   };
 
   return (
@@ -98,7 +94,7 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
       <Divider className="my-2" />
 
       {/* TIMELINE VISUAL */}
-      <div className="flex justify-content-center mb-5 mt-2">
+      <div className="flex justify-content-center mb-5 mt-2 timeline-wrapper">
         <Timeline
           value={[
             {
@@ -111,8 +107,8 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
             {
               status: 'Procesar',
               icon: 'pi pi-play-circle',
-              color: isProcessed ? '#22c55e' : (detail.estado.toUpperCase() === 'VALIDADO' ? '#3b82f6' : '#cbd5e1'),
-              active: detail.estado.toUpperCase() === 'VALIDADO',
+              color: isProcessed ? '#22c55e' : (isValidated && !isProcessed ? '#3b82f6' : '#cbd5e1'),
+              active: isValidated && !isProcessed,
               completed: isProcessed
             }
           ]}
@@ -124,18 +120,20 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
           )}
           marker={(item) => (
             <span
-              className="flex align-items-center justify-content-center border-circle shadow-1"
+              className="flex align-items-center justify-content-center border-circle shadow-1 transition-all transition-duration-300"
               style={{
-                width: '2rem',
-                height: '2rem',
+                width: '2.5rem',
+                height: '2.5rem',
                 backgroundColor: item.color,
-                color: '#ffffff'
+                color: '#ffffff',
+                transform: item.active ? 'scale(1.1)' : 'scale(1)',
+                zIndex: 2
               }}
             >
-              <i className={`${item.icon} text-xs`}></i>
+              <i className={`${item.icon} text-lg`}></i>
             </span>
           )}
-          style={{ width: '300px' }}
+          style={{ width: '320px' }}
         />
       </div>
 
