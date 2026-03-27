@@ -95,6 +95,7 @@ export interface XMLProduct {
   valorTotal?: number;
   equivalencia_id?: number | string | null;
   equivalenciaId?: number | string | null;
+  estadoProducto?: 'HOMOLOGADO' | 'PENDIENTE';
 }
 
 export interface XMLFileDetail {

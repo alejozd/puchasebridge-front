@@ -85,6 +85,15 @@
     letter-spacing: 0.05em !important;
 }
 
+.detail-header-professional .pi {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.detail-header-professional span {
+    line-height: 1.2;
+}
+
 /* Detail Styles */
 .detail-empty-state {
     height: 100%;
@@ -263,6 +272,14 @@
 
 .ref-column {
     color: var(--color-outline);
+}
+
+.product-table-wrapper table {
+    font-size: 0.85rem;
+}
+
+.product-table-wrapper td {
+    vertical-align: middle !important;
 }
 
 /* Dialog Styles */

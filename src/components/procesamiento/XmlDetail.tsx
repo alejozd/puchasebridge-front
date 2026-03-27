@@ -78,16 +78,16 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
             </div>
             <div className="flex flex-wrap gap-4 text-secondary text-sm">
                 <div className="flex align-items-center gap-2">
-                    <i className="pi pi-building"></i>
+                    <i className="pi pi-building text-xs"></i>
                     <span className="font-semibold">{detail.proveedorNombre}</span>
                     <span className="opacity-60">({detail.proveedorNit})</span>
                 </div>
                 <div className="flex align-items-center gap-2">
-                    <i className="pi pi-calendar"></i>
+                    <i className="pi pi-calendar text-xs"></i>
                     <span>{detail.fechaDocumento}</span>
                 </div>
                 <div className="flex align-items-center gap-2">
-                    <i className="pi pi-upload"></i>
+                    <i className="pi pi-upload text-xs"></i>
                     <span>Cargado: {detail.fechaCarga}</span>
                 </div>
             </div>

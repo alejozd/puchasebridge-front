@@ -29,7 +29,8 @@ export const useXmlDetail = () => {
           ...p,
           valorUnitario: p.valor_unitario,
           valorTotal: p.valor_total,
-          equivalenciaId: p.equivalencia_id
+          equivalenciaId: p.equivalencia_id,
+          estadoProducto: p.equivalencia_id ? 'HOMOLOGADO' : 'PENDIENTE'
         }))
       };
 
