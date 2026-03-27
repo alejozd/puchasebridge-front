@@ -7,7 +7,7 @@ import XmlTable from '../../components/procesamiento/XmlTable';
 import XmlDetail from '../../components/procesamiento/XmlDetail';
 import { useXmlFiles } from '../../hooks/useXmlFiles';
 import { useXmlDetail } from '../../hooks/useXmlDetail';
-import type { XMLFileItem } from '../../types/xml';
+import type { XMLFileItem, XMLValidationResult } from '../../types/xml';
 import '../../styles/procesamiento.css';
 
 const ProcesamientoPage: React.FC = () => {
@@ -32,19 +32,24 @@ const ProcesamientoPage: React.FC = () => {
     const [selectedFiles, setSelectedFiles] = useState<XMLFileItem[]>([]);
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [confirmBatchDialog, setConfirmBatchDialog] = useState(false);
-    const [generatedDocDialog, setGeneratedDocDialog] = useState<string | null>(null);
+    const [confirmIndividualDialog, setConfirmIndividualDialog] = useState(false);
+    const [validationResult, setValidationResult] = useState<XMLValidationResult | null>(null);
+    const [generatedDoc, setGeneratedDoc] = useState<string | null>(null);
     const toast = useRef<Toast>(null);
 
     const handleRowClick = (id: number) => {
         setSelectedId(id);
+        setValidationResult(null);
+        setGeneratedDoc(null);
         fetchDetail(id);
     };
 
     const handleValidate = async () => {
         if (!detail) return;
 
-        const result = await validate(detail.file_name);
+        const result = await validate(detail.fileName);
         if (result) {
+            setValidationResult(result);
             if (result.valido) {
                 toast.current?.show({
                     severity: 'success',
@@ -52,6 +57,7 @@ const ProcesamientoPage: React.FC = () => {
                     detail: 'El documento es válido para su procesamiento.',
                     life: 3000
                 });
+                await fetchDetail(detail.id);
             } else {
                 toast.current?.show({
                     severity: 'error',
@@ -75,7 +81,8 @@ const ProcesamientoPage: React.FC = () => {
 
         const result = await procesar([detail.id]);
         if (result && result.success) {
-            setGeneratedDocDialog(result.documentoGenerado || 'Documento procesado correctamente');
+            const docId = result.documentoGenerado || 'N/A';
+            setGeneratedDoc(docId);
             toast.current?.show({
                 severity: 'success',
                 summary: 'Éxito',
@@ -84,8 +91,9 @@ const ProcesamientoPage: React.FC = () => {
             });
             // Update the file in the list to reflect processed state
             setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: 'PROCESADO' } : f));
-            // Update the detail view state
-            setDetail({ ...detail, estado: 'PROCESADO' });
+            // Update the detail view state via fresh fetch
+            await fetchDetail(detail.id);
+            setConfirmIndividualDialog(false);
         } else {
             toast.current?.show({
                 severity: 'error',
@@ -158,7 +166,19 @@ const ProcesamientoPage: React.FC = () => {
                         <XmlTable
                             files={files}
                             selectedFiles={selectedFiles}
-                            onSelectionChange={(e) => setSelectedFiles(e.value)}
+                            onSelectionChange={(e) => {
+                                setSelectedFiles(e.value);
+                                if (e.value.length === 0) {
+                                    setSelectedId(null);
+                                    setDetail(null);
+                                } else {
+                                    const lastSelected = e.value[e.value.length - 1];
+                                    if (lastSelected.id !== selectedId) {
+                                        setSelectedId(lastSelected.id);
+                                        fetchDetail(lastSelected.id);
+                                    }
+                                }
+                            }}
                             onRowClick={handleRowClick}
                             selectedId={selectedId}
                             loading={filesLoading}
@@ -169,14 +189,23 @@ const ProcesamientoPage: React.FC = () => {
                 {/* Column 2: File Detail */}
                 <div className="col-12 lg:col-7 p-2 h-full flex flex-column overflow-hidden">
                     <div className="panel-card h-full p-4 shadow-1 border-round overflow-hidden bg-white">
-                        <XmlDetail
-                            detail={detail}
-                            onValidate={handleValidate}
-                            onProcesar={handleProcesarIndividual}
-                            validating={validating}
-                            processing={processing}
-                            loading={detailLoading}
-                        />
+                        {selectedId && detail ? (
+                            <XmlDetail
+                                detail={detail}
+                                onValidate={handleValidate}
+                                onProcesar={() => setConfirmIndividualDialog(true)}
+                                validating={validating}
+                                processing={processing}
+                                loading={detailLoading}
+                                validationResult={validationResult}
+                                generatedDoc={generatedDoc}
+                            />
+                        ) : (
+                            <div className="detail-empty-state">
+                                <i className="pi pi-file-search text-4xl mb-3 opacity-50"></i>
+                                <p>Selecciona un archivo para ver su detalle</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -200,17 +229,25 @@ const ProcesamientoPage: React.FC = () => {
                 </div>
             </Dialog>
 
-            {/* Generated Document Dialog */}
+            {/* Individual Processing Confirmation */}
             <Dialog
-                visible={!!generatedDocDialog}
-                onHide={() => setGeneratedDocDialog(null)}
-                header="Documento Generado"
+                visible={confirmIndividualDialog}
+                onHide={() => setConfirmIndividualDialog(false)}
+                header="Confirmar Procesamiento"
                 modal
-                className="generated-doc-dialog"
+                footer={
+                    <div className="flex justify-content-end gap-2">
+                        <Button label="Cancelar" onClick={() => setConfirmIndividualDialog(false)} className="p-button-text p-button-secondary" />
+                        <Button label="Procesar Ahora" onClick={handleProcesarIndividual} className="p-button-success" autoFocus loading={processing} />
+                    </div>
+                }
             >
-                <div className="p-3 bg-bluegray-50 border-round">
-                    <p className="m-0 font-medium">Se ha generado satisfactoriamente el siguiente registro:</p>
-                    <p className="mt-2 mb-0 font-bold text-primary font-mono">{generatedDocDialog}</p>
+                <div className="flex align-items-center gap-3">
+                    <i className="pi pi-exclamation-triangle text-warning text-4xl"></i>
+                    <div>
+                        <p className="m-0 font-bold">Este documento será enviado al ERP y no podrá modificarse.</p>
+                        <p className="mt-1 text-secondary">¿Desea continuar con el procesamiento?</p>
+                    </div>
                 </div>
             </Dialog>
         </div>

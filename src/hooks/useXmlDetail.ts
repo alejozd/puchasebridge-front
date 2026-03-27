@@ -14,7 +14,27 @@ export const useXmlDetail = () => {
     setError(null);
     try {
       const data = await getXMLFileDetail(id);
-      setDetail(data);
+      console.log('DETAIL RESPONSE:', data);
+
+      // Normalize mapping to ensure consistency with camelCase interface
+      const normalizedDetail: XMLFileDetail = {
+        id: data.id,
+        fileName: data.file_name || data.fileName || '',
+        proveedorNombre: data.proveedor_nombre || data.proveedorNombre || '',
+        proveedorNit: data.proveedor_nit || data.proveedorNit || '',
+        fechaDocumento: data.fecha_documento || data.fechaDocumento || '',
+        estado: data.estado,
+        fechaCarga: data.fecha_carga || data.fechaCarga || '',
+        productos: (data.productos || []).map(p => ({
+          ...p,
+          valorUnitario: p.valor_unitario,
+          valorTotal: p.valor_total,
+          equivalenciaId: p.equivalencia_id,
+          estadoProducto: p.equivalencia_id ? 'HOMOLOGADO' : 'PENDIENTE'
+        }))
+      };
+
+      setDetail(normalizedDetail);
     } catch (err) {
       setError('Error al cargar el detalle del archivo XML');
       console.error(err);

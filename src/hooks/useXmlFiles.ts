@@ -12,7 +12,15 @@ export const useXmlFiles = () => {
     setError(null);
     try {
       const data = await getXMLFiles();
-      setFiles(data);
+      // Normalize to match user expectations (camelCase for list)
+      const normalizedData: XMLFileItem[] = data.map(item => ({
+        ...item,
+        fileName: item.fileName || item.file_name || '',
+        proveedorNombre: item.proveedor_nombre || item.proveedor || '',
+        fechaDocumento: item.fecha_documento || item.fecha_carga || item.fechaCarga || '',
+        fechaCarga: item.fecha_carga || item.fechaCarga || ''
+      }));
+      setFiles(normalizedData);
     } catch (err) {
       setError('Error al cargar la lista de archivos XML');
       console.error(err);

@@ -67,6 +67,10 @@ export const procesarDocumentos = async (files: string[]): Promise<XMLProcesarRe
   return response.data;
 };
 
+export const procesarArchivo = async (fileName: string): Promise<XMLProcesarResponse> => {
+  return procesarDocumentos([fileName]);
+};
+
 export const parseXML = async (fileName: string): Promise<XmlDetalle> => {
   console.log('[API CALL]', { method: 'POST', url: '/xml/parse', data: { fileName } });
   const response = await axiosClient.post<XmlDetalle>("/xml/parse", {

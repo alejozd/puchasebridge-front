@@ -1,8 +1,12 @@
 import React from 'react';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
+import { Divider } from 'primereact/divider';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { Message } from 'primereact/message';
+import { Timeline } from 'primereact/timeline';
 import ProductTable from './ProductTable';
-import type { XMLFileDetail } from '../../types/xml';
+import type { XMLFileDetail, XMLValidationResult } from '../../types/xml';
 
 interface XmlDetailProps {
   detail: XMLFileDetail | null;
@@ -11,6 +15,8 @@ interface XmlDetailProps {
   validating: boolean;
   processing: boolean;
   loading: boolean;
+  validationResult: XMLValidationResult | null;
+  generatedDoc: string | null;
 }
 
 const XmlDetail: React.FC<XmlDetailProps> = ({
@@ -19,13 +25,15 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
   onProcesar,
   validating,
   processing,
-  loading
+  loading,
+  validationResult,
+  generatedDoc
 }) => {
   if (loading) {
     return (
-      <div className="detail-empty-state">
-        <i className="pi pi-spin pi-spinner text-3xl mb-3"></i>
-        <p>Cargando información del archivo...</p>
+      <div className="detail-empty-state flex-column gap-3">
+        <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" />
+        <p className="font-semibold text-secondary">Cargando información del archivo...</p>
       </div>
     );
   }
@@ -33,74 +41,181 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
   if (!detail) {
     return (
       <div className="detail-empty-state">
-        <i className="pi pi-file-search text-3xl mb-3 opacity-50"></i>
-        <p>Selecciona un archivo para ver su detalle</p>
+        <i className="pi pi-file text-4xl mb-3 opacity-50"></i>
+        <p>No hay información del documento</p>
       </div>
     );
   }
 
-  const hasPendingHomologation = detail.productos.some(p => !p.equivalencia_id);
+  const hasPendingHomologation = detail.productos.some(p => !p.equivalenciaId);
+  const isValidated = ['VALIDADO', 'LISTO', 'PROCESADO'].includes(detail.estado.toUpperCase());
+  const isProcessed = detail.estado.toUpperCase() === 'PROCESADO';
+
+  const getStatusTag = (status: string) => {
+    const s = status.toUpperCase();
+    if (s === 'PROCESADO') return <Tag value="PROCESADO" severity="success" className="status-tag-large" />;
+    if (s === 'VALIDADO' || s === 'LISTO') return <Tag value="VALIDADO" severity="info" className="status-tag-large" />;
+    if (s === 'ERROR') return <Tag value="ERROR" severity="danger" className="status-tag-large" />;
+    return <Tag value="CARGADO" severity="warning" className="status-tag-large" />;
+  };
 
   return (
     <div className="xml-detail-container h-full flex flex-column">
-      <div className="detail-header flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 className="text-xl font-bold text-primary m-0 mb-1">{detail.file_name}</h2>
-          <p className="text-secondary m-0">{detail.proveedor_nombre}</p>
-        </div>
-        <div className="detail-actions flex gap-2">
-          <Button
-            label="Validar XML"
-            icon="pi pi-shield"
-            onClick={onValidate}
-            loading={validating}
-            className="p-button-outlined p-button-secondary"
-            disabled={processing}
-          />
-          <Button
-            label="Procesar XML"
-            icon="pi pi-play"
-            onClick={onProcesar}
-            loading={processing}
-            disabled={hasPendingHomologation || validating}
-            className="p-button-primary"
-          />
+      {/* DEBUG RENDER */}
+      <pre style={{ display: 'none' }}>{JSON.stringify(detail, null, 2)}</pre>
+
+      {/* PROFESSIONAL HEADER */}
+      <div className="detail-header-professional mb-4">
+        <div className="flex justify-content-between align-items-start">
+          <div className="header-info">
+            <div className="flex align-items-center gap-3 mb-2">
+                <h2 className="text-2xl font-bold text-primary m-0">{detail.fileName}</h2>
+                {getStatusTag(detail.estado)}
+            </div>
+            <div className="flex flex-wrap gap-4 text-secondary text-sm">
+                <div className="flex align-items-center gap-2">
+                    <i className="pi pi-building text-xs"></i>
+                    <span className="font-semibold">{detail.proveedorNombre}</span>
+                    <span className="opacity-60">({detail.proveedorNit})</span>
+                </div>
+                <div className="flex align-items-center gap-2">
+                    <i className="pi pi-calendar text-xs"></i>
+                    <span>{detail.fechaDocumento}</span>
+                </div>
+                <div className="flex align-items-center gap-2">
+                    <i className="pi pi-upload text-xs"></i>
+                    <span>Cargado: {detail.fechaCarga}</span>
+                </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {hasPendingHomologation && (
+      <Divider className="my-2" />
+
+      {/* TIMELINE VISUAL */}
+      <div className="flex justify-content-center mb-5 mt-2 timeline-wrapper">
+        <Timeline
+          value={[
+            {
+              status: 'Validar',
+              icon: 'pi pi-shield',
+              color: isValidated ? '#22c55e' : '#3b82f6',
+              active: !isValidated,
+              completed: isValidated
+            },
+            {
+              status: 'Procesar',
+              icon: 'pi pi-play-circle',
+              color: isProcessed ? '#22c55e' : (isValidated && !isProcessed ? '#3b82f6' : '#cbd5e1'),
+              active: isValidated && !isProcessed,
+              completed: isProcessed
+            }
+          ]}
+          layout="horizontal"
+          content={(item) => (
+            <span className={`text-xs font-bold uppercase tracking-wider ${item.completed ? 'text-green-500' : item.active ? 'text-primary' : 'text-slate-400'}`}>
+              {item.status}
+            </span>
+          )}
+          marker={(item) => (
+            <span
+              className="flex align-items-center justify-content-center border-circle shadow-1 transition-all transition-duration-300"
+              style={{
+                width: '2.5rem',
+                height: '2.5rem',
+                backgroundColor: item.color,
+                color: '#ffffff',
+                transform: item.active ? 'scale(1.1)' : 'scale(1)',
+                zIndex: 2
+              }}
+            >
+              <i className={`${item.icon} text-lg`}></i>
+            </span>
+          )}
+          style={{ width: '320px' }}
+        />
+      </div>
+
+      {/* VALIDATION SECTION */}
+      {validationResult && (
+        <div className={`validation-result-panel p-4 border-round mb-4 ${validationResult.valido ? 'bg-green-50' : 'bg-red-50'}`}>
+            <div className="flex align-items-center gap-3 mb-2">
+                <i className={`pi ${validationResult.valido ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-500'} text-xl`}></i>
+                <h4 className={`m-0 font-bold ${validationResult.valido ? 'text-green-800' : 'text-red-800'}`}>
+                    {validationResult.valido ? 'Documento válido para procesamiento' : 'Se encontraron errores de validación'}
+                </h4>
+            </div>
+            {!validationResult.valido && (
+                <ul className="m-0 pl-4 text-red-700 text-sm list-none">
+                    {validationResult.errores.map((err, i) => (
+                        <li key={i} className="mb-1 flex align-items-start gap-2">
+                            <i className="pi pi-circle-fill text-3xs mt-1"></i>
+                            {err}
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+      )}
+
+      {/* RESULT SECTION */}
+      {generatedDoc && (
+        <div className="generated-doc-highlight p-4 border-round mb-4 bg-primary-container text-primary-on-container flex align-items-center gap-4">
+            <div className="result-icon-bg">
+                <i className="pi pi-file-export text-2xl"></i>
+            </div>
+            <div>
+                <span className="block text-xs font-bold uppercase tracking-wider opacity-70">Documento Generado en Helisa</span>
+                <span className="block text-xl font-mono font-bold text-primary">{generatedDoc}</span>
+            </div>
+        </div>
+      )}
+
+      {hasPendingHomologation && !validationResult && detail.estado.toUpperCase() === 'CARGADO' && (
         <div className="alert-warning p-3 border-round mb-4 flex align-items-center gap-2">
           <i className="pi pi-exclamation-triangle"></i>
           <span className="text-sm font-semibold">Existen productos pendientes de homologación</span>
         </div>
       )}
 
-      <div className="detail-grid grid mb-4">
-        <div className="col-12 md:col-6 lg:col-4">
-          <div className="detail-field">
-            <span className="label">Proveedor NIT</span>
-            <span className="value">{detail.proveedor_nit}</span>
-          </div>
-        </div>
-        <div className="col-12 md:col-6 lg:col-4">
-          <div className="detail-field">
-            <span className="label">Fecha Documento</span>
-            <span className="value">{detail.fecha_documento}</span>
-          </div>
-        </div>
-        <div className="col-12 md:col-6 lg:col-4">
-          <div className="detail-field">
-            <span className="label">Estado</span>
-            <Tag value={detail.estado} severity={detail.estado === 'PROCESADO' ? 'success' : 'info'} />
-          </div>
-        </div>
-      </div>
-
       <div className="flex-grow-1 overflow-hidden flex flex-column">
         <h3 className="text-sm font-bold text-secondary uppercase tracking-wider mb-2">Productos en el documento</h3>
         <div className="flex-grow-1 overflow-auto">
           <ProductTable productos={detail.productos} />
         </div>
+      </div>
+
+      <Divider />
+
+      {/* FOOTER ACTIONS - DYNAMIC SMART BUTTONS */}
+      <div className="detail-footer-actions flex justify-content-end align-items-center py-2">
+        {detail.estado.toUpperCase() === 'PROCESADO' && (
+             <Message severity="success" text="Este documento ya fue procesado y enviado al ERP" className="w-full" />
+        )}
+
+        {detail.estado.toUpperCase() === 'VALIDADO' && (
+            <Button
+                label="Procesar ahora"
+                icon="pi pi-play-circle"
+                onClick={onProcesar}
+                loading={processing}
+                disabled={validating || loading}
+                className="p-button-lg p-button-success shadow-2"
+            />
+        )}
+
+        {detail.estado.toUpperCase() === 'CARGADO' && (
+            <Button
+                label="Iniciar Validación"
+                icon="pi pi-shield"
+                onClick={onValidate}
+                loading={validating}
+                disabled={processing || loading || hasPendingHomologation}
+                className={`p-button-lg shadow-2 ${hasPendingHomologation ? 'p-button-secondary' : 'p-button-primary'}`}
+                tooltip={hasPendingHomologation ? "Debe homologar todos los productos primero" : "Verificar consistencia del documento"}
+            />
+        )}
       </div>
     </div>
   );
