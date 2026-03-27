@@ -82,9 +82,9 @@ const XmlTable: React.FC<XmlTableProps> = ({
           sortable
         />
         <Column
-          field="fecha_carga"
+          field="fechaCarga"
           header="Carga"
-          body={(rowData: XMLFileItem) => <span className="date-column text-xs">{rowData.fecha_carga}</span>}
+          body={(rowData: XMLFileItem) => <span className="date-column text-xs">{rowData.fechaCarga}</span>}
           sortable
         />
       </DataTable>

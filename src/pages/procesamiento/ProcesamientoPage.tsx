@@ -47,7 +47,7 @@ const ProcesamientoPage: React.FC = () => {
     const handleValidate = async () => {
         if (!detail) return;
 
-        const result = await validate(detail.file_name);
+        const result = await validate(detail.fileName);
         if (result) {
             setValidationResult(result);
             if (result.valido) {
@@ -166,7 +166,13 @@ const ProcesamientoPage: React.FC = () => {
                         <XmlTable
                             files={files}
                             selectedFiles={selectedFiles}
-                            onSelectionChange={(e) => setSelectedFiles(e.value)}
+                            onSelectionChange={(e) => {
+                                setSelectedFiles(e.value);
+                                if (e.value.length === 0) {
+                                    setSelectedId(null);
+                                    setDetail(null);
+                                }
+                            }}
                             onRowClick={handleRowClick}
                             selectedId={selectedId}
                             loading={filesLoading}
@@ -177,16 +183,23 @@ const ProcesamientoPage: React.FC = () => {
                 {/* Column 2: File Detail */}
                 <div className="col-12 lg:col-7 p-2 h-full flex flex-column overflow-hidden">
                     <div className="panel-card h-full p-4 shadow-1 border-round overflow-hidden bg-white">
-                        <XmlDetail
-                            detail={detail}
-                            onValidate={handleValidate}
-                            onProcesar={() => setConfirmIndividualDialog(true)}
-                            validating={validating}
-                            processing={processing}
-                            loading={detailLoading}
-                            validationResult={validationResult}
-                            generatedDoc={generatedDoc}
-                        />
+                        {selectedId && detail ? (
+                            <XmlDetail
+                                detail={detail}
+                                onValidate={handleValidate}
+                                onProcesar={() => setConfirmIndividualDialog(true)}
+                                validating={validating}
+                                processing={processing}
+                                loading={detailLoading}
+                                validationResult={validationResult}
+                                generatedDoc={generatedDoc}
+                            />
+                        ) : (
+                            <div className="detail-empty-state">
+                                <i className="pi pi-file-search text-4xl mb-3 opacity-50"></i>
+                                <p>Selecciona un archivo para ver su detalle</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

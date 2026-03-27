@@ -73,7 +73,9 @@ export interface XMLFileItem {
   fileName: string;
   file_name?: string;
   proveedor: string;
+  proveedorNombre: string;
   proveedor_nombre?: string;
+  fechaDocumento: string;
   fecha_documento?: string;
   estado: string;
   fechaCarga: string;
@@ -94,11 +96,17 @@ export interface XMLProduct {
 
 export interface XMLFileDetail {
   id: number;
-  file_name: string;
-  proveedor_nombre: string;
-  proveedor_nit: string;
-  fecha_documento: string;
+  fileName: string;
+  file_name?: string;
+  proveedorNombre: string;
+  proveedor_nombre?: string;
+  proveedorNit: string;
+  proveedor_nit?: string;
+  fechaDocumento: string;
+  fecha_documento?: string;
   estado: string;
+  fechaCarga: string;
+  fecha_carga?: string;
   productos: XMLProduct[];
 }
 

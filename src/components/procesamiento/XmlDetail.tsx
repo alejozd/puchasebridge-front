@@ -72,18 +72,22 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
         <div className="flex justify-content-between align-items-start">
           <div className="header-info">
             <div className="flex align-items-center gap-3 mb-2">
-                <h2 className="text-2xl font-bold text-primary m-0">{detail.file_name}</h2>
+                <h2 className="text-2xl font-bold text-primary m-0">{detail.fileName}</h2>
                 {getStatusTag(detail.estado)}
             </div>
             <div className="flex flex-wrap gap-4 text-secondary text-sm">
                 <div className="flex align-items-center gap-2">
                     <i className="pi pi-building"></i>
-                    <span className="font-semibold">{detail.proveedor_nombre}</span>
-                    <span className="opacity-60">({detail.proveedor_nit})</span>
+                    <span className="font-semibold">{detail.proveedorNombre}</span>
+                    <span className="opacity-60">({detail.proveedorNit})</span>
                 </div>
                 <div className="flex align-items-center gap-2">
                     <i className="pi pi-calendar"></i>
-                    <span>{detail.fecha_documento}</span>
+                    <span>{detail.fechaDocumento}</span>
+                </div>
+                <div className="flex align-items-center gap-2">
+                    <i className="pi pi-upload"></i>
+                    <span>Cargado: {detail.fechaCarga}</span>
                 </div>
             </div>
           </div>

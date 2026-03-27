@@ -13,11 +13,12 @@ export const useXmlFiles = () => {
     try {
       const data = await getXMLFiles();
       // Normalize to match user expectations (camelCase for list)
-      const normalizedData = data.map(item => ({
+      const normalizedData: XMLFileItem[] = data.map(item => ({
         ...item,
-        fileName: item.fileName || item.file_name,
-        proveedorNombre: item.proveedor_nombre || item.proveedor,
-        fechaDocumento: item.fecha_documento || item.fecha_carga || item.fechaCarga
+        fileName: item.fileName || item.file_name || '',
+        proveedorNombre: item.proveedor_nombre || item.proveedor || '',
+        fechaDocumento: item.fecha_documento || item.fecha_carga || item.fechaCarga || '',
+        fechaCarga: item.fecha_carga || item.fechaCarga || ''
       }));
       setFiles(normalizedData);
     } catch (err) {

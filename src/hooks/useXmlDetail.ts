@@ -16,14 +16,15 @@ export const useXmlDetail = () => {
       const data = await getXMLFileDetail(id);
       console.log('DETAIL RESPONSE:', data);
 
-      // Normalize mapping to ensure consistency
+      // Normalize mapping to ensure consistency with camelCase interface
       const normalizedDetail: XMLFileDetail = {
         id: data.id,
-        file_name: data.file_name,
-        proveedor_nombre: data.proveedor_nombre,
-        proveedor_nit: data.proveedor_nit,
-        fecha_documento: data.fecha_documento,
+        fileName: data.file_name || data.fileName || '',
+        proveedorNombre: data.proveedor_nombre || data.proveedorNombre || '',
+        proveedorNit: data.proveedor_nit || data.proveedorNit || '',
+        fechaDocumento: data.fecha_documento || data.fechaDocumento || '',
         estado: data.estado,
+        fechaCarga: data.fecha_carga || data.fechaCarga || '',
         productos: data.productos || []
       };
 
