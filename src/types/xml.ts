@@ -90,8 +90,11 @@ export interface XMLProduct {
   cantidad: number;
   unidad: string;
   valor_unitario: number;
+  valorUnitario?: number;
   valor_total: number;
+  valorTotal?: number;
   equivalencia_id?: number | string | null;
+  equivalenciaId?: number | string | null;
 }
 
 export interface XMLFileDetail {

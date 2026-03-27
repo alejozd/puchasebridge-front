@@ -57,7 +57,7 @@ const ProcesamientoPage: React.FC = () => {
                     detail: 'El documento es válido para su procesamiento.',
                     life: 3000
                 });
-                setDetail({ ...detail, estado: 'VALIDADO' });
+                await fetchDetail(detail.id);
             } else {
                 toast.current?.show({
                     severity: 'error',
@@ -91,8 +91,8 @@ const ProcesamientoPage: React.FC = () => {
             });
             // Update the file in the list to reflect processed state
             setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: 'PROCESADO' } : f));
-            // Update the detail view state
-            setDetail({ ...detail, estado: 'PROCESADO' });
+            // Update the detail view state via fresh fetch
+            await fetchDetail(detail.id);
             setConfirmIndividualDialog(false);
         } else {
             toast.current?.show({
@@ -171,6 +171,12 @@ const ProcesamientoPage: React.FC = () => {
                                 if (e.value.length === 0) {
                                     setSelectedId(null);
                                     setDetail(null);
+                                } else {
+                                    const lastSelected = e.value[e.value.length - 1];
+                                    if (lastSelected.id !== selectedId) {
+                                        setSelectedId(lastSelected.id);
+                                        fetchDetail(lastSelected.id);
+                                    }
                                 }
                             }}
                             onRowClick={handleRowClick}

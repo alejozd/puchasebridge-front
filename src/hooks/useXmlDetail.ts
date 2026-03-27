@@ -25,7 +25,12 @@ export const useXmlDetail = () => {
         fechaDocumento: data.fecha_documento || data.fechaDocumento || '',
         estado: data.estado,
         fechaCarga: data.fecha_carga || data.fechaCarga || '',
-        productos: data.productos || []
+        productos: (data.productos || []).map(p => ({
+          ...p,
+          valorUnitario: p.valor_unitario,
+          valorTotal: p.valor_total,
+          equivalenciaId: p.equivalencia_id
+        }))
       };
 
       setDetail(normalizedDetail);

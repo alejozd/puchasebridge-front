@@ -11,7 +11,7 @@ interface ProductTableProps {
 
 const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
   const homologationBodyTemplate = (rowData: XMLProduct) => {
-    const isHomologated = !!rowData.equivalencia_id;
+    const isHomologated = !!rowData.equivalenciaId;
     return (
       <Tag
         value={isHomologated ? 'Homologado' : 'Pendiente'}
@@ -21,13 +21,14 @@ const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
     );
   };
 
-  const currencyBodyTemplate = (rowData: XMLProduct, field: 'valor_unitario' | 'valor_total') => {
+  const currencyBodyTemplate = (value: number | undefined) => {
+    if (value === undefined || isNaN(value)) return '$ 0';
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
       currency: 'COP',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(rowData[field]);
+    }).format(value);
   };
 
   return (
@@ -63,15 +64,15 @@ const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
           body={(rowData) => <span className="text-xs uppercase">{rowData.unidad}</span>}
         />
         <Column
-          field="valor_unitario"
+          field="valorUnitario"
           header="Unitario"
-          body={(rowData) => currencyBodyTemplate(rowData, 'valor_unitario')}
+          body={(rowData: XMLProduct) => currencyBodyTemplate(rowData.valorUnitario)}
           className="text-right"
         />
         <Column
-          field="valor_total"
+          field="valorTotal"
           header="Total"
-          body={(rowData) => currencyBodyTemplate(rowData, 'valor_total')}
+          body={(rowData: XMLProduct) => currencyBodyTemplate(rowData.valorTotal)}
           className="text-right"
         />
         <Column

@@ -4,6 +4,7 @@ import { Tag } from 'primereact/tag';
 import { Divider } from 'primereact/divider';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Message } from 'primereact/message';
+import { Timeline } from 'primereact/timeline';
 import ProductTable from './ProductTable';
 import type { XMLFileDetail, XMLValidationResult } from '../../types/xml';
 
@@ -46,7 +47,7 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
     );
   }
 
-  const hasPendingHomologation = detail.productos.some(p => !p.equivalencia_id);
+  const hasPendingHomologation = detail.productos.some(p => !p.equivalenciaId);
   const isValidated = detail.estado.toUpperCase() === 'VALIDADO' || detail.estado.toUpperCase() === 'PROCESADO';
   const isProcessed = detail.estado.toUpperCase() === 'PROCESADO';
 
@@ -96,17 +97,46 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 
       <Divider className="my-2" />
 
-      {/* STEPPER VISUAL */}
-      <div className="stepper-visual flex align-items-center justify-content-center gap-4 mb-5">
-        <div className={`step-item ${isValidated ? 'completed' : 'active'}`}>
-            <div className="step-circle">1</div>
-            <span className="step-label">Validar</span>
-        </div>
-        <div className="step-connector"></div>
-        <div className={`step-item ${isProcessed ? 'completed' : detail.estado.toUpperCase() === 'VALIDADO' ? 'active' : 'pending'}`}>
-            <div className="step-circle">2</div>
-            <span className="step-label">Procesar</span>
-        </div>
+      {/* TIMELINE VISUAL */}
+      <div className="flex justify-content-center mb-5 mt-2">
+        <Timeline
+          value={[
+            {
+              status: 'Validar',
+              icon: 'pi pi-shield',
+              color: isValidated ? '#22c55e' : '#3b82f6',
+              active: !isValidated,
+              completed: isValidated
+            },
+            {
+              status: 'Procesar',
+              icon: 'pi pi-play-circle',
+              color: isProcessed ? '#22c55e' : (detail.estado.toUpperCase() === 'VALIDADO' ? '#3b82f6' : '#cbd5e1'),
+              active: detail.estado.toUpperCase() === 'VALIDADO',
+              completed: isProcessed
+            }
+          ]}
+          layout="horizontal"
+          content={(item) => (
+            <span className={`text-xs font-bold uppercase tracking-wider ${item.completed ? 'text-green-500' : item.active ? 'text-primary' : 'text-slate-400'}`}>
+              {item.status}
+            </span>
+          )}
+          marker={(item) => (
+            <span
+              className="flex align-items-center justify-content-center border-circle shadow-1"
+              style={{
+                width: '2rem',
+                height: '2rem',
+                backgroundColor: item.color,
+                color: '#ffffff'
+              }}
+            >
+              <i className={`${item.icon} text-xs`}></i>
+            </span>
+          )}
+          style={{ width: '300px' }}
+        />
       </div>
 
       {/* VALIDATION SECTION */}
