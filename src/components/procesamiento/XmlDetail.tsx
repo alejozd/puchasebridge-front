@@ -7,6 +7,7 @@ import { Message } from 'primereact/message';
 import { Timeline } from 'primereact/timeline';
 import ProductTable from './ProductTable';
 import type { XMLFileDetail, XMLValidationResult } from '../../types/xml';
+import './XmlDetail.css';
 
 interface XmlDetailProps {
   detail: XMLFileDetail | null;
@@ -52,14 +53,19 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
   const hasPendingHomologation = detail.productos.some(
     p => p.estadoProducto === 'PENDIENTE'
   );
+  const estado = detail.estado.toUpperCase();
   const timelineEvents = [
     {
-      label: 'Validar',
-      done: ['VALIDADO', 'LISTO', 'PROCESADO'].includes(detail.estado.toUpperCase())
+      label: 'Cargado',
+      done: true
     },
     {
-      label: 'Procesar',
-      done: detail.estado.toUpperCase() === 'PROCESADO'
+      label: 'Validado',
+      done: ['VALIDADO', 'LISTO', 'PROCESADO'].includes(estado)
+    },
+    {
+      label: 'Procesado',
+      done: estado === 'PROCESADO'
     }
   ];
 
@@ -80,24 +86,24 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
       <div className="detail-header-professional mb-4">
         <div className="flex justify-content-between align-items-start">
           <div className="header-info">
-            <div className="flex align-items-center gap-3 mb-2">
-                <h2 className="text-2xl font-bold text-primary m-0">{detail.fileName}</h2>
-                {getStatusTag(detail.estado)}
+            <div className="header-title-row">
+              <h2 className="file-name">{detail.fileName}</h2>
+              {getStatusTag(detail.estado)}
             </div>
-            <div className="flex flex-wrap gap-4 text-secondary text-sm">
-                <div className="flex align-items-center gap-2">
-                    <i className="pi pi-building text-xs"></i>
-                    <span className="font-semibold">{detail.proveedorNombre}</span>
-                    <span className="opacity-60">({detail.proveedorNit})</span>
-                </div>
-                <div className="flex align-items-center gap-2">
-                    <i className="pi pi-calendar text-xs"></i>
-                    <span>{detail.fechaDocumento}</span>
-                </div>
-                <div className="flex align-items-center gap-2">
-                    <i className="pi pi-upload text-xs"></i>
-                    <span>Cargado: {detail.fechaCarga}</span>
-                </div>
+            <div className="header-meta">
+              <div className="header-meta-item">
+                <i className="pi pi-building"></i>
+                <span>{detail.proveedorNombre}</span>
+                <span className="meta-secondary">({detail.proveedorNit})</span>
+              </div>
+              <div className="header-meta-item">
+                <i className="pi pi-calendar"></i>
+                <span>{detail.fechaDocumento}</span>
+              </div>
+              <div className="header-meta-item">
+                <i className="pi pi-upload"></i>
+                <span>Cargado: {detail.fechaCarga}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -106,29 +112,23 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
       <Divider className="my-2" />
 
       {/* TIMELINE VISUAL */}
-      <div className="flex justify-content-center mb-5 mt-2 timeline-wrapper">
-        <Timeline
-          value={timelineEvents}
-          layout="horizontal"
-          content={(item) => (
-            <span className={item.done ? 'text-green-500' : 'text-gray-400'}>
-              {item.label}
-            </span>
-          )}
-          marker={(item) => (
-            <span
-              style={{
-                backgroundColor: item.done ? '#22c55e' : '#cbd5e1',
-                width: '2rem',
-                height: '2rem'
-              }}
-              className="flex align-items-center justify-content-center border-circle"
-            >
-              <i className={item.done ? 'pi pi-check' : 'pi pi-clock'} />
-            </span>
-          )}
-          style={{ width: '320px' }}
-        />
+      <div className="timeline-wrapper">
+        <div className="timeline-container">
+          <Timeline
+            value={timelineEvents}
+            layout="horizontal"
+            content={(item) => (
+              <span className={`timeline-label ${item.done ? 'done' : ''}`}>
+                {item.label}
+              </span>
+            )}
+            marker={(item) => (
+              <div className={`timeline-marker ${item.done ? 'done' : ''}`}>
+                <i className={item.done ? 'pi pi-check' : 'pi pi-clock'} />
+              </div>
+            )}
+          />
+        </div>
       </div>
 
       {/* VALIDATION SECTION */}

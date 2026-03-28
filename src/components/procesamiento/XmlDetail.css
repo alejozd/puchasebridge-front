@@ -1,0 +1,85 @@
+.xml-detail-container {
+  padding: 1rem;
+}
+
+.detail-header-professional {
+  margin-bottom: 1rem;
+}
+
+.header-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.file-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.header-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-meta-item i {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.meta-secondary {
+  opacity: 0.6;
+}
+
+.timeline-wrapper {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.timeline-container {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+.timeline-marker {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background-color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.timeline-marker.done {
+  background-color: #22c55e;
+}
+
+.timeline-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.timeline-label.done {
+  color: #16a34a;
+}
