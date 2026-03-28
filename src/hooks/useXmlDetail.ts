@@ -61,10 +61,10 @@ export const useXmlDetail = () => {
     }
   };
 
-  const procesar = async (ids: number[]): Promise<XMLProcesarResponse | null> => {
+  const procesar = async (files: string[]): Promise<XMLProcesarResponse | null> => {
     setProcessing(true);
     try {
-      const result = await procesarXML(ids);
+      const result = await procesarXML(files);
       return result;
     } catch (err) {
       console.error('Error durante el procesamiento:', err);

@@ -108,10 +108,10 @@ export const validateXML = async (fileName: string): Promise<XMLValidationResult
   return response.data;
 };
 
-export const procesarXML = async (ids: number[]): Promise<XMLProcesarResponse> => {
-  console.log('[API CALL]', { method: 'POST', url: '/xml/procesar', data: { ids } });
-  const response = await axiosClient.post<XMLProcesarResponse>("/xml/procesar", {
-    ids,
+export const procesarXML = async (files: string[]): Promise<XMLProcesarResponse> => {
+  console.log('[API CALL]', { method: 'POST', url: '/documentos/procesar', data: { files } });
+  const response = await axiosClient.post<XMLProcesarResponse>("/documentos/procesar", {
+    files,
   });
   return response.data;
 };

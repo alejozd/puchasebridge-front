@@ -136,7 +136,9 @@ export interface XMLValidationResult {
 }
 
 export interface XMLProcesarResponse {
-  success: boolean;
+  success?: boolean;
+  procesados: string[];
+  errores: string[];
   documentoGenerado?: string;
   mensaje?: string;
 }
