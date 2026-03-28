@@ -27,10 +27,12 @@ export const useXmlDetail = () => {
         fechaCarga: data.fecha_carga || data.fechaCarga || '',
         productos: (data.productos || []).map(p => ({
           ...p,
-          valorUnitario: p.valor_unitario,
-          valorTotal: p.valor_total,
+          id: p.id ?? 0,
+          unidad: p.unidad || 'UND',
+          valorUnitario: p.valorUnitario ?? p.valor_unitario ?? 0,
+          valorTotal: p.valorTotal ?? p.valor_total ?? 0,
           equivalenciaId: p.equivalencia_id,
-          estadoProducto: p.equivalencia_id ? 'HOMOLOGADO' : 'PENDIENTE'
+          estadoProducto: p.estadoProducto ?? (p.equivalencia_id ? 'HOMOLOGADO' : 'PENDIENTE')
         }))
       };
 

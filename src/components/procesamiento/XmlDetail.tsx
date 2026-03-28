@@ -47,9 +47,21 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
     );
   }
 
-  const hasPendingHomologation = detail.productos.some(p => !p.equivalenciaId);
-  const isValidated = ['VALIDADO', 'LISTO', 'PROCESADO'].includes(detail.estado.toUpperCase());
-  const isProcessed = detail.estado.toUpperCase() === 'PROCESADO';
+  console.log(detail.productos);
+
+  const hasPendingHomologation = detail.productos.some(
+    p => p.estadoProducto === 'PENDIENTE'
+  );
+  const timelineEvents = [
+    {
+      label: 'Validar',
+      done: ['VALIDADO', 'LISTO', 'PROCESADO'].includes(detail.estado.toUpperCase())
+    },
+    {
+      label: 'Procesar',
+      done: detail.estado.toUpperCase() === 'PROCESADO'
+    }
+  ];
 
   const getStatusTag = (status: string) => {
     const s = status.toUpperCase();
@@ -96,41 +108,23 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
       {/* TIMELINE VISUAL */}
       <div className="flex justify-content-center mb-5 mt-2 timeline-wrapper">
         <Timeline
-          value={[
-            {
-              status: 'Validar',
-              icon: 'pi pi-shield',
-              color: isValidated ? '#22c55e' : '#3b82f6',
-              active: !isValidated,
-              completed: isValidated
-            },
-            {
-              status: 'Procesar',
-              icon: 'pi pi-play-circle',
-              color: isProcessed ? '#22c55e' : (isValidated && !isProcessed ? '#3b82f6' : '#cbd5e1'),
-              active: isValidated && !isProcessed,
-              completed: isProcessed
-            }
-          ]}
+          value={timelineEvents}
           layout="horizontal"
           content={(item) => (
-            <span className={`text-xs font-bold uppercase tracking-wider ${item.completed ? 'text-green-500' : item.active ? 'text-primary' : 'text-slate-400'}`}>
-              {item.status}
+            <span className={item.done ? 'text-green-500' : 'text-gray-400'}>
+              {item.label}
             </span>
           )}
           marker={(item) => (
             <span
-              className="flex align-items-center justify-content-center border-circle shadow-1 transition-all transition-duration-300"
               style={{
-                width: '2.5rem',
-                height: '2.5rem',
-                backgroundColor: item.color,
-                color: '#ffffff',
-                transform: item.active ? 'scale(1.1)' : 'scale(1)',
-                zIndex: 2
+                backgroundColor: item.done ? '#22c55e' : '#cbd5e1',
+                width: '2rem',
+                height: '2rem'
               }}
+              className="flex align-items-center justify-content-center border-circle"
             >
-              <i className={`${item.icon} text-lg`}></i>
+              <i className={item.done ? 'pi pi-check' : 'pi pi-clock'} />
             </span>
           )}
           style={{ width: '320px' }}
