@@ -53,6 +53,12 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
   const hasPendingHomologation = detail.productos.some(
     p => p.estadoProducto === 'PENDIENTE'
   );
+  const canProcess = detail.productos.every(
+    (p) => p.estadoProducto === 'HOMOLOGADO'
+  );
+  const pendingCount = detail.productos.filter(
+    (p) => p.estadoProducto !== 'HOMOLOGADO'
+  ).length;
   const formatDate = (date?: string | null) => {
     if (!date) return '';
     return new Date(date).toLocaleString();
@@ -205,14 +211,22 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
         )}
 
         {detail.estado.toUpperCase() === 'VALIDADO' && (
+          <div className="flex flex-column align-items-end gap-2">
             <Button
-                label="Procesar ahora"
-                icon="pi pi-play-circle"
-                onClick={onProcesar}
-                loading={processing}
-                disabled={validating || loading}
-                className="p-button-lg p-button-success shadow-2"
+              label="Procesar"
+              icon="pi pi-check"
+              onClick={onProcesar}
+              loading={processing}
+              disabled={!canProcess || processing || loading}
+              tooltip={!canProcess ? 'Todos los productos deben estar homologados' : ''}
+              className="p-button-lg p-button-success shadow-2"
             />
+            {!canProcess && (
+              <small className="text-red-500">
+                Este documento tiene {pendingCount} producto(s) pendiente(s) de homologación.
+              </small>
+            )}
+          </div>
         )}
 
         {detail.estado.toUpperCase() === 'CARGADO' && (
