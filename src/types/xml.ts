@@ -122,6 +122,10 @@ export interface XMLFileDetail {
   estado: string;
   fechaCarga: string;
   fecha_carga?: string;
+  fechaValidacion?: string | null;
+  fecha_validacion?: string | null;
+  fechaProceso?: string | null;
+  fecha_proceso?: string | null;
   productos: XMLProduct[];
 }
 

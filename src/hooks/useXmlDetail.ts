@@ -25,6 +25,8 @@ export const useXmlDetail = () => {
         fechaDocumento: data.fecha_documento || data.fechaDocumento || '',
         estado: data.estado,
         fechaCarga: data.fecha_carga || data.fechaCarga || '',
+        fechaValidacion: data.fecha_validacion ?? data.fechaValidacion ?? null,
+        fechaProceso: data.fecha_proceso ?? data.fechaProceso ?? null,
         productos: (data.productos || []).map(p => ({
           ...p,
           id: p.id ?? 0,

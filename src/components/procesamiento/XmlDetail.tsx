@@ -53,19 +53,26 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
   const hasPendingHomologation = detail.productos.some(
     p => p.estadoProducto === 'PENDIENTE'
   );
-  const estado = detail.estado.toUpperCase();
+  const formatDate = (date?: string | null) => {
+    if (!date) return '';
+    return new Date(date).toLocaleString();
+  };
+
   const timelineEvents = [
     {
       label: 'Cargado',
+      date: detail.fechaCarga,
       done: true
     },
     {
       label: 'Validado',
-      done: ['VALIDADO', 'LISTO', 'PROCESADO'].includes(estado)
+      date: detail.fechaValidacion,
+      done: !!detail.fechaValidacion
     },
     {
       label: 'Procesado',
-      done: estado === 'PROCESADO'
+      date: detail.fechaProceso,
+      done: !!detail.fechaProceso
     }
   ];
 
@@ -87,7 +94,9 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
         <div className="flex justify-content-between align-items-start">
           <div className="header-info">
             <div className="header-title-row">
-              <h2 className="file-name">{detail.fileName}</h2>
+              <h2 className="file-name" title={detail.fileName}>
+                {detail.fileName}
+              </h2>
               {getStatusTag(detail.estado)}
             </div>
             <div className="header-meta">
@@ -118,9 +127,16 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
             value={timelineEvents}
             layout="horizontal"
             content={(item) => (
-              <span className={`timeline-label ${item.done ? 'done' : ''}`}>
-                {item.label}
-              </span>
+              <div className="timeline-content">
+                <span className={`timeline-label ${item.done ? 'done' : ''}`}>
+                  {item.label}
+                </span>
+                {item.date && (
+                  <small className="timeline-date">
+                    {formatDate(item.date)}
+                  </small>
+                )}
+              </div>
             )}
             marker={(item) => (
               <div className={`timeline-marker ${item.done ? 'done' : ''}`}>
