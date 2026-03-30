@@ -72,6 +72,7 @@ const XMLListPage: React.FC = () => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
+  const getEstado = (estado?: string) => (estado || "").toUpperCase();
 
   const statusBodyTemplate = (rowData: XMLFile) => {
     const severityMap: Record<
@@ -79,19 +80,19 @@ const XMLListPage: React.FC = () => {
       "secondary" | "success" | "danger" | "info" | "warning"
     > = {
       CARGADO: "secondary",
-      LISTO: "success",
-      ERROR: "danger",
       PENDIENTE: "warning",
-      Procesado: "info",
+      LISTO: "info",
+      PROCESADO: "success",
+      ERROR: "danger",
     };
 
-    const estado = rowData.estado || "CARGADO";
+    const estado = getEstado(rowData.estado);
 
     return (
       <div className="flex align-items-center gap-2">
         <Tag
-          value={estado.toUpperCase()}
-          severity={severityMap[estado]}
+          value={estado}
+          severity={severityMap[estado] || "secondary"}
           className="status-tag"
         />
         {estado === "ERROR" && (
@@ -116,7 +117,7 @@ const XMLListPage: React.FC = () => {
   };
 
   const fileNameBodyTemplate = (rowData: XMLFile) => {
-    const isError = rowData.estado === "ERROR";
+    const isError = getEstado(rowData.estado) === "ERROR";
     return (
       <div className="filename-cell">
         <i
@@ -203,7 +204,9 @@ const XMLListPage: React.FC = () => {
   };
 
   const actionBodyTemplate = (rowData: XMLFile) => {
-    const isValidated = rowData.estado === "LISTO";
+    const estado = getEstado(rowData.estado);
+    const canValidate = estado === "CARGADO" || estado === "ERROR";
+    const canProcess = estado === "LISTO";
     const isProcessing =
       loadingRow === rowData.fileName || processing || validating;
 
@@ -219,7 +222,7 @@ const XMLListPage: React.FC = () => {
           onClick={() => handleViewDetail(rowData.fileName)}
           disabled={isProcessing}
         />
-        {!isValidated && rowData.estado !== "Procesado" && (
+        {canValidate && (
           <Button
             icon="pi pi-check-circle"
             text
@@ -231,7 +234,7 @@ const XMLListPage: React.FC = () => {
             disabled={isProcessing}
           />
         )}
-        {isValidated && (
+        {canProcess && (
           <Button
             icon="pi pi-cog"
             text
@@ -260,7 +263,7 @@ const XMLListPage: React.FC = () => {
   const handleBulkProcess = async () => {
     if (selectedFiles.length === 0) return;
 
-    const unvalidated = selectedFiles.filter((f) => f.estado !== "LISTO");
+    const unvalidated = selectedFiles.filter((f) => getEstado(f.estado) !== "LISTO");
     if (unvalidated.length > 0) {
       toast.current?.show({
         severity: "warn",
@@ -530,9 +533,10 @@ const XMLListPage: React.FC = () => {
             <div className="metric-value-wrapper">
               <h3 className="metric-value">
                 {
-                  xmlList.filter(
-                    (f) => f.estado === "PENDIENTE" || f.estado === "LISTO",
-                  ).length
+                  xmlList.filter((f) => {
+                    const estado = getEstado(f.estado);
+                    return estado === "LISTO";
+                  }).length
                 }
               </h3>
               <span className="metric-badge success">Listos</span>
@@ -547,7 +551,10 @@ const XMLListPage: React.FC = () => {
             <p className="metric-label">Procesados</p>
             <div className="metric-value-wrapper">
               <h3 className="metric-value">
-                {xmlList.filter((f) => f.estado === "Procesado").length}
+                {xmlList.filter((f) => {
+                  const estado = getEstado(f.estado);
+                  return estado === "PROCESADO";
+                }).length}
               </h3>
               <span className="metric-badge info">Finalizados</span>
             </div>
