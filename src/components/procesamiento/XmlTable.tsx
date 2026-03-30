@@ -24,10 +24,11 @@ const XmlTable: React.FC<XmlTableProps> = ({
 }) => {
   const statusBodyTemplate = (rowData: XMLFileItem) => {
     const severityMap: Record<string, "success" | "info" | "warning" | "danger" | "secondary"> = {
-      'VALIDADO': 'success',
-      'PENDIENTE': 'warning',
+      'VALIDADO': 'info',
+      'LISTO': 'info',
+      'PROCESADO': 'success',
       'ERROR': 'danger',
-      'PROCESADO': 'info'
+      'PENDIENTE': 'warning',
     };
 
     return (

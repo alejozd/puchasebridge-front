@@ -84,6 +84,7 @@ const ProcesamientoPage: React.FC = () => {
 
     const handleProcesarIndividual = async () => {
         if (!detail) return;
+        if (detail.estado.toUpperCase() === 'PROCESADO') return;
 
         const result = await procesar([detail.fileName]);
         if (!result) {
@@ -150,7 +151,6 @@ const ProcesamientoPage: React.FC = () => {
                 detail: 'Documento(s) procesado(s) correctamente',
                 life: 3000
             });
-            refreshFiles();
             setSelectedFiles([]);
             setConfirmBatchDialog(false);
         }
@@ -163,6 +163,10 @@ const ProcesamientoPage: React.FC = () => {
                 life: 4000
             });
         }
+        if (selectedId) {
+            await fetchDetail(selectedId);
+        }
+        refreshFiles();
     };
 
     return (
