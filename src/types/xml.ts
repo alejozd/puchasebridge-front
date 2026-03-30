@@ -140,6 +140,7 @@ export interface XMLProcesarResponse {
   procesados: string[];
   errores: string[];
   documentoGenerado?: string;
+  estado?: string;
   mensaje?: string;
 }
 

@@ -60,7 +60,7 @@ const ProcesamientoPage: React.FC = () => {
                     detail: 'El documento es válido para su procesamiento.',
                     life: 3000
                 });
-                await fetchDetail(detail.id);
+                setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: 'VALIDADO' } : f));
             } else {
                 toast.current?.show({
                     severity: 'error',
@@ -68,7 +68,10 @@ const ProcesamientoPage: React.FC = () => {
                     detail: `Se encontraron ${result.errores.length} errores.`,
                     life: 5000
                 });
+                setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: 'ERROR' } : f));
             }
+            await fetchDetail(detail.id);
+            refreshFiles();
         } else {
             toast.current?.show({
                 severity: 'error',
@@ -96,7 +99,7 @@ const ProcesamientoPage: React.FC = () => {
         const procesados = result.procesados || [];
         const errores = result.errores || [];
 
-        if (procesados.length > 0) {
+        if (result.success || procesados.length > 0) {
             const docId = result.documentoGenerado || procesados[0] || 'N/A';
             setGeneratedDoc(docId);
             toast.current?.show({
@@ -105,8 +108,7 @@ const ProcesamientoPage: React.FC = () => {
                 detail: 'Documento(s) procesado(s) correctamente',
                 life: 3000
             });
-            setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: 'PROCESADO' } : f));
-            await fetchDetail(detail.id);
+            setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: result.estado || 'PROCESADO' } : f));
             setConfirmIndividualDialog(false);
         }
 
@@ -118,6 +120,8 @@ const ProcesamientoPage: React.FC = () => {
                 life: 4000
             });
         }
+        await fetchDetail(detail.id);
+        refreshFiles();
     };
 
     const handleProcesarBatch = async () => {
