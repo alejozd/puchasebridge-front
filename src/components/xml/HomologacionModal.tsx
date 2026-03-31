@@ -27,7 +27,6 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
   const [searchTerm, setSearchTerm] = useState('');
   const [estadoFiltro, setEstadoFiltro] = useState<EstadoFiltro>('todos');
   const [unidadesERP, setUnidadesERP] = useState<UnidadERP[]>([]);
-  const [productosERP, setProductosERP] = useState<ProductoERP[]>([]);
   const [totales, setTotales] = useState({ totalProductos: 0, totalPendientes: 0, totalHomologados: 0 });
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
@@ -35,16 +34,12 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
   const handleSearchProductos = useCallback(async (query: string): Promise<ProductoERP[]> => {
     const trimmedQuery = query?.trim();
     if (!trimmedQuery) {
-      setProductosERP([]);
       return [];
     }
 
     try {
-      const result = await erpService.searchErpProductos(trimmedQuery);
-      setProductosERP(result);
-      return result;
+      return await erpService.searchErpProductos(trimmedQuery);
     } catch {
-      setProductosERP([]);
       return [];
     }
   }, []);
@@ -74,7 +69,6 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
 
       setItems(mapped);
       setUnidadesERP(erpUnits);
-      setProductosERP([]);
       setTotales({
         totalProductos: docData.totalProductos,
         totalPendientes: docData.totalPendientes,
@@ -232,7 +226,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
         <HomologacionTable
           items={filteredItems}
           setItems={setFilteredItems}
-          productosERP={productosERP}
+          productosERP={[]}
           unidadesERP={unidadesERP}
           loading={loading}
           modo="modal"

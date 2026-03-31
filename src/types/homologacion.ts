@@ -23,7 +23,7 @@ export interface ProductoMapeoPage extends ProductoPendiente {
   nombreErp?: string;
   unidadErp?: string;
   factor: number;
-  suggestions?: ProductoERP[];
+  erpSuggestions?: ProductoERP[];
   searching?: boolean;
   isEditing?: boolean;
   isSuggested?: boolean;

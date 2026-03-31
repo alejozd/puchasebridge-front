@@ -19,23 +19,18 @@ const HomologacionPage: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState<'todos' | 'pendiente' | 'homologado'>('todos');
     const [globalFilter, setGlobalFilter] = useState('');
     const [unidadesERP, setUnidadesERP] = useState<UnidadERP[]>([]);
-    const [productosERP, setProductosERP] = useState<ProductoERP[]>([]);
     const [loading, setLoading] = useState(false);
     const toast = useRef<Toast>(null);
 
     const handleSearchProductos = useCallback(async (query: string): Promise<ProductoERP[]> => {
         const trimmedQuery = query?.trim();
         if (!trimmedQuery) {
-            setProductosERP([]);
             return [];
         }
 
         try {
-            const result = await erpService.searchErpProductos(trimmedQuery);
-            setProductosERP(result);
-            return result;
+            return await erpService.searchErpProductos(trimmedQuery);
         } catch {
-            setProductosERP([]);
             return [];
         }
     }, []);
@@ -74,7 +69,6 @@ const HomologacionPage: React.FC = () => {
 
             setItems(mappedItems);
             setUnidadesERP(erpUnits);
-            setProductosERP([]);
         } catch {
             toast.current?.show({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los productos del archivo.', life: 3000 });
         } finally {
@@ -265,7 +259,7 @@ const HomologacionPage: React.FC = () => {
                 <HomologacionTable
                     items={filteredItems}
                     setItems={setFilteredItems}
-                    productosERP={productosERP}
+                    productosERP={[]}
                     unidadesERP={unidadesERP}
                     loading={loading}
                     modo="page"
