@@ -106,14 +106,13 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
 
         return (
             <AutoComplete
-                value={rowData.productoSistema || rowData.referenciaErp || ''}
+                value={rowData.productoSistema || ''}
                 suggestions={rowData.suggestions || []}
                 completeMethod={(event) => handleSearch(event, rowData)}
                 onChange={(event: AutoCompleteChangeEvent) => {
-                    const value = typeof event.value === 'string'
-                        ? event.value
-                        : `[${event.value.referencia}] - ${event.value.nombre}`;
-                    updateItem(rowData.referenciaXML, { productoSistema: value });
+                    if (typeof event.value === 'string') {
+                        updateItem(rowData.referenciaXML, { productoSistema: event.value });
+                    }
                 }}
                 onSelect={(event) => {
                     const selected = event.value as ProductoERP;
@@ -133,6 +132,8 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
                 inputClassName="w-full"
                 minLength={1}
                 delay={100}
+                dropdown={false}
+                forceSelection={false}
             />
         );
     };
