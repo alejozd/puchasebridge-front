@@ -1,35 +1,21 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
-import { AutoComplete, type AutoCompleteCompleteEvent, type AutoCompleteChangeEvent } from 'primereact/autocomplete';
+import { type AutoCompleteCompleteEvent } from 'primereact/autocomplete';
 import { Dropdown, type DropdownChangeEvent } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Tooltip } from 'primereact/tooltip';
+import HomologacionTable from '../../components/xml/HomologacionTable';
 import PageTitle from '../../components/common/PageTitle';
 import * as xmlService from '../../services/xmlService';
 import * as erpService from '../../services/erpService';
-import type { ProductoPendiente, XMLFile, HomologarPayload } from '../../types/xml';
+import type { XMLFile, HomologarPayload } from '../../types/xml';
+import type { ProductoMapeo } from '../../types/homologacion';
 import type { ErpProducto, ErpUnidad } from '../../services/erpService';
 import '../../styles/homologacion.css';
 
-interface ProductoMapeoPage extends ProductoPendiente {
-    productoSistema?: string;
-    referenciaErp?: string;
-    codigoErp?: number;
-    subcodigoErp?: number;
-    nombreErp?: string;
-    unidadErp?: string;
-    factor: number;
-    suggestions?: ErpProducto[];
-    isEditing?: boolean;
-    isSuggested?: boolean;
-}
-
 const HomologacionPage: React.FC = () => {
-    const [items, setItems] = useState<ProductoMapeoPage[]>([]);
+    const [items, setItems] = useState<ProductoMapeo[]>([]);
     const [xmlFiles, setXmlFiles] = useState<XMLFile[]>([]);
     const [selectedXml, setSelectedXml] = useState<string | null>(null);
     const [statusFilter, setStatusFilter] = useState<'todos' | 'pendiente' | 'homologado'>('todos');
@@ -52,7 +38,7 @@ const HomologacionPage: React.FC = () => {
         }
     }, []);
 
-    const getAutoSuggestion = useCallback(async (item: ProductoMapeoPage) => {
+    const getAutoSuggestion = useCallback(async (item: ProductoMapeo) => {
         // Mock suggestion logic: if name contains certain keywords or a simple search returns a close match
         if (item.estado?.toLowerCase() === 'homologado' || item.productoSistema) return null;
 
@@ -62,7 +48,7 @@ const HomologacionPage: React.FC = () => {
                 // Return the first match as a suggestion
                 return results[0];
             }
-        } catch (e) {
+        } catch (e: unknown) {
             return null;
         }
         return null;
@@ -76,7 +62,7 @@ const HomologacionPage: React.FC = () => {
                 erpService.getErpUnidades()
             ]);
 
-            const mappedItems: ProductoMapeoPage[] = documentData.productos.map(p => ({
+            const mappedItems: ProductoMapeo[] = documentData.productos.map(p => ({
                 referenciaXML: p.referenciaXML,
                 nombreProducto: p.nombreProducto,
                 unidadXML: p.unidadXML,
@@ -169,20 +155,20 @@ const HomologacionPage: React.FC = () => {
         return result;
     }, [items, statusFilter, globalFilter]);
 
-    const searchProduct = async (event: AutoCompleteCompleteEvent, rowData: ProductoMapeoPage) => {
+    const searchProduct = async (event: AutoCompleteCompleteEvent, rowData: ProductoMapeo) => {
         const query = (event.query || '').trim();
 
         try {
             const suggestions = await erpService.searchErpProductos(query);
             setItems(prev => prev.map(item =>
-                item.referenciaXML === rowData.referenciaXML ? { ...item, suggestions } : item
+                item.referenciaXML === rowData.referenciaXML ? { ...item, erpSuggestions: suggestions } : item
             ));
         } catch {
             // Silently fail
         }
     };
 
-    const onProductSelect = (erpProd: ErpProducto, rowData: ProductoMapeoPage) => {
+    const onProductSelect = (erpProd: ErpProducto, rowData: ProductoMapeo) => {
         const matchingUnit = unidades.find(u => u.sigla === erpProd.unidadDefault);
 
         setItems(prev => prev.map(item => {
@@ -201,7 +187,7 @@ const HomologacionPage: React.FC = () => {
         }));
     };
 
-    const handleSave = async (item: ProductoMapeoPage, silent = false) => {
+    const handleSave = async (item: ProductoMapeo, silent = false) => {
         if (
             !item.referenciaErp ||
             !item.unidadErp ||
@@ -269,31 +255,6 @@ const HomologacionPage: React.FC = () => {
         }
     };
 
-    const handleClear = (referenciaXML: string) => {
-        setItems(prevItems => prevItems.map(item => {
-            if (item.referenciaXML === referenciaXML) {
-                return {
-                    ...item,
-                    productoSistema: '',
-                    referenciaErp: '',
-                    codigoErp: undefined,
-                    subcodigoErp: undefined,
-                    nombreErp: '',
-                    unidadErp: '',
-                    estado: 'pendiente',
-                    isEditing: false
-                };
-            }
-            return item;
-        }));
-    };
-
-    const handleEdit = (referenciaXML: string) => {
-        setItems(prevItems => prevItems.map(item =>
-            item.referenciaXML === referenciaXML ? { ...item, isEditing: true } : item
-        ));
-    };
-
     const handleExport = () => {
         if (!selectedXml || filteredItems.length === 0) return;
 
@@ -357,7 +318,7 @@ const HomologacionPage: React.FC = () => {
                     life: 3000
                 });
             }
-        } catch (e) {
+        } catch (e: unknown) {
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -393,7 +354,7 @@ const HomologacionPage: React.FC = () => {
                     life: 5000
                 });
             }
-        } catch (e) {
+        } catch (e: unknown) {
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -405,141 +366,15 @@ const HomologacionPage: React.FC = () => {
         }
     };
 
-    const statusBodyTemplate = (rowData: ProductoMapeoPage) => {
-        const estado = rowData.estado ? rowData.estado.toLowerCase() : 'pendiente';
-        const isHomologated = estado === 'homologado';
-        const severity = isHomologated ? 'success' : 'warning';
-        const value = isHomologated ? 'COMPLETO' : 'PENDIENTE';
-
-        return (
-            <Tag
-                value={value}
-                severity={severity}
-                className="status-tag"
-            />
-        );
-    };
-
-    const productSystemTemplate = (rowData: ProductoMapeoPage) => {
-        const isHomologado = rowData.estado?.toLowerCase() === 'homologado';
-        const showEditor = !isHomologado || rowData.isEditing;
-
-        if (!showEditor) {
-            const unitLabel = unidades.find(u => u.codigo === rowData.unidadErp)?.sigla || rowData.unidadErp || '---';
-            return (
-                <div className="flex flex-column gap-1 py-1 product-system-display">
-                    <span className="text-sm font-semibold text-primary">{rowData.productoSistema}</span>
-                    <span className="text-xs text-secondary font-medium">Unidad ERP: <span className="text-dark">{unitLabel}</span></span>
-                </div>
-            );
-        }
-
-        const selectedUnitLabel = unidades.find(u => u.codigo === rowData.unidadErp)?.sigla || '';
-
-        const itemTemplate = (item: ErpProducto) => {
-            return (
-                <div className="flex flex-column erp-item-suggestion py-1">
-                    <span className="erp-item-code font-bold text-sm text-primary">[{item.referencia}]</span>
-                    <span className="erp-item-name text-xs text-secondary mt-1">{item.nombre}</span>
-                </div>
-            );
-        };
-
-        return (
-            <div className="flex flex-column gap-2">
-                <div className="autocomplete-wrapper p-input-icon-right">
-                    <AutoComplete
-                        value={rowData.productoSistema || ''}
-                        suggestions={rowData.suggestions || []}
-                        completeMethod={(e) => searchProduct(e, rowData)}
-                        onChange={(e: AutoCompleteChangeEvent) => {
-                            const val = typeof e.value === 'string' ? e.value : `[${e.value.referencia}] - ${e.value.nombre}`;
-                            setItems(prev => prev.map(item =>
-                                item.referenciaXML === rowData.referenciaXML ? { ...item, productoSistema: val } : item
-                            ));
-                        }}
-                        onSelect={(e) => onProductSelect(e.value as ErpProducto, rowData)}
-                        itemTemplate={itemTemplate}
-                        placeholder="Buscar producto en ERP..."
-                        className="w-full"
-                        inputClassName="product-autocomplete-input pr-5"
-                        panelClassName="erp-autocomplete-panel"
-                        delay={100}
-                        minLength={1}
-                    />
-                    <i className="pi pi-search search-icon" style={{ zIndex: 1 }}></i>
-                </div>
-                {rowData.referenciaErp && (
-                    <div className="px-2 py-1 bg-bluegray-50 border-round">
-                        <span className="text-xs font-bold text-secondary">UNIDAD ASIGNADA: </span>
-                        <span className="text-xs font-bold text-primary">{selectedUnitLabel || rowData.unidadErp || 'SIN UNIDAD'}</span>
-                    </div>
-                )}
-            </div>
-        );
-    };
-
-    const actionBodyTemplate = (rowData: ProductoMapeoPage) => {
-        const estado = rowData.estado ? rowData.estado.toLowerCase() : 'pendiente';
-        const isHomologado = estado === 'homologado';
-        const isEditing = rowData.isEditing;
-
-        if (!isHomologado || isEditing) {
-            return (
-                <div className="actions-cell">
-                    <Button
-                        icon="pi pi-check-circle"
-                        text
-                        rounded
-                        severity="success"
-                        onClick={() => handleSave(rowData)}
-                        tooltip="Confirmar y Guardar"
-                        disabled={!rowData.referenciaErp}
-                    />
-                    {isEditing && (
-                         <Button
-                            icon="pi pi-times-circle"
-                            text
-                            rounded
-                            severity="secondary"
-                            onClick={() => {
-                                setItems(prev => prev.map(item =>
-                                    item.referenciaXML === rowData.referenciaXML ? { ...item, isEditing: false } : item
-                                ));
-                            }}
-                            tooltip="Descartar Cambios"
-                        />
-                    )}
-                </div>
-            );
-        }
-
-        return (
-            <div className="actions-cell">
-                <Button
-                    icon="pi pi-pencil"
-                    text
-                    rounded
-                    severity="info"
-                    onClick={() => handleEdit(rowData.referenciaXML)}
-                    tooltip="Editar Homologación"
-                />
-                <Button
-                    icon="pi pi-trash"
-                    text
-                    rounded
-                    severity="danger"
-                    onClick={() => handleClear(rowData.referenciaXML)}
-                    tooltip="Eliminar Homologación"
-                />
-            </div>
-        );
-    };
-
     const pendingCount = items.filter(i => i.estado?.toLowerCase() === 'pendiente').length;
     const isReadyToProcess = items.length > 0 && pendingCount === 0;
 
-    const xmlValueTemplate = (option: any, props: any) => {
+    interface XmlOption {
+        label: string;
+        value: string;
+    }
+
+    const xmlValueTemplate = (option: XmlOption | null, props: { placeholder?: string }) => {
         if (option) {
             return (
                 <div className="flex align-items-center truncate-text" style={{ maxWidth: '250px' }}>
@@ -550,7 +385,7 @@ const HomologacionPage: React.FC = () => {
         return props.placeholder;
     };
 
-    const xmlItemTemplate = (option: any) => {
+    const xmlItemTemplate = (option: XmlOption) => {
         return (
             <div className="flex align-items-center truncate-text">
                 <span className="truncate-text" data-pr-tooltip={option.label}>{option.label}</span>
@@ -646,66 +481,22 @@ const HomologacionPage: React.FC = () => {
                         <i className="pi pi-search" />
                     </span>
                 </div>
-                <DataTable
-                    value={filteredItems}
+                <HomologacionTable
+                    productos={items}
+                    filteredProducts={filteredItems}
                     loading={loading}
-                    className="p-datatable-sm items-table modern-erp-table"
-                    style={{ width: '100%' }}
-                    rowHover
-                    stripedRows
-                    rowClassName={(data) => {
-                        const estado = data.estado ? data.estado.toLowerCase() : 'pendiente';
-                        return {
-                            'row-pending': estado === 'pendiente',
-                            'row-homologated': estado === 'homologado',
-                            'row-suggested': !!data.isSuggested && estado === 'pendiente',
-                            'row-editing': !!data.isEditing
-                        };
+                    unidades={unidades}
+                    updateRowState={(referenciaXML, newState) => {
+                        setItems(prev =>
+                            prev.map(item =>
+                                item.referenciaXML === referenciaXML ? { ...item, ...newState } : item
+                            )
+                        );
                     }}
-                    emptyMessage={selectedXml ? "No se encontraron productos para homologar en este archivo." : "Por favor seleccione un archivo XML."}
-                >
-                    <Column
-                        header="PRODUCTO XML"
-                        body={(rowData: ProductoMapeoPage) => (
-                            <div className="flex flex-column gap-1">
-                                <div className="text-sm font-semibold text-dark line-height-2">{rowData.nombreProducto}</div>
-                                <div className="text-xs text-secondary opacity-70 font-mono">{rowData.referenciaXML}</div>
-                            </div>
-                        )}
-                        headerClassName="table-header-cell"
-                        style={{ width: '35%' }}
-                    />
-                    <Column
-                        header="UND XML"
-                        body={(rowData: ProductoMapeoPage) => (
-                            <div className="flex flex-column gap-1">
-                                <span className="text-xs font-bold text-dark uppercase">{rowData.unidadXMLNombre || '---'}</span>
-                                <span className="text-xs text-secondary font-medium">({rowData.unidadXML})</span>
-                            </div>
-                        )}
-                        headerClassName="table-header-cell"
-                        style={{ width: '10%' }}
-                    />
-                    <Column
-                        header="PRODUCTO EN ERP"
-                        body={productSystemTemplate}
-                        headerClassName="table-header-cell"
-                        style={{ width: '35%' }}
-                    />
-                    <Column
-                        field="estado"
-                        header="ESTADO"
-                        body={statusBodyTemplate}
-                        headerClassName="table-header-cell"
-                        align="center"
-                    />
-                    <Column
-                        header="ACCIONES"
-                        body={actionBodyTemplate}
-                        className="text-right"
-                        headerClassName="table-header-cell text-right"
-                    />
-                </DataTable>
+                    handleSaveRow={handleSave}
+                    searchErpProducts={(e, row) => searchProduct(e, row)}
+                    onErpProductSelect={onProductSelect}
+                />
                 <div className="table-footer">
                     <p>Mostrando {filteredItems.length} de {items.length} registros</p>
                 </div>
