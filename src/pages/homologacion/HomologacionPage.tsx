@@ -74,7 +74,8 @@ const HomologacionPage: React.FC = () => {
                 codigoErp: p.codigoErp,
                 subcodigoErp: p.subcodigoErp,
                 nombreErp: p.nombreErp,
-                unidadErp: p.unidadErp
+                unidadErp: p.unidadErp,
+                unidadErpLabel: p.unidadErpNombre || ''
             }));
 
             setItems(mappedItems);
@@ -102,6 +103,7 @@ const HomologacionPage: React.FC = () => {
                         subcodigoErp: suggestion!.subcodigo,
                         nombreErp: suggestion!.nombre,
                         unidadErp: matchingUnit?.codigo || '',
+                        unidadErpLabel: matchingUnit?.sigla || '',
                         isSuggested: true
                     };
                 }
@@ -181,6 +183,7 @@ const HomologacionPage: React.FC = () => {
                     subcodigoErp: erpProd.subcodigo,
                     nombreErp: erpProd.nombre,
                     unidadErp: matchingUnit?.codigo || '',
+                    unidadErpLabel: matchingUnit?.sigla || '',
                 };
             }
             return item;
