@@ -42,6 +42,7 @@ const XMLListPage: React.FC = () => {
     errors: string[];
   } | null>(null);
   const [xmlDetail, setXmlDetail] = useState<XmlDetalle | null>(null);
+  const [selectedDetailFile, setSelectedDetailFile] = useState<XMLFile | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [loadingRow, setLoadingRow] = useState<string | null>(null);
   const toast = useRef<Toast>(null);
@@ -131,6 +132,7 @@ const XMLListPage: React.FC = () => {
   const handleViewDetail = async (fileName: string) => {
     setDetailLoading(true);
     setDisplayDetailModal(true);
+    setSelectedDetailFile(xmlList.find((file) => file.fileName === fileName) || null);
     try {
       const data = await xmlService.parseXML(fileName);
       setXmlDetail(data);
@@ -629,9 +631,12 @@ const XMLListPage: React.FC = () => {
         onHide={() => {
           setDisplayDetailModal(false);
           setXmlDetail(null);
+          setSelectedDetailFile(null);
         }}
         xmlDetail={xmlDetail}
         loading={detailLoading}
+        fileName={selectedDetailFile?.fileName}
+        fechaEmision={selectedDetailFile?.lastModified}
       />
 
       <Dialog
