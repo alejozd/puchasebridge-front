@@ -1,3 +1,5 @@
+import { useAuthStore } from "../store/authStore";
+
 export const BASE_URL = "http://localhost:9000";
 
 export const getHeaders = () => {
@@ -18,7 +20,7 @@ export const handleResponse = async (response: Response) => {
   if (response.status === 401) {
     localStorage.removeItem("token");
     if (window.location.pathname !== "/login") {
-      window.location.href = "/login";
+      useAuthStore.getState().setSessionExpired(true);
     }
     throw new Error("Sesión expirada");
   }
