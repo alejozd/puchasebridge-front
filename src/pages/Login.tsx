@@ -68,9 +68,7 @@ const Login: React.FC = () => {
               <span className="brand-name">PurchaseBridge</span>
             </div>
             <h1 className="brand-headline">
-              Importación y <br />
-              escaneo de <br />
-              facturas.
+              Importación y escaneo de facturas.
             </h1>
             <p className="brand-description">
               Optimice su flujo de trabajo con nuestra avanzada tecnología de
