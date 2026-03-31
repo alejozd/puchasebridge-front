@@ -137,7 +137,6 @@ const Login: React.FC = () => {
                   toggleMask
                   required
                   className="login-input"
-                  inputStyle={{ width: "100%" }}
                 />
               </div>
             </div>

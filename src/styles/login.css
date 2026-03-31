@@ -189,10 +189,13 @@
   margin-left: 0.25rem;
 }
 
+/* Contenedor */
 .input-with-icon {
   position: relative;
+  width: 100%;
 }
 
+/* Icono */
 .input-icon {
   position: absolute;
   left: 1rem;
@@ -203,34 +206,38 @@
   z-index: 1;
 }
 
-/* Override PrimeReact styles */
-.login-input {
-  width: 100%;
+/* Input base */
+.login-input,
+.login-input .p-inputtext,
+.p-password.login-input,
+.p-password.login-input .p-inputtext {
+  width: 100% !important;
+  display: block;
 }
 
-.login-input.p-inputtext,
-.login-input .p-inputtext {
-  width: 100% !important; /* Esto soluciona la diferencia de ancho */
+/* Estilo visual unificado */
+.login-input .p-inputtext,
+.login-input.p-inputtext {
   padding: 1rem 1rem 1rem 3rem !important;
   background-color: var(--color-surface-container-low) !important;
   border: none !important;
   border-left: 2px solid transparent !important;
   border-radius: 0 !important;
-  transition: all 0.2s !important;
   font-size: 0.875rem !important;
   color: var(--color-on-surface) !important;
-  display: block; /* Asegura comportamiento de bloque */
 }
 
-.p-password.p-inputwrapper {
-    display: flex;
-    width: 100%;
-}
-
-.login-input.p-inputtext:focus,
-.login-input .p-inputtext:focus {
+/* Focus */
+.login-input .p-inputtext:focus,
+.login-input.p-inputtext:focus {
   border-left-color: var(--color-primary) !important;
   box-shadow: none !important;
+}
+
+/* Wrapper de Password */
+.p-password.login-input {
+  display: block;
+  width: 100%;
 }
 
 .error-msg {
@@ -262,25 +269,6 @@
 
 .submit-button:active {
   transform: scale(0.98);
-}
-
-/* Forzar que el contenedor del icono y el password ocupen todo el espacio */
-.input-with-icon {
-  position: relative;
-  width: 100%;
-  display: block;
-}
-
-/* Selector ultra-específico para el input interno de PrimeReact */
-.p-password.login-input,
-.p-password.login-input input {
-  width: 100% !important;
-}
-
-/* Esto asegura que el span que envuelve al input del password sea flexible */
-.p-password.p-component.p-inputwrapper {
-  display: flex;
-  width: 100%;
 }
 
 /* Background Decor */
