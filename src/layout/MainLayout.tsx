@@ -74,9 +74,14 @@ const MainLayout: React.FC = () => {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="footer-company">ZambranoSoft</div>
-          <div className="footer-meta">
-            v{packageJson.version} • {new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+          <div className="footer-card">
+            <div className="footer-company">ZambranoSoft</div>
+            <div className="footer-meta">
+              v{packageJson.version} • {new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+            </div>
+          </div>
+          <div className="footer-collapsed-info">
+            <span title={`v${packageJson.version}`}>v{packageJson.version}</span>
           </div>
         </div>
       </aside>
