@@ -84,6 +84,7 @@
   gap: 1rem;
   padding: 1rem;
   background-color: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border-radius: var(--radius-lg);
   margin-bottom: 1.5rem;
@@ -209,6 +210,7 @@
 
 .login-input.p-inputtext,
 .login-input .p-inputtext {
+  width: 100% !important; /* Esto soluciona la diferencia de ancho */
   padding: 1rem 1rem 1rem 3rem !important;
   background-color: var(--color-surface-container-low) !important;
   border: none !important;
@@ -217,6 +219,12 @@
   transition: all 0.2s !important;
   font-size: 0.875rem !important;
   color: var(--color-on-surface) !important;
+  display: block; /* Asegura comportamiento de bloque */
+}
+
+.p-password.p-inputwrapper {
+    display: flex;
+    width: 100%;
 }
 
 .login-input.p-inputtext:focus,
@@ -254,6 +262,25 @@
 
 .submit-button:active {
   transform: scale(0.98);
+}
+
+/* Forzar que el contenedor del icono y el password ocupen todo el espacio */
+.input-with-icon {
+  position: relative;
+  width: 100%;
+  display: block;
+}
+
+/* Selector ultra-específico para el input interno de PrimeReact */
+.p-password.login-input,
+.p-password.login-input input {
+  width: 100% !important;
+}
+
+/* Esto asegura que el span que envuelve al input del password sea flexible */
+.p-password.p-component.p-inputwrapper {
+  display: flex;
+  width: 100%;
 }
 
 /* Background Decor */
