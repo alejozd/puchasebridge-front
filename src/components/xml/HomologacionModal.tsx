@@ -32,13 +32,27 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
 
+  const handleSearchProductos = useCallback(async (query: string) => {
+    const trimmedQuery = query?.trim();
+    if (!trimmedQuery) {
+      setProductosERP([]);
+      return;
+    }
+
+    try {
+      const result = await erpService.searchErpProductos(trimmedQuery);
+      setProductosERP(result);
+    } catch {
+      setProductosERP([]);
+    }
+  }, []);
+
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [docData, erpUnits, erpProducts] = await Promise.all([
+      const [docData, erpUnits] = await Promise.all([
         xmlService.getProductosDocumento(fileName),
-        erpService.getErpUnidades(),
-        erpService.searchErpProductos('')
+        erpService.getErpUnidades()
       ]);
 
       const mapped: ProductoMapeoPage[] = docData.productos.map((p) => ({
@@ -58,7 +72,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
 
       setItems(mapped);
       setUnidadesERP(erpUnits);
-      setProductosERP(erpProducts);
+      setProductosERP([]);
       setTotales({
         totalProductos: docData.totalProductos,
         totalPendientes: docData.totalPendientes,
@@ -220,6 +234,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({ visible, onHide, 
           unidadesERP={unidadesERP}
           loading={loading}
           modo="modal"
+          onSearchProductos={handleSearchProductos}
         />
       </div>
     </Dialog>

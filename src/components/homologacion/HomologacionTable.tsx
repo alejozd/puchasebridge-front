@@ -14,6 +14,7 @@ interface HomologacionTableProps {
     unidadesERP: UnidadERP[];
     loading?: boolean;
     modo?: 'modal' | 'page';
+    onSearchProductos?: (query: string) => Promise<void> | void;
 }
 
 const HomologacionTable: React.FC<HomologacionTableProps> = ({
@@ -22,7 +23,8 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
     productosERP,
     unidadesERP,
     loading = false,
-    modo = 'page'
+    modo = 'page',
+    onSearchProductos
 }) => {
     const updateItem = (referenciaXML: string, changes: Partial<ProductoMapeoPage>) => {
         setItems(prev => prev.map(item => item.referenciaXML === referenciaXML ? { ...item, ...changes } : item));
@@ -79,7 +81,15 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
             return <span className="text-sm font-semibold text-primary">{rowData.productoSistema || 'Sin asignar'}</span>;
         }
 
-        const selectedProduct = productosERP.find(prod => prod.referencia === rowData.referenciaErp) || null;
+        const selectedProduct = productosERP.find(prod => prod.referencia === rowData.referenciaErp)
+            || (rowData.referenciaErp
+                ? {
+                    referencia: rowData.referenciaErp,
+                    nombre: rowData.nombreErp || rowData.productoSistema || 'Producto seleccionado',
+                    codigo: rowData.codigoErp || 0,
+                    subcodigo: rowData.subcodigoErp || 0
+                }
+                : null);
 
         return (
             <Dropdown
@@ -113,6 +123,7 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
                 className="w-full"
                 filter
                 showClear
+                onFilter={(e) => onSearchProductos?.(e.filter)}
             />
         );
     };

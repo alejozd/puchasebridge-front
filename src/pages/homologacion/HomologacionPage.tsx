@@ -23,6 +23,21 @@ const HomologacionPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const toast = useRef<Toast>(null);
 
+    const handleSearchProductos = useCallback(async (query: string) => {
+        const trimmedQuery = query?.trim();
+        if (!trimmedQuery) {
+            setProductosERP([]);
+            return;
+        }
+
+        try {
+            const result = await erpService.searchErpProductos(trimmedQuery);
+            setProductosERP(result);
+        } catch {
+            setProductosERP([]);
+        }
+    }, []);
+
     const loadXmlFiles = useCallback(async () => {
         try {
             const files = await xmlService.getXMLList();
@@ -35,10 +50,9 @@ const HomologacionPage: React.FC = () => {
     const loadProducts = useCallback(async (fileName: string) => {
         setLoading(true);
         try {
-            const [documentData, erpUnits, erpProducts] = await Promise.all([
+            const [documentData, erpUnits] = await Promise.all([
                 xmlService.getProductosDocumento(fileName),
-                erpService.getErpUnidades(),
-                erpService.searchErpProductos('')
+                erpService.getErpUnidades()
             ]);
 
             const mappedItems: ProductoMapeoPage[] = documentData.productos.map(p => ({
@@ -58,7 +72,7 @@ const HomologacionPage: React.FC = () => {
 
             setItems(mappedItems);
             setUnidadesERP(erpUnits);
-            setProductosERP(erpProducts);
+            setProductosERP([]);
         } catch {
             toast.current?.show({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los productos del archivo.', life: 3000 });
         } finally {
@@ -253,6 +267,7 @@ const HomologacionPage: React.FC = () => {
                     unidadesERP={unidadesERP}
                     loading={loading}
                     modo="page"
+                    onSearchProductos={handleSearchProductos}
                 />
 
                 <div className="table-footer">
