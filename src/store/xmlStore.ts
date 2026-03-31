@@ -41,6 +41,13 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       logger.log('[MAPPED SIZE]', processedData);
       set({ xmlList: processedData, loading: false });
     } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        alert(error.message);
+      } else {
+        console.error("Error desconocido", error);
+        alert("Ocurrió un error inesperado");
+      }
       logUnknownError(error, logger.error);
       set({ loading: false });
       throw error;
@@ -55,6 +62,13 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       await get().fetchXMLList();
       set({ loading: false });
     } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        alert(error.message);
+      } else {
+        console.error("Error desconocido", error);
+        alert("Ocurrió un error inesperado");
+      }
       logUnknownError(error, logger.error);
       set({ loading: false });
       throw error;
@@ -135,6 +149,13 @@ export const useXMLStore = create<XMLState>((set, get) => ({
 
       set({ xmlList: updatedList, validating: false });
     } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        alert(error.message);
+      } else {
+        console.error("Error desconocido", error);
+        alert("Ocurrió un error inesperado");
+      }
       logUnknownError(error, logger.error);
       set({ validating: false });
       throw error;
@@ -155,6 +176,13 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       }
       return response;
     } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        alert(error.message);
+      } else {
+        console.error("Error desconocido", error);
+        alert("Ocurrió un error inesperado");
+      }
       logUnknownError(error, logger.error);
       set({ processing: false });
       throw error;

@@ -31,13 +31,14 @@ const HomologacionPage: React.FC = () => {
             const files = await xmlService.getXMLList();
             setXmlFiles(files);
         } catch (e: unknown) {
+            if (e instanceof Error) {
+                console.error(e.message);
+                alert(e.message);
+            } else {
+                console.error("Error desconocido", e);
+                alert("Ocurrió un error inesperado");
+            }
             logUnknownError(e, logger.error);
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: extractErrorMessage(e, 'No se pudo cargar la lista de archivos XML.'),
-                life: 3000
-            });
         }
     }, []);
 
@@ -52,6 +53,7 @@ const HomologacionPage: React.FC = () => {
                 return results[0];
             }
         } catch (e: unknown) {
+            // Silently fail for background suggestions but log it
             logUnknownError(e, logger.error);
             return null;
         }
@@ -115,13 +117,14 @@ const HomologacionPage: React.FC = () => {
             }));
 
         } catch (e: unknown) {
+            if (e instanceof Error) {
+                console.error(e.message);
+                alert(e.message);
+            } else {
+                console.error("Error desconocido", e);
+                alert("Ocurrió un error inesperado");
+            }
             logUnknownError(e, logger.error);
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: extractErrorMessage(e, 'No se pudieron cargar los productos del archivo.'),
-                life: 3000
-            });
         } finally {
             setLoading(false);
         }
@@ -171,6 +174,13 @@ const HomologacionPage: React.FC = () => {
                 item.referenciaXML === rowData.referenciaXML ? { ...item, erpSuggestions: suggestions } : item
             ));
         } catch (e: unknown) {
+            if (e instanceof Error) {
+                console.error(e.message);
+                alert(e.message);
+            } else {
+                console.error("Error desconocido", e);
+                alert("Ocurrió un error inesperado");
+            }
             logUnknownError(e, logger.error);
             // Silently fail
         }
@@ -252,94 +262,20 @@ const HomologacionPage: React.FC = () => {
                 return false;
             }
         } catch (e: unknown) {
-            logUnknownError(e, logger.error);
             if (!silent) {
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: extractErrorMessage(e, 'No se pudo guardar la homologación.'),
-                    life: 3000
-                });
+                if (e instanceof Error) {
+                    console.error(e.message);
+                    alert(e.message);
+                } else {
+                    console.error("Error desconocido", e);
+                    alert("Ocurrió un error inesperado");
+                }
             }
+            logUnknownError(e, logger.error);
             return false;
         }
     };
 
-    const handleExport = () => {
-        if (!selectedXml || filteredItems.length === 0) return;
-
-        const dataToExport = filteredItems.map(item => ({
-            referenciaXML: item.referenciaXML,
-            nombreXML: item.nombreProducto,
-            referenciaERP: item.referenciaErp || '',
-            nombreERP: item.nombreErp || '',
-            unidadERP: unidades.find(u => u.codigo === item.unidadErp)?.sigla || item.unidadErp || ''
-        }));
-
-        const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `mapeo-${selectedXml}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        toast.current?.show({
-            severity: 'success',
-            summary: 'Exportación completada',
-            detail: 'El archivo de mapeo ha sido descargado.',
-            life: 3000
-        });
-    };
-
-    const handleSaveAll = async () => {
-        const toSave = items.filter(i => i.estado?.toLowerCase() === 'pendiente' && i.referenciaErp);
-
-        if (toSave.length === 0) {
-            toast.current?.show({
-                severity: 'info',
-                summary: 'Sin cambios',
-                detail: 'No hay productos pendientes con asignación ERP para guardar.',
-                life: 3000
-            });
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const results = await Promise.all(toSave.map(item => handleSave(item, true)));
-            const savedCount = results.filter(r => r).length;
-
-            if (savedCount > 0) {
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Guardado Masivo',
-                    detail: `Se han guardado ${savedCount} homologaciones con éxito.`,
-                    life: 3000
-                });
-                loadProducts(selectedXml!);
-            } else {
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No se pudieron guardar los cambios.',
-                    life: 3000
-                });
-            }
-        } catch (e: unknown) {
-            logUnknownError(e, logger.error);
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: extractErrorMessage(e, 'Ocurrió un error inesperado al guardar los cambios.'),
-                life: 3000
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleProcess = async () => {
         if (!selectedXml) return;
@@ -414,23 +350,6 @@ const HomologacionPage: React.FC = () => {
                 <div className="title-area">
                     <PageTitle title="Homologación de Productos" />
                     <p className="header-description">Vincule los items recibidos del XML con el catálogo maestro de Helisa.</p>
-                </div>
-                <div className="header-actions">
-                    <Button
-                        label="Exportar Mapeo"
-                        icon="pi pi-download"
-                        outlined
-                        className="btn-export"
-                        onClick={handleExport}
-                        disabled={!selectedXml || filteredItems.length === 0}
-                    />
-                    <Button
-                        label="Guardar Cambios Seleccionados"
-                        icon="pi pi-check-circle"
-                        onClick={handleSaveAll}
-                        className="btn-save-main"
-                        disabled={!selectedXml}
-                    />
                 </div>
             </div>
 
@@ -541,12 +460,12 @@ const HomologacionPage: React.FC = () => {
                     <i className={isReadyToProcess ? "pi pi-check-circle text-success" : "pi pi-exclamation-triangle text-warning"}></i>
                 </div>
                 <Button
-                    icon={isReadyToProcess ? "pi pi-send" : "pi pi-save"}
+                    icon={isReadyToProcess ? "pi pi-send" : "pi pi-info-circle"}
                     rounded
                     className={`btn-floating-save ${isReadyToProcess ? 'ready' : 'not-ready'}`}
-                    onClick={isReadyToProcess ? handleProcess : handleSaveAll}
-                    disabled={!selectedXml || (items.length === 0)}
-                    tooltip={isReadyToProcess ? "Procesar Archivo" : "Guardar cambios pendientes"}
+                    onClick={isReadyToProcess ? handleProcess : undefined}
+                    disabled={!selectedXml || (items.length === 0) || !isReadyToProcess}
+                    tooltip={isReadyToProcess ? "Procesar Archivo" : "Faltan homologaciones"}
                 />
             </div>
         </div>

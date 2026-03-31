@@ -24,6 +24,13 @@ export const useXmlFiles = () => {
       }));
       setFiles(normalizedData);
     } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        alert(err.message);
+      } else {
+        console.error("Error desconocido", err);
+        alert("Ocurrió un error inesperado");
+      }
       setError(extractErrorMessage(err, 'Error al cargar la lista de archivos XML'));
       logUnknownError(err, logger.error);
     } finally {

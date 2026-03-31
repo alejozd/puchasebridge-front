@@ -9,7 +9,7 @@ import { getDashboardMetrics } from "../services/xmlService";
 import type { DashboardMetrics, XMLFile } from "../types/xml";
 import "../styles/dashboard.css";
 import { logger } from '../utils/logger';
-import { extractErrorMessage, logUnknownError } from "../utils/apiHandler";
+import { logUnknownError } from "../utils/apiHandler";
 
 const Dashboard: React.FC = () => {
   const { xmlList, loading: loadingFiles, fetchXMLList } = useXMLStore();
@@ -27,11 +27,14 @@ const Dashboard: React.FC = () => {
       ]);
       setMetrics(metricsData);
     } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        alert(err.message);
+      } else {
+        console.error("Error desconocido", err);
+        alert("Ocurrió un error inesperado");
+      }
       logUnknownError(err, logger.error);
-      setError(extractErrorMessage(
-        err,
-        "No se pudieron cargar los datos del dashboard. Reintentando...",
-      ));
     } finally {
       setLoadingMetrics(false);
     }

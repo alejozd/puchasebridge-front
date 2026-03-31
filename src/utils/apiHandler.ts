@@ -45,6 +45,29 @@ export const handleUnauthorized = () => {
   }
 };
 
+export const handleResponse = async (response: Response) => {
+  if (response.status === 401) {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+    throw new Error("Sesión expirada");
+  }
+
+  if (!response.ok) {
+    let errorMessage = "Error en la petición";
+
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch {
+      // respuesta no es JSON
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};
+
 export const normalizeAxiosError = (error: unknown): Error => {
   if (axios.isAxiosError(error)) {
     const status = error.response?.status;

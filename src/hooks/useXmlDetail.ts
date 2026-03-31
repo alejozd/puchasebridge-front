@@ -1,19 +1,16 @@
 import { useState, useCallback } from 'react';
-import { getXMLFileDetail, validateXML, procesarXML } from '../services/xmlService';
-import type { XMLFileDetail, XMLValidationResult, XMLProcesarResponse } from '../types/xml';
+import { getXMLFileDetail, procesarXML } from '../services/xmlService';
+import type { XMLFileDetail, XMLProcesarResponse } from '../types/xml';
 import { logger } from '../utils/logger';
-import { extractErrorMessage, logUnknownError } from '../utils/apiHandler';
+import { logUnknownError } from '../utils/apiHandler';
 
 export const useXmlDetail = () => {
   const [detail, setDetail] = useState<XMLFileDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [validating, setValidating] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchDetail = useCallback(async (id: number) => {
     setLoading(true);
-    setError(null);
     try {
       const data = await getXMLFileDetail(id);
       logger.log('DETAIL RESPONSE:', data);
@@ -42,7 +39,13 @@ export const useXmlDetail = () => {
 
       setDetail(normalizedDetail);
     } catch (err: unknown) {
-      setError(extractErrorMessage(err, 'Error al cargar el detalle del archivo XML'));
+      if (err instanceof Error) {
+        console.error(err.message);
+        alert(err.message);
+      } else {
+        console.error("Error desconocido", err);
+        alert("Ocurrió un error inesperado");
+      }
       logUnknownError(err, logger.error);
       setDetail(null);
     } finally {
@@ -50,25 +53,19 @@ export const useXmlDetail = () => {
     }
   }, []);
 
-  const validate = async (fileName: string): Promise<XMLValidationResult | null> => {
-    setValidating(true);
-    try {
-      const result = await validateXML(fileName);
-      return result;
-    } catch (err: unknown) {
-      logUnknownError(err, logger.error);
-      return null;
-    } finally {
-      setValidating(false);
-    }
-  };
-
   const procesar = async (files: string[]): Promise<XMLProcesarResponse | null> => {
     setProcessing(true);
     try {
       const result = await procesarXML(files);
       return result;
     } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        alert(err.message);
+      } else {
+        console.error("Error desconocido", err);
+        alert("Ocurrió un error inesperado");
+      }
       logUnknownError(err, logger.error);
       return null;
     } finally {
@@ -79,11 +76,8 @@ export const useXmlDetail = () => {
   return {
     detail,
     loading,
-    validating,
     processing,
-    error,
     fetchDetail,
-    validate,
     procesar,
     setDetail
   };

@@ -7,7 +7,7 @@ import XmlTable from '../../components/procesamiento/XmlTable';
 import XmlDetail from '../../components/procesamiento/XmlDetail';
 import { useXmlFiles } from '../../hooks/useXmlFiles';
 import { useXmlDetail } from '../../hooks/useXmlDetail';
-import type { XMLFileItem, XMLValidationResult } from '../../types/xml';
+import type { XMLFileItem } from '../../types/xml';
 import '../../styles/procesamiento.css';
 
 const ProcesamientoPage: React.FC = () => {
@@ -21,10 +21,8 @@ const ProcesamientoPage: React.FC = () => {
     const {
         detail,
         loading: detailLoading,
-        validating,
         processing,
         fetchDetail,
-        validate,
         procesar,
         setDetail
     } = useXmlDetail();
@@ -33,7 +31,6 @@ const ProcesamientoPage: React.FC = () => {
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [confirmBatchDialog, setConfirmBatchDialog] = useState(false);
     const [confirmIndividualDialog, setConfirmIndividualDialog] = useState(false);
-    const [validationResult, setValidationResult] = useState<XMLValidationResult | null>(null);
     const [generatedDoc, setGeneratedDoc] = useState<string | null>(null);
     const toast = useRef<Toast>(null);
     const processableFiles = selectedFiles.filter(
@@ -42,131 +39,115 @@ const ProcesamientoPage: React.FC = () => {
 
     const handleRowClick = (id: number) => {
         setSelectedId(id);
-        setValidationResult(null);
         setGeneratedDoc(null);
         fetchDetail(id);
-    };
-
-    const handleValidate = async () => {
-        if (!detail) return;
-
-        const result = await validate(detail.fileName);
-        if (result) {
-            setValidationResult(result);
-            if (result.valido) {
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Validación exitosa',
-                    detail: 'El documento es válido para su procesamiento.',
-                    life: 3000
-                });
-                setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: 'VALIDADO' } : f));
-            } else {
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Errores de validación',
-                    detail: `Se encontraron ${result.errores.length} errores.`,
-                    life: 5000
-                });
-                setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: 'ERROR' } : f));
-            }
-            await fetchDetail(detail.id);
-            refreshFiles();
-        } else {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No se pudo completar la validación.',
-                life: 3000
-            });
-        }
     };
 
     const handleProcesarIndividual = async () => {
         if (!detail) return;
         if (detail.estado.toUpperCase() === 'PROCESADO') return;
 
-        const result = await procesar([detail.fileName]);
-        if (!result) {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error al procesar el archivo',
-                life: 3000
-            });
-            return;
-        }
+        try {
+            const result = await procesar([detail.fileName]);
+            if (!result) {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error al procesar el archivo',
+                    life: 3000
+                });
+                return;
+            }
 
-        const procesados = result.procesados || [];
-        const errores = result.errores || [];
+            const procesados = result.procesados || [];
+            const errores = result.errores || [];
 
-        if (result.success || procesados.length > 0) {
-            const docId = result.documentoGenerado || procesados[0] || 'N/A';
-            setGeneratedDoc(docId);
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Éxito',
-                detail: 'Documento(s) procesado(s) correctamente',
-                life: 3000
-            });
-            setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: result.estado || 'PROCESADO' } : f));
-            setConfirmIndividualDialog(false);
-        }
+            if (result.success || procesados.length > 0) {
+                const docId = result.documentoGenerado || procesados[0] || 'N/A';
+                setGeneratedDoc(docId);
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: 'Documento(s) procesado(s) correctamente',
+                    life: 3000
+                });
+                setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: result.estado || 'PROCESADO' } : f));
+                setConfirmIndividualDialog(false);
+            }
 
-        if (errores.length > 0) {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Algunos documentos no pudieron procesarse',
-                life: 4000
-            });
+            if (errores.length > 0) {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Algunos documentos no pudieron procesarse',
+                    life: 4000
+                });
+            }
+            await fetchDetail(detail.id);
+            refreshFiles();
+        } catch (e: unknown) {
+            if (e instanceof Error) {
+                console.error(e.message);
+                alert(e.message);
+            } else {
+                console.error("Error desconocido", e);
+                alert("Ocurrió un error inesperado");
+            }
         }
-        await fetchDetail(detail.id);
-        refreshFiles();
     };
 
     const handleProcesarBatch = async () => {
         if (processableFiles.length === 0) return;
 
         const files = processableFiles.map(f => f.fileName);
-        const result = await procesar(files);
+        try {
+            const result = await procesar(files);
 
-        if (!result) {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error en el procesamiento masivo',
-                life: 3000
-            });
-            return;
-        }
+            if (!result) {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error en el procesamiento masivo',
+                    life: 3000
+                });
+                return;
+            }
 
-        const procesados = result.procesados || [];
-        const errores = result.errores || [];
+            const procesados = result.procesados || [];
+            const errores = result.errores || [];
 
-        if (procesados.length > 0) {
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Procesamiento Masivo',
-                detail: 'Documento(s) procesado(s) correctamente',
-                life: 3000
-            });
-            setSelectedFiles([]);
-            setConfirmBatchDialog(false);
-        }
+            if (procesados.length > 0) {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Procesamiento Masivo',
+                    detail: 'Documento(s) procesado(s) correctamente',
+                    life: 3000
+                });
+                setSelectedFiles([]);
+                setConfirmBatchDialog(false);
+            }
 
-        if (errores.length > 0) {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Algunos documentos no pudieron procesarse',
-                life: 4000
-            });
+            if (errores.length > 0) {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Algunos documentos no pudieron procesarse',
+                    life: 4000
+                });
+            }
+            if (selectedId) {
+                await fetchDetail(selectedId);
+            }
+            refreshFiles();
+        } catch (e: unknown) {
+            if (e instanceof Error) {
+                console.error(e.message);
+                alert(e.message);
+            } else {
+                console.error("Error desconocido", e);
+                alert("Ocurrió un error inesperado");
+            }
         }
-        if (selectedId) {
-            await fetchDetail(selectedId);
-        }
-        refreshFiles();
     };
 
     return (
@@ -231,12 +212,9 @@ const ProcesamientoPage: React.FC = () => {
                         {selectedId && detail ? (
                             <XmlDetail
                                 detail={detail}
-                                onValidate={handleValidate}
                                 onProcesar={() => setConfirmIndividualDialog(true)}
-                                validating={validating}
                                 processing={processing}
                                 loading={detailLoading}
-                                validationResult={validationResult}
                                 generatedDoc={generatedDoc}
                             />
                         ) : (

@@ -4,10 +4,10 @@ import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 import { Message } from "primereact/message";
 import { useNavigate } from "react-router-dom";
-import axiosClient from "../api/axiosClient";
 import { useAuthStore } from "../store/authStore";
 import "../styles/login.css";
-import { extractErrorMessage } from "../utils/apiHandler";
+import { logUnknownError } from "../utils/apiHandler";
+import { logger } from "../utils/logger";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -24,25 +24,35 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      const response = await axiosClient.post(
-        "/auth/login",
-        {
+      const response = await fetch("http://localhost:9000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
           usuario: username,
           clave: password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        },
-      );
+        }),
+      });
 
-      const { usuario, empresa, token } = response.data;
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Error al iniciar sesión");
+      }
+
+      const { usuario, empresa, token } = data;
       login(usuario, empresa, token);
       navigate("/app");
     } catch (err: unknown) {
-      setError(extractErrorMessage(err, "Error al iniciar sesión"));
+      if (err instanceof Error) {
+        console.error(err.message);
+        alert(err.message);
+      } else {
+        console.error("Error desconocido", err);
+        alert("Ocurrió un error inesperado");
+      }
+      logUnknownError(err, logger.error);
     } finally {
       setLoading(false);
     }

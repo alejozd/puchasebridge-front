@@ -6,29 +6,23 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Message } from 'primereact/message';
 import { Timeline } from 'primereact/timeline';
 import ProductTable from './ProductTable';
-import type { XMLFileDetail, XMLValidationResult } from '../../types/xml';
+import type { XMLFileDetail } from '../../types/xml';
 import './XmlDetail.css';
 import { logger } from '../../utils/logger';
 
 interface XmlDetailProps {
   detail: XMLFileDetail | null;
-  onValidate: () => void;
   onProcesar: () => void;
-  validating: boolean;
   processing: boolean;
   loading: boolean;
-  validationResult: XMLValidationResult | null;
   generatedDoc: string | null;
 }
 
 const XmlDetail: React.FC<XmlDetailProps> = ({
   detail,
-  onValidate,
   onProcesar,
-  validating,
   processing,
   loading,
-  validationResult,
   generatedDoc
 }) => {
   if (loading) {
@@ -154,27 +148,6 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
         </div>
       </div>
 
-      {/* VALIDATION SECTION */}
-      {validationResult && (
-        <div className={`validation-result-panel p-4 border-round mb-4 ${validationResult.valido ? 'bg-green-50' : 'bg-red-50'}`}>
-            <div className="flex align-items-center gap-3 mb-2">
-                <i className={`pi ${validationResult.valido ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-500'} text-xl`}></i>
-                <h4 className={`m-0 font-bold ${validationResult.valido ? 'text-green-800' : 'text-red-800'}`}>
-                    {validationResult.valido ? 'Documento válido para procesamiento' : 'Se encontraron errores de validación'}
-                </h4>
-            </div>
-            {!validationResult.valido && (
-                <ul className="m-0 pl-4 text-red-700 text-sm list-none">
-                    {validationResult.errores.map((err, i) => (
-                        <li key={i} className="mb-1 flex align-items-start gap-2">
-                            <i className="pi pi-circle-fill text-3xs mt-1"></i>
-                            {err}
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
-      )}
 
       {/* RESULT SECTION */}
       {generatedDoc && (
@@ -189,7 +162,7 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
         </div>
       )}
 
-      {hasPendingHomologation && !validationResult && detail.estado.toUpperCase() === 'CARGADO' && (
+      {hasPendingHomologation && detail.estado.toUpperCase() === 'CARGADO' && (
         <div className="alert-warning p-3 border-round mb-4 flex align-items-center gap-2">
           <i className="pi pi-exclamation-triangle"></i>
           <span className="text-sm font-semibold">Existen productos pendientes de homologación</span>
@@ -230,17 +203,6 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
           </div>
         )}
 
-        {detail.estado.toUpperCase() === 'CARGADO' && (
-            <Button
-                label="Iniciar Validación"
-                icon="pi pi-shield"
-                onClick={onValidate}
-                loading={validating}
-                disabled={processing || loading || hasPendingHomologation}
-                className={`p-button-lg shadow-2 ${hasPendingHomologation ? 'p-button-secondary' : 'p-button-primary'}`}
-                tooltip={hasPendingHomologation ? "Debe homologar todos los productos primero" : "Verificar consistencia del documento"}
-            />
-        )}
       </div>
     </div>
   );

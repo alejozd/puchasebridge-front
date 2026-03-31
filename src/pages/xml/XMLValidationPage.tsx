@@ -98,13 +98,14 @@ const XMLValidationPage: React.FC = () => {
         life: 3000,
       });
       setSelectedFiles([]);
-    } catch {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: "No se pudo completar la validación.",
-        life: 3000,
-      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        alert(err.message);
+      } else {
+        console.error("Error desconocido", err);
+        alert("Ocurrió un error inesperado");
+      }
     } finally {
       setValidatingFiles((prev) =>
         prev.filter((name) => !fileNamesToValidate.includes(name)),
