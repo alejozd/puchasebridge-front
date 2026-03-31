@@ -61,10 +61,6 @@ const MainLayout: React.FC = () => {
           </div>
         </div>
 
-        <button className="btn-new-entry" title={isCollapsed ? "Nueva Entrada" : ""}>
-          <i className="pi pi-plus"></i>
-          <span>Nueva Entrada</span>
-        </button>
 
         <nav className="layout-menu">
           {menuItems.map((item) => (
