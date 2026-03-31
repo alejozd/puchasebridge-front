@@ -79,7 +79,7 @@ const Login: React.FC = () => {
           </div>
           <div className="brand-footer">
             <p className="copyright">
-              © 2024 ZambranoSoft - Sistema lectura XML | v1.0.0
+              © 2026 ZambranoSoft - Sistema lectura XML | v0.1.0
             </p>
           </div>
         </div>
