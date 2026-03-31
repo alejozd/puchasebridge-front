@@ -13,6 +13,8 @@ import type { XMLFile, HomologarPayload } from '../../types/xml';
 import type { ProductoMapeo } from '../../types/homologacion';
 import type { ErpProducto, ErpUnidad } from '../../services/erpService';
 import '../../styles/homologacion.css';
+import { logger } from '../../utils/logger';
+import { extractErrorMessage, logUnknownError } from '../../utils/apiHandler';
 
 const HomologacionPage: React.FC = () => {
     const [items, setItems] = useState<ProductoMapeo[]>([]);
@@ -24,20 +26,16 @@ const HomologacionPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const toast = useRef<Toast>(null);
 
-    const getErrorMessage = (e: unknown): string => {
-        if (e instanceof Error) return e.message;
-        return 'Error desconocido';
-    };
-
     const loadXmlFiles = useCallback(async () => {
         try {
             const files = await xmlService.getXMLList();
             setXmlFiles(files);
-        } catch {
+        } catch (e: unknown) {
+            logUnknownError(e, logger.error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'No se pudo cargar la lista de archivos XML.',
+                detail: extractErrorMessage(e, 'No se pudo cargar la lista de archivos XML.'),
                 life: 3000
             });
         }
@@ -54,7 +52,7 @@ const HomologacionPage: React.FC = () => {
                 return results[0];
             }
         } catch (e: unknown) {
-            console.error(getErrorMessage(e));
+            logUnknownError(e, logger.error);
             return null;
         }
         return null;
@@ -116,11 +114,12 @@ const HomologacionPage: React.FC = () => {
                 return p;
             }));
 
-        } catch {
+        } catch (e: unknown) {
+            logUnknownError(e, logger.error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'No se pudieron cargar los productos del archivo.',
+                detail: extractErrorMessage(e, 'No se pudieron cargar los productos del archivo.'),
                 life: 3000
             });
         } finally {
@@ -171,7 +170,8 @@ const HomologacionPage: React.FC = () => {
             setItems(prev => prev.map(item =>
                 item.referenciaXML === rowData.referenciaXML ? { ...item, erpSuggestions: suggestions } : item
             ));
-        } catch {
+        } catch (e: unknown) {
+            logUnknownError(e, logger.error);
             // Silently fail
         }
     };
@@ -251,12 +251,13 @@ const HomologacionPage: React.FC = () => {
                 }
                 return false;
             }
-        } catch {
+        } catch (e: unknown) {
+            logUnknownError(e, logger.error);
             if (!silent) {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'No se pudo guardar la homologación.',
+                    detail: extractErrorMessage(e, 'No se pudo guardar la homologación.'),
                     life: 3000
                 });
             }
@@ -328,11 +329,11 @@ const HomologacionPage: React.FC = () => {
                 });
             }
         } catch (e: unknown) {
-            console.error(getErrorMessage(e));
+            logUnknownError(e, logger.error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Ocurrió un error inesperado al guardar los cambios.',
+                detail: extractErrorMessage(e, 'Ocurrió un error inesperado al guardar los cambios.'),
                 life: 3000
             });
         } finally {
@@ -365,11 +366,11 @@ const HomologacionPage: React.FC = () => {
                 });
             }
         } catch (e: unknown) {
-            console.error(getErrorMessage(e));
+            logUnknownError(e, logger.error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'No se pudo procesar el archivo.',
+                detail: extractErrorMessage(e, 'No se pudo procesar el archivo.'),
                 life: 3000
             });
         } finally {

@@ -8,7 +8,7 @@ export const procesarDocumentos = async (ids: number[]): Promise<void> => {
         // We make the call to the client
         await axiosClient.post("/documentos/procesar", { ids });
         resolve();
-      } catch (error) {
+      } catch (error: unknown) {
         // Fallback or specific error handling can go here
         reject(error);
       }

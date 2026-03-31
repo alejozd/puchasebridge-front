@@ -8,6 +8,8 @@ import { useXMLStore } from "../store/xmlStore";
 import { getDashboardMetrics } from "../services/xmlService";
 import type { DashboardMetrics, XMLFile } from "../types/xml";
 import "../styles/dashboard.css";
+import { logger } from '../utils/logger';
+import { extractErrorMessage, logUnknownError } from "../utils/apiHandler";
 
 const Dashboard: React.FC = () => {
   const { xmlList, loading: loadingFiles, fetchXMLList } = useXMLStore();
@@ -24,11 +26,12 @@ const Dashboard: React.FC = () => {
         fetchXMLList(),
       ]);
       setMetrics(metricsData);
-    } catch (err) {
-      console.error("Error loading dashboard data:", err);
-      setError(
+    } catch (err: unknown) {
+      logUnknownError(err, logger.error);
+      setError(extractErrorMessage(
+        err,
         "No se pudieron cargar los datos del dashboard. Reintentando...",
-      );
+      ));
     } finally {
       setLoadingMetrics(false);
     }
@@ -39,8 +42,8 @@ const Dashboard: React.FC = () => {
       const metricsData = await getDashboardMetrics();
       setMetrics(metricsData);
       // We don't refresh the XML list here to avoid visual reflow
-    } catch (err) {
-      console.error("Error silent refreshing dashboard metrics:", err);
+    } catch (err: unknown) {
+      logUnknownError(err, logger.error);
     }
   }, []);
 

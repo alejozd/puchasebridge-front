@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { logger } from '../../utils/logger';
 import {
   DataTable,
   type DataTableSelectionMultipleChangeEvent,
@@ -15,6 +16,7 @@ import { useXMLStore } from "../../store/xmlStore";
 import type { XMLFile, XmlDetalle } from "../../types/xml";
 import * as xmlService from "../../services/xmlService";
 import "../../styles/xml-validation.css";
+import { extractErrorMessage, logUnknownError } from "../../utils/apiHandler";
 
 const XMLValidationPage: React.FC = () => {
   const { xmlList, loading, validating, fetchXMLList, validateFiles } =
@@ -39,7 +41,7 @@ const XMLValidationPage: React.FC = () => {
   const toast = useRef<Toast>(null);
 
   useEffect(() => {
-    console.log("[PAGE] XMLValidationPage mounted");
+    logger.log("[PAGE] XMLValidationPage mounted");
     fetchXMLList();
   }, [fetchXMLList]);
 
@@ -51,11 +53,11 @@ const XMLValidationPage: React.FC = () => {
       const data = await xmlService.parseXML(fileName);
       setXmlDetail(data);
     } catch (error: unknown) {
-      console.error("Error parsing XML:", error);
+      logUnknownError(error, logger.error);
       toast.current?.show({
         severity: "error",
         summary: "Error",
-        detail: "No se pudo obtener el detalle del XML.",
+        detail: extractErrorMessage(error, "No se pudo obtener el detalle del XML."),
         life: 3000,
       });
       setDisplayDetailModal(false);

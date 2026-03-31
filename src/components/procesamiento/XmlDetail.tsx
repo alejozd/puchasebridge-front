@@ -8,6 +8,7 @@ import { Timeline } from 'primereact/timeline';
 import ProductTable from './ProductTable';
 import type { XMLFileDetail, XMLValidationResult } from '../../types/xml';
 import './XmlDetail.css';
+import { logger } from '../../utils/logger';
 
 interface XmlDetailProps {
   detail: XMLFileDetail | null;
@@ -48,7 +49,7 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
     );
   }
 
-  console.log(detail.productos);
+  logger.log(detail.productos);
 
   const hasPendingHomologation = detail.productos.some(
     p => p.estadoProducto === 'PENDIENTE'

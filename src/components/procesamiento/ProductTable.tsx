@@ -5,13 +5,14 @@ import { Tag } from 'primereact/tag';
 import { Tooltip } from 'primereact/tooltip';
 import type { XMLProduct } from '../../types/xml';
 import '../../styles/procesamiento.css';
+import { logger } from '../../utils/logger';
 
 interface ProductTableProps {
   productos: XMLProduct[];
 }
 
 const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
-  console.log('productos', productos);
+  logger.log('productos', productos);
 
   const homologationBodyTemplate = (rowData: XMLProduct) => {
     return (

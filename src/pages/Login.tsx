@@ -6,8 +6,8 @@ import { Message } from "primereact/message";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
 import { useAuthStore } from "../store/authStore";
-import { AxiosError } from "axios";
 import "../styles/login.css";
+import { extractErrorMessage } from "../utils/apiHandler";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -42,11 +42,7 @@ const Login: React.FC = () => {
       login(usuario, empresa, token);
       navigate("/app");
     } catch (err: unknown) {
-      let errorMessage = "Error al iniciar sesión";
-      if (err instanceof AxiosError && err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      }
-      setError(errorMessage);
+      setError(extractErrorMessage(err, "Error al iniciar sesión"));
     } finally {
       setLoading(false);
     }

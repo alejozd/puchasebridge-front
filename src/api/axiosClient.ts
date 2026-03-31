@@ -1,4 +1,5 @@
 import axios from "axios";
+import { normalizeAxiosError } from "../utils/apiHandler";
 
 const axiosClient = axios.create({
   baseURL: "http://localhost:9000",
@@ -13,5 +14,10 @@ axiosClient.interceptors.request.use((config) => {
 
   return config;
 });
+
+axiosClient.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => Promise.reject(normalizeAxiosError(error)),
+);
 
 export default axiosClient;
