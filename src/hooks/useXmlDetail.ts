@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { getXMLFileDetail, validateXML, procesarXML } from '../services/xmlService';
 import type { XMLFileDetail, XMLValidationResult, XMLProcesarResponse } from '../types/xml';
 import { logger } from '../utils/logger';
+import { extractErrorMessage, logUnknownError } from '../utils/apiHandler';
 
 export const useXmlDetail = () => {
   const [detail, setDetail] = useState<XMLFileDetail | null>(null);
@@ -40,9 +41,9 @@ export const useXmlDetail = () => {
       };
 
       setDetail(normalizedDetail);
-    } catch (err) {
-      setError('Error al cargar el detalle del archivo XML');
-      logger.error(err);
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err, 'Error al cargar el detalle del archivo XML'));
+      logUnknownError(err, logger.error);
       setDetail(null);
     } finally {
       setLoading(false);
@@ -54,8 +55,8 @@ export const useXmlDetail = () => {
     try {
       const result = await validateXML(fileName);
       return result;
-    } catch (err) {
-      logger.error('Error durante la validación:', err);
+    } catch (err: unknown) {
+      logUnknownError(err, logger.error);
       return null;
     } finally {
       setValidating(false);
@@ -67,8 +68,8 @@ export const useXmlDetail = () => {
     try {
       const result = await procesarXML(files);
       return result;
-    } catch (err) {
-      logger.error('Error durante el procesamiento:', err);
+    } catch (err: unknown) {
+      logUnknownError(err, logger.error);
       return null;
     } finally {
       setProcessing(false);

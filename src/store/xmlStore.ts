@@ -3,6 +3,7 @@ import type { XMLFile, ValidationResult, BackendValidationResponse, XMLProcesarR
 import { getXMLFiles, uploadXML, validateXMLFile, procesarDocumentos } from "../services/xmlService";
 import { fixEncoding } from "../utils/textUtils";
 import { logger } from '../utils/logger';
+import { logUnknownError } from "../utils/apiHandler";
 
 interface XMLState {
   xmlList: XMLFile[];
@@ -39,8 +40,8 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       }));
       logger.log('[MAPPED SIZE]', processedData);
       set({ xmlList: processedData, loading: false });
-    } catch (error) {
-      logger.error("Error fetching XML list:", error);
+    } catch (error: unknown) {
+      logUnknownError(error, logger.error);
       set({ loading: false });
       throw error;
     }
@@ -53,8 +54,8 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       // Refresh the list after successful upload
       await get().fetchXMLList();
       set({ loading: false });
-    } catch (error) {
-      logger.error("Error uploading XML:", error);
+    } catch (error: unknown) {
+      logUnknownError(error, logger.error);
       set({ loading: false });
       throw error;
     }
@@ -133,8 +134,8 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       });
 
       set({ xmlList: updatedList, validating: false });
-    } catch (error) {
-      logger.error("Error validating XML files:", error);
+    } catch (error: unknown) {
+      logUnknownError(error, logger.error);
       set({ validating: false });
       throw error;
     }
@@ -153,8 +154,8 @@ export const useXMLStore = create<XMLState>((set, get) => ({
         set({ processing: false });
       }
       return response;
-    } catch (error) {
-      logger.error("Error processing XML files:", error);
+    } catch (error: unknown) {
+      logUnknownError(error, logger.error);
       set({ processing: false });
       throw error;
     }

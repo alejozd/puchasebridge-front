@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getXMLFiles } from '../services/xmlService';
 import type { XMLFileItem } from '../types/xml';
 import { logger } from '../utils/logger';
+import { extractErrorMessage, logUnknownError } from '../utils/apiHandler';
 
 export const useXmlFiles = () => {
   const [files, setFiles] = useState<XMLFileItem[]>([]);
@@ -22,9 +23,9 @@ export const useXmlFiles = () => {
         fechaCarga: item.fecha_carga || item.fechaCarga || ''
       }));
       setFiles(normalizedData);
-    } catch (err) {
-      setError('Error al cargar la lista de archivos XML');
-      logger.error(err);
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err, 'Error al cargar la lista de archivos XML'));
+      logUnknownError(err, logger.error);
     } finally {
       setLoading(false);
     }

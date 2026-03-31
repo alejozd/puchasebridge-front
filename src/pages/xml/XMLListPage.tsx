@@ -22,6 +22,7 @@ import type { XMLFile, XmlDetalle } from "../../types/xml";
 import * as xmlService from "../../services/xmlService";
 import { fixEncoding } from "../../utils/textUtils";
 import "../../styles/xml-list.css";
+import { extractErrorMessage, logUnknownError } from "../../utils/apiHandler";
 
 const XMLListPage: React.FC = () => {
   const {
@@ -138,11 +139,11 @@ const XMLListPage: React.FC = () => {
       const data = await xmlService.parseXML(fileName);
       setXmlDetail(data);
     } catch (error: unknown) {
-      logger.error("Error parsing XML:", error);
+      logUnknownError(error, logger.error);
       toast.current?.show({
         severity: "error",
         summary: "Error",
-        detail: "No se pudo obtener el detalle del XML.",
+        detail: extractErrorMessage(error, "No se pudo obtener el detalle del XML."),
         life: 3000,
       });
       setDisplayDetailModal(false);
