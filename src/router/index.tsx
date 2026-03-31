@@ -46,10 +46,6 @@ export const router = createBrowserRouter([
             path: "procesamiento",
             element: <ProcesamientoPage />,
           },
-          {
-            path: "configuracion",
-            element: <div>Configuración (Proximamente)</div>,
-          },
         ],
       },
     ],
