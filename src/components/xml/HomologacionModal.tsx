@@ -15,7 +15,8 @@ import { Toast } from "primereact/toast";
 import { useXMLStore } from "../../store/xmlStore";
 import * as xmlService from "../../services/xmlService";
 import * as erpService from "../../services/erpService";
-import type { ProductoPendiente, HomologarPayload } from "../../types/xml";
+import type { HomologarPayload } from "../../types/xml";
+import type { ProductoMapeo } from "../../types/homologacion";
 import type { ErpProducto, ErpUnidad } from "../../services/erpService";
 import HomologacionTable from "./HomologacionTable";
 import "../../styles/HomologacionModal.css";
@@ -25,21 +26,6 @@ interface HomologacionModalProps {
   onHide: () => void;
   fileName: string;
   onSuccess: () => void;
-}
-
-interface ProductoMapeo extends ProductoPendiente {
-  referenciaErp: string;
-  codigoErp?: number;
-  subcodigoErp?: number;
-  nombreErp?: string;
-  productoSistema?: string;
-  unidadErp: string;
-  unidadErpLabel?: string;
-  factor: number;
-  loading?: boolean;
-  searching?: boolean;
-  erpSuggestions?: ErpProducto[];
-  isEditing?: boolean;
 }
 
 type EstadoFiltro = "todos" | "pendiente" | "homologado";
@@ -132,7 +118,7 @@ const HomologacionModal: React.FC<HomologacionModalProps> = ({
       const searchMatch =
         p.nombreProducto.toLowerCase().includes(lowSearch) ||
         p.referenciaXML.toLowerCase().includes(lowSearch) ||
-        p.referenciaErp.toLowerCase().includes(lowSearch) ||
+        (p.referenciaErp || "").toLowerCase().includes(lowSearch) ||
         (p.productoSistema || "").toLowerCase().includes(lowSearch);
 
       return estadoMatch && searchMatch;

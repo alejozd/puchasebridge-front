@@ -9,23 +9,8 @@ import {
   type AutoCompleteChangeEvent,
 } from "primereact/autocomplete";
 import { InputNumber } from "primereact/inputnumber";
-import type { ProductoPendiente } from "../../types/xml";
 import type { ErpProducto, ErpUnidad } from "../../services/erpService";
-
-interface ProductoMapeo extends ProductoPendiente {
-  referenciaErp: string;
-  codigoErp?: number;
-  subcodigoErp?: number;
-  nombreErp?: string;
-  productoSistema?: string;
-  unidadErp: string;
-  unidadErpLabel?: string;
-  factor: number;
-  loading?: boolean;
-  searching?: boolean;
-  erpSuggestions?: ErpProducto[];
-  isEditing?: boolean;
-}
+import type { ProductoMapeo } from "../../types/homologacion";
 
 interface HomologacionTableProps {
   productos: ProductoMapeo[];
