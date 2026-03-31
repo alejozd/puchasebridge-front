@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { Tooltip } from "primereact/tooltip";
+import packageJson from "../../package.json";
 import "../styles/layout.css";
 
 const MainLayout: React.FC = () => {
@@ -53,7 +54,7 @@ const MainLayout: React.FC = () => {
           </button>
           <div className="sidebar-logo-text">
             <h1>PurchaseBridge</h1>
-            <p>ERP Precision</p>
+            <p>Procesamiento de Facturas XML</p>
           </div>
         </div>
 
@@ -73,10 +74,9 @@ const MainLayout: React.FC = () => {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-info">
-            <div className="company">ZambranoSoft</div>
-            <div className="date">{new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</div>
-            <div className="version">v0.0.0</div>
+          <div className="footer-company">ZambranoSoft</div>
+          <div className="footer-meta">
+            v{packageJson.version} • {new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
           </div>
         </div>
       </aside>
