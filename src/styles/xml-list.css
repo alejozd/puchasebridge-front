@@ -269,31 +269,50 @@
 /* Detail Modal V2 Styles */
 .detail-modal-header {
     display: flex;
-    align-items: center;
-    gap: 1.5rem;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
+}
+
+.header-main-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    width: 100%;
 }
 
 .doc-type-tag {
-    background-color: #f3e8ff;
-    color: #7c3aed;
+    background-color: #dbeafe;
+    color: #1e40af;
     font-weight: 700;
     font-size: 0.7rem;
     padding: 0.25rem 0.75rem;
     border-radius: 4px;
     letter-spacing: 0.05em;
+    width: fit-content;
 }
 
 .detail-modal-title {
     margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.45rem;
+    font-weight: 800;
     color: #1e3a8a;
+    word-break: break-word;
+}
+
+.detail-modal-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.86rem;
+    color: #64748b;
+    font-weight: 500;
 }
 
 .detail-modal-content {
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 2rem;
 }
 
 .section-container {
@@ -319,11 +338,12 @@
 .provider-info-card {
     background-color: #f8fafc;
     border: 1px solid #f1f5f9;
-    border-radius: 8px;
-    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
     display: grid;
     grid-template-columns: 2fr 1.5fr 2fr;
-    gap: 2rem;
+    gap: 1rem 1.5rem;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
 }
 
 .info-group {
@@ -397,6 +417,11 @@
 
 .totals-content-wrapper {
     width: 300px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
 .totals-row {
@@ -410,8 +435,8 @@
 .totals-row.highlight {
     margin-top: 1rem;
     padding: 1rem;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1px solid #bfdbfe;
     border-radius: 8px;
 }
 
@@ -436,24 +461,15 @@
 .totals-row.highlight .totals-value {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #1e3a8a;
+    color: #1e40af;
 }
 
 /* Footer V2 */
 .detail-modal-footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     width: 100%;
-}
-
-.integrity-hash {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #64748b;
-    font-size: 0.75rem;
-    font-style: italic;
 }
 
 .footer-actions {
@@ -468,9 +484,44 @@
     background-color: transparent !important;
 }
 
-.btn-approve-conciliate {
+.btn-primary-close {
     background-color: #1e3a8a !important;
     border: none !important;
     font-weight: 700 !important;
     padding: 0.75rem 1.5rem !important;
+}
+
+@media (max-width: 768px) {
+    .provider-info-card {
+        grid-template-columns: 1fr;
+    }
+
+    .products-detail-table {
+        font-size: 0.8rem;
+    }
+
+    .totals-section-container {
+        align-items: stretch;
+    }
+
+    .totals-header-wrapper {
+        justify-content: flex-start;
+    }
+
+    .totals-content-wrapper {
+        width: 100%;
+    }
+
+    .detail-modal-footer {
+        justify-content: center;
+    }
+
+    .footer-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .footer-actions .p-button {
+        width: 100%;
+    }
 }

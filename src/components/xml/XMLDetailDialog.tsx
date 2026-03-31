@@ -10,15 +10,42 @@ interface XMLDetailDialogProps {
     onHide: () => void;
     xmlDetail: XmlDetalle | null;
     loading: boolean;
+    fileName?: string;
+    fechaEmision?: string;
 }
 
-const XMLDetailDialog: React.FC<XMLDetailDialogProps> = ({ visible, onHide, xmlDetail, loading }) => {
+const XMLDetailDialog: React.FC<XMLDetailDialogProps> = ({ visible, onHide, xmlDetail, loading, fileName, fechaEmision }) => {
+    const formatCurrency = (value: number) =>
+        value.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+
+    const formatDate = (dateValue?: string) => {
+        if (!dateValue) return null;
+        const date = new Date(dateValue);
+        if (Number.isNaN(date.getTime())) return dateValue;
+        return new Intl.DateTimeFormat('es-CO', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+        }).format(date);
+    };
+
+    const fechaFormateada = formatDate(fechaEmision);
+    const retencionCalculada = xmlDetail ? Math.max(0, xmlDetail.totales.taxInclusiveAmount - xmlDetail.totales.total) : 0;
+
     return (
         <Dialog
             header={
                 <div className="detail-modal-header">
-                    <div className="doc-type-tag">XML DOCUMENT</div>
-                    <h2 className="detail-modal-title app-title">Detalle del Documento XML</h2>
+                    <div className="header-main-info">
+                        <div className="doc-type-tag">FACTURA XML</div>
+                        <h2 className="detail-modal-title">{fileName || 'Detalle del Documento XML'}</h2>
+                        {fechaFormateada && (
+                            <div className="detail-modal-subtitle">
+                                <i className="pi pi-calendar"></i>
+                                <span>Fecha de emisión: {fechaFormateada}</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             }
             visible={visible}
@@ -26,13 +53,9 @@ const XMLDetailDialog: React.FC<XMLDetailDialogProps> = ({ visible, onHide, xmlD
             onHide={onHide}
             footer={
                 <div className="detail-modal-footer">
-                    <div className="integrity-hash">
-                        <i className="pi pi-check-circle"></i>
-                        <span>Hash de Integridad: XML-SHA256-4921-X82</span>
-                    </div>
                     <div className="footer-actions">
                         <Button label="Descargar XML" outlined className="btn-download-xml" />
-                        <Button label="Aprobar y Conciliar" icon="pi pi-check-square" className="btn-approve-conciliate" />
+                        <Button label="Cerrar" icon="pi pi-check" className="btn-primary-close" onClick={onHide} />
                     </div>
                 </div>
             }
@@ -48,7 +71,7 @@ const XMLDetailDialog: React.FC<XMLDetailDialogProps> = ({ visible, onHide, xmlD
             ) : xmlDetail ? (
                 <div className="detail-modal-content">
                     {/* Proveedor Section */}
-                    <div className="section-container">
+                    <div className="section-container provider-section-compact">
                         <div className="section-title">
                             <i className="pi pi-building"></i>
                             <span>PROVEEDOR</span>
@@ -141,15 +164,19 @@ const XMLDetailDialog: React.FC<XMLDetailDialogProps> = ({ visible, onHide, xmlD
                         <div className="totals-content-wrapper">
                             <div className="totals-row">
                                 <span className="totals-label">SUBTOTAL</span>
-                                <span className="totals-value">{xmlDetail.totales.subtotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>
+                                <span className="totals-value">{formatCurrency(xmlDetail.totales.subtotal)}</span>
                             </div>
                             <div className="totals-row">
                                 <span className="totals-label">IMPUESTOS</span>
-                                <span className="totals-value">{xmlDetail.totales.impuestoTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>
+                                <span className="totals-value">{formatCurrency(xmlDetail.totales.impuestoTotal)}</span>
+                            </div>
+                            <div className="totals-row">
+                                <span className="totals-label">RETENCIÓN</span>
+                                <span className="totals-value">{formatCurrency(retencionCalculada)}</span>
                             </div>
                             <div className="totals-row highlight">
-                                <span className="totals-label">TOTAL FACTURA</span>
-                                <span className="totals-value">{xmlDetail.totales.total.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>
+                                <span className="totals-label">TOTAL FINAL</span>
+                                <span className="totals-value">{formatCurrency(xmlDetail.totales.total)}</span>
                             </div>
                         </div>
                     </div>
