@@ -42,10 +42,8 @@ export const useXmlDetail = () => {
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error(err.message);
-        alert(err.message);
       } else {
         console.error("Error desconocido", err);
-        alert("Ocurrió un error inesperado");
       }
       logUnknownError(err, logger.error);
       setDetail(null);
@@ -64,10 +62,8 @@ export const useXmlDetail = () => {
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error(err.message);
-        alert(err.message);
       } else {
         console.error("Error desconocido", err);
-        alert("Ocurrió un error inesperado");
       }
       logUnknownError(err, logger.error);
       return null;

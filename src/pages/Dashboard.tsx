@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Card } from "primereact/card";
 import { Tag } from "primereact/tag";
 import { Button } from "primereact/button";
 import { Skeleton } from "primereact/skeleton";
+import { Toast } from "primereact/toast";
 import PageTitle from "../components/common/PageTitle";
 import { useXMLStore } from "../store/xmlStore";
 import { getDashboardMetrics } from "../services/xmlService";
@@ -15,6 +16,7 @@ const Dashboard: React.FC = () => {
   const { xmlList, loading: loadingFiles, fetchXMLList } = useXMLStore();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loadingMetrics, setLoadingMetrics] = useState(true);
+  const toast = useRef<Toast>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -25,13 +27,12 @@ const Dashboard: React.FC = () => {
       ]);
       setMetrics(metricsData);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error(err.message);
-        alert(err.message);
-      } else {
-        console.error("Error desconocido", err);
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
       logUnknownError(err, logger.error);
     } finally {
       setLoadingMetrics(false);
@@ -171,6 +172,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard-container">
+      <Toast ref={toast} />
       <header className="dashboard-header">
         <div>
           <PageTitle title="Panel de Control" />
