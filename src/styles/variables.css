@@ -199,3 +199,59 @@
 .metric-badge.success { color: var(--color-success); background-color: #f0fdf4; }
 .metric-badge.info { color: var(--color-info); background-color: #f0f9ff; }
 .metric-badge.error { color: var(--color-error); background-color: #fef2f2; }
+
+/* Session Expired Overlay */
+.session-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+}
+
+.session-modal {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 16px;
+  text-align: center;
+  max-width: 450px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  animation: fadeInDown 0.3s ease-out;
+}
+
+.session-icon {
+  font-size: 3rem;
+  color: #f59e0b;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.session-modal h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+  font-weight: 700;
+}
+
+.session-modal p {
+  color: var(--color-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
