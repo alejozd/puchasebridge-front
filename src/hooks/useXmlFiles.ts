@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getXMLFiles } from '../services/xmlService';
 import type { XMLFileItem } from '../types/xml';
+import { logger } from '../utils/logger';
 
 export const useXmlFiles = () => {
   const [files, setFiles] = useState<XMLFileItem[]>([]);
@@ -23,7 +24,7 @@ export const useXmlFiles = () => {
       setFiles(normalizedData);
     } catch (err) {
       setError('Error al cargar la lista de archivos XML');
-      console.error(err);
+      logger.error(err);
     } finally {
       setLoading(false);
     }

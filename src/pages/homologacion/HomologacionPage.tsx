@@ -13,6 +13,7 @@ import type { XMLFile, HomologarPayload } from '../../types/xml';
 import type { ProductoMapeo } from '../../types/homologacion';
 import type { ErpProducto, ErpUnidad } from '../../services/erpService';
 import '../../styles/homologacion.css';
+import { logger } from '../../utils/logger';
 
 const HomologacionPage: React.FC = () => {
     const [items, setItems] = useState<ProductoMapeo[]>([]);
@@ -54,7 +55,7 @@ const HomologacionPage: React.FC = () => {
                 return results[0];
             }
         } catch (e: unknown) {
-            console.error(getErrorMessage(e));
+            logger.error(getErrorMessage(e));
             return null;
         }
         return null;
@@ -328,7 +329,7 @@ const HomologacionPage: React.FC = () => {
                 });
             }
         } catch (e: unknown) {
-            console.error(getErrorMessage(e));
+            logger.error(getErrorMessage(e));
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -365,7 +366,7 @@ const HomologacionPage: React.FC = () => {
                 });
             }
         } catch (e: unknown) {
-            console.error(getErrorMessage(e));
+            logger.error(getErrorMessage(e));
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',

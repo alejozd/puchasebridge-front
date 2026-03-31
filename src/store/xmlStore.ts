@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { XMLFile, ValidationResult, BackendValidationResponse, XMLProcesarResponse } from "../types/xml";
 import { getXMLFiles, uploadXML, validateXMLFile, procesarDocumentos } from "../services/xmlService";
 import { fixEncoding } from "../utils/textUtils";
+import { logger } from '../utils/logger';
 
 interface XMLState {
   xmlList: XMLFile[];
@@ -21,11 +22,11 @@ export const useXMLStore = create<XMLState>((set, get) => ({
   processing: false,
 
   fetchXMLList: async () => {
-    console.log('[STORE] fetchXMLList ejecutado');
+    logger.log('[STORE] fetchXMLList ejecutado');
     set({ loading: true });
     try {
       const data = await getXMLFiles();
-      console.log('[STORE] response XMLList:', data);
+      logger.log('[STORE] response XMLList:', data);
       // Ensure default state is set if missing
       const processedData: XMLFile[] = data.map(item => ({
         fileName: item.fileName,
@@ -36,10 +37,10 @@ export const useXMLStore = create<XMLState>((set, get) => ({
         size: item.size,
         tipoDocumento: 'Factura'
       }));
-      console.log('[MAPPED SIZE]', processedData);
+      logger.log('[MAPPED SIZE]', processedData);
       set({ xmlList: processedData, loading: false });
     } catch (error) {
-      console.error("Error fetching XML list:", error);
+      logger.error("Error fetching XML list:", error);
       set({ loading: false });
       throw error;
     }
@@ -53,7 +54,7 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       await get().fetchXMLList();
       set({ loading: false });
     } catch (error) {
-      console.error("Error uploading XML:", error);
+      logger.error("Error uploading XML:", error);
       set({ loading: false });
       throw error;
     }
@@ -133,7 +134,7 @@ export const useXMLStore = create<XMLState>((set, get) => ({
 
       set({ xmlList: updatedList, validating: false });
     } catch (error) {
-      console.error("Error validating XML files:", error);
+      logger.error("Error validating XML files:", error);
       set({ validating: false });
       throw error;
     }
@@ -153,7 +154,7 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       }
       return response;
     } catch (error) {
-      console.error("Error processing XML files:", error);
+      logger.error("Error processing XML files:", error);
       set({ processing: false });
       throw error;
     }

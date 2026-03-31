@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { logger } from '../../utils/logger';
 import {
   DataTable,
   type DataTableSelectionMultipleChangeEvent,
@@ -39,7 +40,7 @@ const XMLValidationPage: React.FC = () => {
   const toast = useRef<Toast>(null);
 
   useEffect(() => {
-    console.log("[PAGE] XMLValidationPage mounted");
+    logger.log("[PAGE] XMLValidationPage mounted");
     fetchXMLList();
   }, [fetchXMLList]);
 
@@ -51,7 +52,7 @@ const XMLValidationPage: React.FC = () => {
       const data = await xmlService.parseXML(fileName);
       setXmlDetail(data);
     } catch (error: unknown) {
-      console.error("Error parsing XML:", error);
+      logger.error("Error parsing XML:", error);
       toast.current?.show({
         severity: "error",
         summary: "Error",

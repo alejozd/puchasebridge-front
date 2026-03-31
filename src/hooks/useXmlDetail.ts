@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { getXMLFileDetail, validateXML, procesarXML } from '../services/xmlService';
 import type { XMLFileDetail, XMLValidationResult, XMLProcesarResponse } from '../types/xml';
+import { logger } from '../utils/logger';
 
 export const useXmlDetail = () => {
   const [detail, setDetail] = useState<XMLFileDetail | null>(null);
@@ -14,7 +15,7 @@ export const useXmlDetail = () => {
     setError(null);
     try {
       const data = await getXMLFileDetail(id);
-      console.log('DETAIL RESPONSE:', data);
+      logger.log('DETAIL RESPONSE:', data);
 
       // Normalize mapping to ensure consistency with camelCase interface
       const normalizedDetail: XMLFileDetail = {
@@ -41,7 +42,7 @@ export const useXmlDetail = () => {
       setDetail(normalizedDetail);
     } catch (err) {
       setError('Error al cargar el detalle del archivo XML');
-      console.error(err);
+      logger.error(err);
       setDetail(null);
     } finally {
       setLoading(false);
@@ -54,7 +55,7 @@ export const useXmlDetail = () => {
       const result = await validateXML(fileName);
       return result;
     } catch (err) {
-      console.error('Error durante la validación:', err);
+      logger.error('Error durante la validación:', err);
       return null;
     } finally {
       setValidating(false);
@@ -67,7 +68,7 @@ export const useXmlDetail = () => {
       const result = await procesarXML(files);
       return result;
     } catch (err) {
-      console.error('Error durante el procesamiento:', err);
+      logger.error('Error durante el procesamiento:', err);
       return null;
     } finally {
       setProcessing(false);

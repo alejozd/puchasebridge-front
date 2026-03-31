@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { logger } from '../../utils/logger';
 import {
   DataTable,
   type DataTableSelectionMultipleChangeEvent,
@@ -50,7 +51,7 @@ const XMLListPage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
 
   useEffect(() => {
-    console.log("[PAGE] XMLListPage mounted");
+    logger.log("[PAGE] XMLListPage mounted");
     const loadData = async () => {
       try {
         await fetchXMLList();
@@ -137,7 +138,7 @@ const XMLListPage: React.FC = () => {
       const data = await xmlService.parseXML(fileName);
       setXmlDetail(data);
     } catch (error: unknown) {
-      console.error("Error parsing XML:", error);
+      logger.error("Error parsing XML:", error);
       toast.current?.show({
         severity: "error",
         summary: "Error",
