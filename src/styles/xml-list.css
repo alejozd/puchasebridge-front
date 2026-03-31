@@ -266,40 +266,56 @@
     font-weight: 500;
 }
 
-/* Detail Modal V2 Styles */
-.detail-modal-header {
+/* Detail Modal V3 Styles */
+.detail-modal-header-v3 {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.detail-header-main {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
+}
+
+.detail-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 
 .doc-type-tag {
-    background-color: #f3e8ff;
-    color: #7c3aed;
+    background-color: #eff6ff;
+    color: #1d4ed8;
     font-weight: 700;
     font-size: 0.7rem;
     padding: 0.25rem 0.75rem;
-    border-radius: 4px;
+    border-radius: 999px;
     letter-spacing: 0.05em;
 }
 
 .detail-modal-title {
     margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e3a8a;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-break: anywhere;
 }
 
 .detail-modal-content {
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 1.5rem;
 }
 
 .section-container {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .section-title {
@@ -308,62 +324,67 @@
     gap: 0.75rem;
     color: #1e3a8a;
     font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: 0.05em;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+}
+
+.section-title.compact {
+    margin-bottom: 0.15rem;
 }
 
 .section-title i {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
 }
 
 .provider-info-card {
     background-color: #f8fafc;
-    border: 1px solid #f1f5f9;
-    border-radius: 8px;
-    padding: 1.5rem 2rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
     display: grid;
-    grid-template-columns: 2fr 1.5fr 2fr;
-    gap: 2rem;
+    grid-template-columns: 2fr 1.4fr 2fr;
+    gap: 1rem;
 }
 
 .info-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 
 .info-group label {
     font-size: 0.65rem;
-    font-weight: 600;
+    font-weight: 700;
     color: #94a3b8;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
 }
 
 .info-group span {
-    font-size: 1rem;
-    color: #1e293b;
+    font-size: 0.92rem;
+    color: #0f172a;
 }
 
 /* Products Table V2 Styles */
 .products-detail-table {
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
     background-color: white;
+    border: 1px solid #e2e8f0;
 }
 
 .products-detail-table .table-header-v2 {
-    background-color: white !important;
-    color: #94a3b8 !important;
+    background-color: #f8fafc !important;
+    color: #64748b !important;
     font-size: 0.65rem !important;
     font-weight: 700 !important;
     letter-spacing: 0.1em !important;
-    padding: 1rem !important;
-    border-bottom: 1px solid #f1f5f9 !important;
+    padding: 0.85rem !important;
+    border-bottom: 1px solid #e2e8f0 !important;
 }
 
 .products-detail-table .p-datatable-tbody > tr > td {
-    padding: 1rem !important;
-    border-bottom: 1px solid #f8fafc !important;
+    padding: 0.9rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
     font-size: 0.875rem;
     color: #334155;
 }
@@ -372,12 +393,11 @@
     font-weight: 500;
 }
 
-
 .products-detail-table .col-total {
-    color: #000;
+    color: #0f172a;
 }
 
-/* Totals Section V2 */
+/* Totals Section */
 .totals-section-container {
     display: flex;
     flex-direction: column;
@@ -388,72 +408,66 @@
     width: 100%;
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 1rem;
 }
 
 .section-title.totals {
-    color: #1e3a8a;
+    color: #334155;
 }
 
 .totals-content-wrapper {
-    width: 300px;
+    width: min(100%, 360px);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
 }
 
 .totals-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 0;
+    padding: 0.55rem 0;
     border-bottom: 1px solid #f1f5f9;
 }
 
 .totals-row.highlight {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    margin-top: 0.65rem;
+    padding: 0.85rem 0.75rem;
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
 }
 
 .totals-label {
     color: #64748b;
-    font-weight: 600;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
 }
 
 .totals-row.highlight .totals-label {
     color: #1e3a8a;
-    font-weight: 800;
 }
 
 .totals-value {
     font-size: 1rem;
     font-weight: 700;
-    color: #334155;
+    color: #0f172a;
 }
 
 .totals-row.highlight .totals-value {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #1e3a8a;
+    font-size: 1.55rem;
+    font-weight: 900;
+    color: #1d4ed8;
 }
 
-/* Footer V2 */
+/* Footer */
 .detail-modal-footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     width: 100%;
-}
-
-.integrity-hash {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #64748b;
-    font-size: 0.75rem;
-    font-style: italic;
 }
 
 .footer-actions {
@@ -461,16 +475,30 @@
     gap: 1rem;
 }
 
-.btn-download-xml {
-    color: #1e3a8a !important;
-    border-color: #cbd5e1 !important;
-    font-weight: 700 !important;
-    background-color: transparent !important;
-}
-
-.btn-approve-conciliate {
-    background-color: #1e3a8a !important;
+.btn-close-detail {
+    background-color: #1d4ed8 !important;
     border: none !important;
     font-weight: 700 !important;
-    padding: 0.75rem 1.5rem !important;
+    padding: 0.65rem 1.4rem !important;
 }
+
+@media (max-width: 992px) {
+    .provider-info-card {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-header-main {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .totals-section-container {
+        align-items: stretch;
+    }
+
+    .totals-header-wrapper {
+        justify-content: flex-start;
+    }
+}
+

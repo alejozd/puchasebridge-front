@@ -42,6 +42,7 @@ const XMLListPage: React.FC = () => {
     errors: string[];
   } | null>(null);
   const [xmlDetail, setXmlDetail] = useState<XmlDetalle | null>(null);
+  const [selectedDetailFile, setSelectedDetailFile] = useState<XMLFile | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [loadingRow, setLoadingRow] = useState<string | null>(null);
   const toast = useRef<Toast>(null);
@@ -128,11 +129,12 @@ const XMLListPage: React.FC = () => {
     );
   };
 
-  const handleViewDetail = async (fileName: string) => {
+  const handleViewDetail = async (file: XMLFile) => {
     setDetailLoading(true);
     setDisplayDetailModal(true);
+    setSelectedDetailFile(file);
     try {
-      const data = await xmlService.parseXML(fileName);
+      const data = await xmlService.parseXML(file.fileName);
       setXmlDetail(data);
     } catch (error: unknown) {
       console.error("Error parsing XML:", error);
@@ -219,7 +221,7 @@ const XMLListPage: React.FC = () => {
           severity="secondary"
           size="small"
           tooltip="Ver detalle"
-          onClick={() => handleViewDetail(rowData.fileName)}
+          onClick={() => handleViewDetail(rowData)}
           disabled={isProcessing}
         />
         {canValidate && (
@@ -629,9 +631,12 @@ const XMLListPage: React.FC = () => {
         onHide={() => {
           setDisplayDetailModal(false);
           setXmlDetail(null);
+          setSelectedDetailFile(null);
         }}
         xmlDetail={xmlDetail}
         loading={detailLoading}
+        fileName={selectedDetailFile?.fileName}
+        issueDate={selectedDetailFile?.lastModified}
       />
 
       <Dialog
