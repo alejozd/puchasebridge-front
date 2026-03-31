@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getXMLFiles } from '../services/xmlService';
-import type { XMLFileItem } from '../types/xml';
-import { logger } from '../utils/logger';
-import { extractErrorMessage, logUnknownError } from '../utils/apiHandler';
+import { useState, useEffect, useCallback } from "react";
+import { getXMLFiles } from "../services/xmlService";
+import type { XMLFileItem } from "../types/xml";
+import { logger } from "../utils/logger";
+import { logUnknownError } from "../utils/apiHandler";
 
 export const useXmlFiles = () => {
   const [files, setFiles] = useState<XMLFileItem[]>([]);
@@ -15,23 +15,25 @@ export const useXmlFiles = () => {
     try {
       const data = await getXMLFiles();
       // Normalize to match user expectations (camelCase for list)
-      const normalizedData: XMLFileItem[] = data.map(item => ({
+      const normalizedData: XMLFileItem[] = data.map((item) => ({
         ...item,
-        fileName: item.fileName || item.file_name || '',
-        proveedorNombre: item.proveedor_nombre || item.proveedor || '',
-        fechaDocumento: item.fecha_documento || item.fecha_carga || item.fechaCarga || '',
-        fechaCarga: item.fecha_carga || item.fechaCarga || ''
+        fileName: item.fileName || item.file_name || "",
+        proveedorNombre: item.proveedor_nombre || item.proveedor || "",
+        fechaDocumento:
+          item.fecha_documento || item.fecha_carga || item.fechaCarga || "",
+        fechaCarga: item.fecha_carga || item.fechaCarga || "",
       }));
       setFiles(normalizedData);
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error(err.message);
         alert(err.message);
+        setError(err.message);
       } else {
         console.error("Error desconocido", err);
         alert("Ocurrió un error inesperado");
+        setError("Error al cargar la lista de archivos XML");
       }
-      setError(extractErrorMessage(err, 'Error al cargar la lista de archivos XML'));
       logUnknownError(err, logger.error);
     } finally {
       setLoading(false);
@@ -47,6 +49,6 @@ export const useXmlFiles = () => {
     loading,
     error,
     refresh: fetchFiles,
-    setFiles
+    setFiles,
   };
 };

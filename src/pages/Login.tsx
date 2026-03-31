@@ -6,7 +6,7 @@ import { Message } from "primereact/message";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import "../styles/login.css";
-import { logUnknownError } from "../utils/apiHandler";
+import { logUnknownError, handleResponse, BASE_URL } from "../utils/apiHandler";
 import { logger } from "../utils/logger";
 
 const Login: React.FC = () => {
@@ -24,7 +24,7 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:9000/auth/login", {
+      const response = await fetch(`${BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,10 +36,7 @@ const Login: React.FC = () => {
         }),
       });
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Error al iniciar sesión");
-      }
+      const data = await handleResponse(response);
 
       const { usuario, empresa, token } = data;
       login(usuario, empresa, token);

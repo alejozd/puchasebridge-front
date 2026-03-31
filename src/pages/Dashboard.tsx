@@ -8,18 +8,16 @@ import { useXMLStore } from "../store/xmlStore";
 import { getDashboardMetrics } from "../services/xmlService";
 import type { DashboardMetrics, XMLFile } from "../types/xml";
 import "../styles/dashboard.css";
-import { logger } from '../utils/logger';
+import { logger } from "../utils/logger";
 import { logUnknownError } from "../utils/apiHandler";
 
 const Dashboard: React.FC = () => {
   const { xmlList, loading: loadingFiles, fetchXMLList } = useXMLStore();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loadingMetrics, setLoadingMetrics] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     try {
-      setError(null);
       setLoadingMetrics(true);
       const [metricsData] = await Promise.all([
         getDashboardMetrics(),
@@ -188,14 +186,6 @@ const Dashboard: React.FC = () => {
               value={`${metrics.errores} Errores`}
               icon="pi pi-exclamation-triangle"
               className="error-badge-pulse"
-            />
-          )}
-          {error && (
-            <Tag
-              severity="danger"
-              value={error}
-              style={{ marginLeft: "1rem" }}
-              icon="pi pi-exclamation-circle"
             />
           )}
         </div>
