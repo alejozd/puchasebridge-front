@@ -23,18 +23,20 @@ const HomologacionPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const toast = useRef<Toast>(null);
 
-    const handleSearchProductos = useCallback(async (query: string) => {
+    const handleSearchProductos = useCallback(async (query: string): Promise<ProductoERP[]> => {
         const trimmedQuery = query?.trim();
         if (!trimmedQuery) {
             setProductosERP([]);
-            return;
+            return [];
         }
 
         try {
             const result = await erpService.searchErpProductos(trimmedQuery);
             setProductosERP(result);
+            return result;
         } catch {
             setProductosERP([]);
+            return [];
         }
     }, []);
 

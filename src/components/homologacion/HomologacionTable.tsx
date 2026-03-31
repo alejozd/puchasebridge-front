@@ -5,6 +5,7 @@ import { Dropdown, type DropdownChangeEvent } from 'primereact/dropdown';
 import { InputNumber, type InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
+import { AutoComplete, type AutoCompleteCompleteEvent, type AutoCompleteChangeEvent } from 'primereact/autocomplete';
 import type { ProductoMapeoPage, ProductoERP, UnidadERP } from '../../types/homologacion';
 
 interface HomologacionTableProps {
@@ -14,7 +15,7 @@ interface HomologacionTableProps {
     unidadesERP: UnidadERP[];
     loading?: boolean;
     modo?: 'modal' | 'page';
-    onSearchProductos?: (query: string) => Promise<void> | void;
+    onSearchProductos?: (query: string) => Promise<ProductoERP[]>;
 }
 
 const HomologacionTable: React.FC<HomologacionTableProps> = ({
@@ -44,11 +45,6 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
 
     const overallValid = validateItems();
 
-    const productOptions = productosERP.map(prod => ({
-        label: `[${prod.referencia}] - ${prod.nombre}`,
-        value: prod
-    }));
-
     const unitOptions = unidadesERP.map(unit => ({
         label: `${unit.sigla} - ${unit.nombre}`,
         value: unit.codigo
@@ -73,6 +69,33 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
         </div>
     );
 
+    const handleSearch = async (event: AutoCompleteCompleteEvent, rowData: ProductoMapeoPage) => {
+        const query = (event.query || '').trim();
+        if (!query) {
+            updateItem(rowData.referenciaXML, { suggestions: [], searching: false });
+            return;
+        }
+
+        updateItem(rowData.referenciaXML, { searching: true });
+        try {
+            const remoteSuggestions = onSearchProductos ? await onSearchProductos(query) : [];
+            const suggestions = remoteSuggestions.length > 0
+                ? remoteSuggestions
+                : productosERP.filter(prod => (`${prod.referencia} ${prod.nombre}`).toLowerCase().includes(query.toLowerCase()));
+
+            updateItem(rowData.referenciaXML, { suggestions, searching: false });
+        } catch {
+            updateItem(rowData.referenciaXML, { searching: false });
+        }
+    };
+
+    const erpItemTemplate = (item: ProductoERP) => (
+        <div className="flex flex-column gap-1 py-1">
+            <span className="text-sm font-semibold text-primary">[{item.referencia}]</span>
+            <span className="text-xs text-secondary">{item.nombre}</span>
+        </div>
+    );
+
     const erpProductTemplate = (rowData: ProductoMapeoPage) => {
         const isHomologado = rowData.estado?.toLowerCase() === 'homologado';
         const canEdit = !isHomologado || rowData.isEditing;
@@ -81,34 +104,19 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
             return <span className="text-sm font-semibold text-primary">{rowData.productoSistema || 'Sin asignar'}</span>;
         }
 
-        const selectedProduct = productosERP.find(prod => prod.referencia === rowData.referenciaErp)
-            || (rowData.referenciaErp
-                ? {
-                    referencia: rowData.referenciaErp,
-                    nombre: rowData.nombreErp || rowData.productoSistema || 'Producto seleccionado',
-                    codigo: rowData.codigoErp || 0,
-                    subcodigo: rowData.subcodigoErp || 0
-                }
-                : null);
-
         return (
-            <Dropdown
-                value={selectedProduct}
-                options={productOptions}
-                onChange={(e: DropdownChangeEvent) => {
-                    const selected = e.value as ProductoERP | null;
-                    if (!selected) {
-                        updateItem(rowData.referenciaXML, {
-                            productoSistema: '',
-                            referenciaErp: '',
-                            codigoErp: undefined,
-                            subcodigoErp: undefined,
-                            nombreErp: '',
-                            unidadErp: ''
-                        });
-                        return;
-                    }
-
+            <AutoComplete
+                value={rowData.productoSistema || rowData.referenciaErp || ''}
+                suggestions={rowData.suggestions || []}
+                completeMethod={(event) => handleSearch(event, rowData)}
+                onChange={(event: AutoCompleteChangeEvent) => {
+                    const value = typeof event.value === 'string'
+                        ? event.value
+                        : `[${event.value.referencia}] - ${event.value.nombre}`;
+                    updateItem(rowData.referenciaXML, { productoSistema: value });
+                }}
+                onSelect={(event) => {
+                    const selected = event.value as ProductoERP;
                     const matchingUnit = unidadesERP.find(unit => unit.sigla === selected.unidadDefault);
                     updateItem(rowData.referenciaXML, {
                         productoSistema: `[${selected.referencia}] - ${selected.nombre}`,
@@ -119,11 +127,12 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
                         unidadErp: matchingUnit?.codigo || rowData.unidadErp || ''
                     });
                 }}
-                placeholder="Seleccionar producto ERP"
+                itemTemplate={erpItemTemplate}
+                placeholder="Buscar producto en ERP..."
                 className="w-full"
-                filter
-                showClear
-                onFilter={(e) => onSearchProductos?.(e.filter)}
+                inputClassName="w-full"
+                minLength={1}
+                delay={100}
             />
         );
     };
