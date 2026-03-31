@@ -118,10 +118,10 @@ const XMLValidationPage: React.FC = () => {
       string,
       "secondary" | "success" | "danger" | "info" | "warning"
     > = {
-      CARGADO: "secondary",
+      CARGADO: "info",
+      PENDIENTE: "warning",
       LISTO: "success",
       ERROR: "danger",
-      PENDIENTE: "warning",
     };
 
     const estado = rowData.estado || "CARGADO";
