@@ -27,10 +27,6 @@ const MainLayout: React.FC = () => {
     { label: "Procesamiento", icon: "pi pi-cog", to: "/app/procesamiento" },
   ];
 
-  const footerMenuItems = [
-    { label: "Configuración", icon: "pi pi-cog", to: "/app/configuracion" },
-  ];
-
   const isActive = (path: string) => {
     return location.pathname === path;
   };
@@ -61,10 +57,6 @@ const MainLayout: React.FC = () => {
           </div>
         </div>
 
-        <button className="btn-new-entry" title={isCollapsed ? "Nueva Entrada" : ""}>
-          <i className="pi pi-plus"></i>
-          <span>Nueva Entrada</span>
-        </button>
 
         <nav className="layout-menu">
           {menuItems.map((item) => (
@@ -81,17 +73,6 @@ const MainLayout: React.FC = () => {
         </nav>
 
         <div className="sidebar-footer">
-          {footerMenuItems.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`menu-item ${isActive(item.to) ? "active" : ""} ${isCollapsed ? "menu-item-tooltip" : ""}`}
-              data-pr-tooltip={isCollapsed ? item.label : ""}
-            >
-              <i className={item.icon}></i>
-              <span>{item.label}</span>
-            </Link>
-          ))}
           <div className="sidebar-info">
             <div className="company">ZambranoSoft</div>
             <div className="date">{new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</div>

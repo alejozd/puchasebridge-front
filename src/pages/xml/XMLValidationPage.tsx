@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { logger } from '../../utils/logger';
+import { logger } from "../../utils/logger";
 import {
   DataTable,
   type DataTableSelectionMultipleChangeEvent,
@@ -16,7 +16,7 @@ import { useXMLStore } from "../../store/xmlStore";
 import type { XMLFile, XmlDetalle } from "../../types/xml";
 import * as xmlService from "../../services/xmlService";
 import "../../styles/xml-validation.css";
-import { extractErrorMessage, logUnknownError } from "../../utils/apiHandler";
+import { logUnknownError } from "../../utils/apiHandler";
 
 const XMLValidationPage: React.FC = () => {
   const { xmlList, loading, validating, fetchXMLList, validateFiles } =
@@ -24,7 +24,9 @@ const XMLValidationPage: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<XMLFile[]>([]);
   const [displayDetailModal, setDisplayDetailModal] = useState(false);
   const [xmlDetail, setXmlDetail] = useState<XmlDetalle | null>(null);
-  const [selectedDetailFile, setSelectedDetailFile] = useState<XMLFile | null>(null);
+  const [selectedDetailFile, setSelectedDetailFile] = useState<XMLFile | null>(
+    null,
+  );
   const [detailLoading, setDetailLoading] = useState(false);
 
   const [displayValidationModal, setDisplayValidationModal] = useState(false);
@@ -48,19 +50,20 @@ const XMLValidationPage: React.FC = () => {
   const handleViewDetail = async (fileName: string) => {
     setDetailLoading(true);
     setDisplayDetailModal(true);
-    setSelectedDetailFile(xmlList.find((file) => file.fileName === fileName) || null);
+    setSelectedDetailFile(
+      xmlList.find((file) => file.fileName === fileName) || null,
+    );
     try {
       const data = await xmlService.parseXML(fileName);
       setXmlDetail(data);
     } catch (error: unknown) {
       logUnknownError(error, logger.error);
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: extractErrorMessage(error, "No se pudo obtener el detalle del XML."),
-        life: 3000,
-      });
       setDisplayDetailModal(false);
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("Ocurrió un error inesperado");
+      }
     } finally {
       setDetailLoading(false);
     }
@@ -98,13 +101,14 @@ const XMLValidationPage: React.FC = () => {
         life: 3000,
       });
       setSelectedFiles([]);
-    } catch {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: "No se pudo completar la validación.",
-        life: 3000,
-      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        alert(err.message);
+      } else {
+        console.error("Error desconocido", err);
+        alert("Ocurrió un error inesperado");
+      }
     } finally {
       setValidatingFiles((prev) =>
         prev.filter((name) => !fileNamesToValidate.includes(name)),
@@ -117,10 +121,10 @@ const XMLValidationPage: React.FC = () => {
       string,
       "secondary" | "success" | "danger" | "info" | "warning"
     > = {
-      CARGADO: "secondary",
+      CARGADO: "info",
+      PENDIENTE: "warning",
       LISTO: "success",
       ERROR: "danger",
-      PENDIENTE: "warning",
     };
 
     const estado = rowData.estado || "CARGADO";

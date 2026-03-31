@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { logger } from '../../utils/logger';
+import { logger } from "../../utils/logger";
 import {
   DataTable,
   type DataTableSelectionMultipleChangeEvent,
@@ -22,7 +22,7 @@ import type { XMLFile, XmlDetalle } from "../../types/xml";
 import * as xmlService from "../../services/xmlService";
 import { fixEncoding } from "../../utils/textUtils";
 import "../../styles/xml-list.css";
-import { extractErrorMessage, logUnknownError } from "../../utils/apiHandler";
+import { logUnknownError } from "../../utils/apiHandler";
 
 const XMLListPage: React.FC = () => {
   const {
@@ -44,7 +44,9 @@ const XMLListPage: React.FC = () => {
     errors: string[];
   } | null>(null);
   const [xmlDetail, setXmlDetail] = useState<XmlDetalle | null>(null);
-  const [selectedDetailFile, setSelectedDetailFile] = useState<XMLFile | null>(null);
+  const [selectedDetailFile, setSelectedDetailFile] = useState<XMLFile | null>(
+    null,
+  );
   const [detailLoading, setDetailLoading] = useState(false);
   const [loadingRow, setLoadingRow] = useState<string | null>(null);
   const toast = useRef<Toast>(null);
@@ -56,13 +58,14 @@ const XMLListPage: React.FC = () => {
     const loadData = async () => {
       try {
         await fetchXMLList();
-      } catch {
-        toast.current?.show({
-          severity: "error",
-          summary: "Error",
-          detail: "No se pudo cargar la lista de XML.",
-          life: 3000,
-        });
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          console.error(err.message);
+          alert(err.message);
+        } else {
+          console.error("Error desconocido", err);
+          alert("Ocurrió un error inesperado");
+        }
       }
     };
     loadData();
@@ -134,19 +137,20 @@ const XMLListPage: React.FC = () => {
   const handleViewDetail = async (fileName: string) => {
     setDetailLoading(true);
     setDisplayDetailModal(true);
-    setSelectedDetailFile(xmlList.find((file) => file.fileName === fileName) || null);
+    setSelectedDetailFile(
+      xmlList.find((file) => file.fileName === fileName) || null,
+    );
     try {
       const data = await xmlService.parseXML(fileName);
       setXmlDetail(data);
     } catch (error: unknown) {
       logUnknownError(error, logger.error);
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: extractErrorMessage(error, "No se pudo obtener el detalle del XML."),
-        life: 3000,
-      });
       setDisplayDetailModal(false);
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("Ocurrió un error inesperado");
+      }
     } finally {
       setDetailLoading(false);
     }
@@ -162,13 +166,14 @@ const XMLListPage: React.FC = () => {
         detail: `El archivo ${fileName} ha sido validado.`,
         life: 3000,
       });
-    } catch {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error de Validación",
-        detail: "Ocurrió un error al intentar validar el archivo.",
-        life: 3000,
-      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        alert(err.message);
+      } else {
+        console.error("Error desconocido", err);
+        alert("Ocurrió un error inesperado");
+      }
     } finally {
       setLoadingRow(null);
     }
@@ -195,13 +200,14 @@ const XMLListPage: React.FC = () => {
           life: 5000,
         });
       }
-    } catch {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error del Sistema",
-        detail: "Error al procesar el archivo XML.",
-        life: 3000,
-      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        alert(err.message);
+      } else {
+        console.error("Error desconocido", err);
+        alert("Ocurrió un error inesperado");
+      }
     } finally {
       setLoadingRow(null);
     }
@@ -267,7 +273,9 @@ const XMLListPage: React.FC = () => {
   const handleBulkProcess = async () => {
     if (selectedFiles.length === 0) return;
 
-    const unvalidated = selectedFiles.filter((f) => getEstado(f.estado) !== "LISTO");
+    const unvalidated = selectedFiles.filter(
+      (f) => getEstado(f.estado) !== "LISTO",
+    );
     if (unvalidated.length > 0) {
       toast.current?.show({
         severity: "warn",
@@ -299,13 +307,14 @@ const XMLListPage: React.FC = () => {
           life: 5000,
         });
       }
-    } catch {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error del Sistema",
-        detail: "Ocurrió un error al procesar los archivos.",
-        life: 3000,
-      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        alert(err.message);
+      } else {
+        console.error("Error desconocido", err);
+        alert("Ocurrió un error inesperado");
+      }
     }
   };
 
@@ -318,13 +327,14 @@ const XMLListPage: React.FC = () => {
         detail: "La bandeja de XML se ha actualizado correctamente.",
         life: 3000,
       });
-    } catch {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: "No se pudo actualizar la lista.",
-        life: 3000,
-      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        alert(err.message);
+      } else {
+        console.error("Error desconocido", err);
+        alert("Ocurrió un error inesperado");
+      }
     }
   };
 
@@ -379,16 +389,13 @@ const XMLListPage: React.FC = () => {
         life: 3000,
       });
     } catch (error: unknown) {
-      let errorMessage = "No se pudo subir el archivo.";
       if (error instanceof Error) {
-        errorMessage = error.message;
+        console.error(error.message);
+        alert(error.message);
+      } else {
+        console.error("Error desconocido", error);
+        alert("Ocurrió un error inesperado");
       }
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: errorMessage,
-        life: 3000,
-      });
     }
   };
 

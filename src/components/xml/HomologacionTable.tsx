@@ -35,9 +35,17 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
   onErpProductSelect,
 }) => {
   const statusBodyTemplate = (rowData: ProductoMapeo) => {
-    const estado = rowData.estado ? rowData.estado.toLowerCase() : "pendiente";
-    const severity = estado === "homologado" ? "success" : "warning";
-    return <Tag value={estado.toUpperCase()} severity={severity} />;
+    const estado = (rowData.estado || "PENDIENTE").toUpperCase();
+    const severityMap: Record<
+      string,
+      "secondary" | "success" | "danger" | "info" | "warning"
+    > = {
+      PENDIENTE: "warning",
+      HOMOLOGADO: "success",
+    };
+    return (
+      <Tag value={estado} severity={severityMap[estado] || "secondary"} />
+    );
   };
 
   const productErpTemplate = (rowData: ProductoMapeo) => {

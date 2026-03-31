@@ -1,8 +1,18 @@
 import { create } from "zustand";
-import type { XMLFile, ValidationResult, BackendValidationResponse, XMLProcesarResponse } from "../types/xml";
-import { getXMLFiles, uploadXML, validateXMLFile, procesarDocumentos } from "../services/xmlService";
+import type {
+  XMLFile,
+  ValidationResult,
+  BackendValidationResponse,
+  XMLProcesarResponse,
+} from "../types/xml";
+import {
+  getXMLFiles,
+  uploadXML,
+  validateXMLFile,
+  procesarDocumentos,
+} from "../services/xmlService";
 import { fixEncoding } from "../utils/textUtils";
-import { logger } from '../utils/logger';
+import { logger } from "../utils/logger";
 import { logUnknownError } from "../utils/apiHandler";
 
 interface XMLState {
@@ -23,22 +33,22 @@ export const useXMLStore = create<XMLState>((set, get) => ({
   processing: false,
 
   fetchXMLList: async () => {
-    logger.log('[STORE] fetchXMLList ejecutado');
+    logger.log("[STORE] fetchXMLList ejecutado");
     set({ loading: true });
     try {
       const data = await getXMLFiles();
-      logger.log('[STORE] response XMLList:', data);
+      logger.log("[STORE] response XMLList:", data);
       // Ensure default state is set if missing
-      const processedData: XMLFile[] = data.map(item => ({
+      const processedData: XMLFile[] = data.map((item) => ({
         fileName: item.fileName,
         proveedor: item.proveedor,
-        estado: item.estado as XMLFile['estado'],
+        estado: item.estado as XMLFile["estado"],
         lastModified: item.fechaCarga,
         fechaProceso: item.fecha_proceso,
         size: item.size,
-        tipoDocumento: 'Factura'
+        tipoDocumento: "Factura",
       }));
-      logger.log('[MAPPED SIZE]', processedData);
+      logger.log("[MAPPED SIZE]", processedData);
       set({ xmlList: processedData, loading: false });
     } catch (error: unknown) {
       logUnknownError(error, logger.error);
@@ -65,22 +75,26 @@ export const useXMLStore = create<XMLState>((set, get) => ({
     set({ validating: true });
     try {
       // Mapping function to convert backend response to internal ValidationResult
-      const mapBackendToResult = (res: BackendValidationResponse): ValidationResult => {
-        let estado: 'LISTO' | 'ERROR' | 'PENDIENTE' = 'LISTO';
+      const mapBackendToResult = (
+        res: BackendValidationResponse,
+      ): ValidationResult => {
+        let estado: "LISTO" | "ERROR" | "PENDIENTE" = "LISTO";
 
         if (!res.valido) {
-          estado = 'ERROR';
+          estado = "ERROR";
         } else if (res.requiereHomologacion) {
-          estado = 'PENDIENTE';
+          estado = "PENDIENTE";
         }
 
-        const errores = Array.isArray(res.errores) ? res.errores.map(fixEncoding) : [];
+        const errores = Array.isArray(res.errores)
+          ? res.errores.map(fixEncoding)
+          : [];
 
         return {
           fileName: res.fileName,
           estado,
           errores,
-          advertencias: [] // Backend doesn't seem to differentiate warnings in the example, putting all in errores
+          advertencias: [], // Backend doesn't seem to differentiate warnings in the example, putting all in errores
         };
       };
 
@@ -93,11 +107,8 @@ export const useXMLStore = create<XMLState>((set, get) => ({
             // Fallback for failed validation request
             let errorMsg = "Ocurrió un error al validar el XML";
 
-            if (error && typeof error === 'object' && 'response' in error) {
-               const axiosError = error as { response?: { data?: { errores?: string[] } } };
-               if (axiosError.response?.data?.errores?.[0]) {
-                 errorMsg = axiosError.response.data.errores[0];
-               }
+            if (error instanceof Error) {
+              errorMsg = error.message;
             }
 
             return {
@@ -107,10 +118,10 @@ export const useXMLStore = create<XMLState>((set, get) => ({
               proveedorExiste: false,
               productos: [],
               errores: [errorMsg],
-              codigoTercero: ""
+              codigoTercero: "",
             } as BackendValidationResponse;
           }
-        })
+        }),
       );
 
       const results = backendResults.map(mapBackendToResult);
@@ -120,14 +131,14 @@ export const useXMLStore = create<XMLState>((set, get) => ({
 
       // Update the local list with validation results
       const currentList = get().xmlList;
-      const updatedList = currentList.map(file => {
-        const result = results.find(r => r.fileName === file.fileName);
+      const updatedList = currentList.map((file) => {
+        const result = results.find((r) => r.fileName === file.fileName);
         if (result) {
           return {
             ...file,
             estado: result.estado,
             erroresValidacion: result.errores,
-            advertenciasValidacion: result.advertencias
+            advertenciasValidacion: result.advertencias,
           };
         }
         return file;

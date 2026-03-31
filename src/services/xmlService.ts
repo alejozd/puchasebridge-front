@@ -1,5 +1,5 @@
-import axiosClient from "../api/axiosClient";
-import { logger } from '../utils/logger';
+import { handleResponse, BASE_URL, getHeaders } from "../utils/apiHandler";
+import { logger } from "../utils/logger";
 import type {
   XMLFile,
   XmlDetalle,
@@ -11,108 +11,180 @@ import type {
   ProductoPendiente,
   HomologarPayload,
   DocumentoProductosResponse,
-  DashboardMetrics
+  DashboardMetrics,
 } from "../types/xml";
 
 export const getDashboardMetrics = async (): Promise<DashboardMetrics> => {
-  logger.log('[API CALL]', { method: 'GET', url: '/dashboard/metrics' });
-  const response = await axiosClient.get<DashboardMetrics>("/dashboard/metrics");
-  return response.data;
+  logger.log("[API CALL]", { method: "GET", url: "/dashboard/metrics" });
+  const response = await fetch(`${BASE_URL}/dashboard/metrics`, {
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
 };
 
 export const getXMLList = async (): Promise<XMLFile[]> => {
-  logger.log('[API CALL]', { method: 'GET', url: '/xml/list' });
-  const response = await axiosClient.get<XMLFile[]>("/xml/list");
-  return response.data;
+  logger.log("[API CALL]", { method: "GET", url: "/xml/list" });
+  const response = await fetch(`${BASE_URL}/xml/list`, {
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
 };
 
 export const uploadXML = async (file: File): Promise<unknown> => {
-  logger.log('[API CALL]', { method: 'POST', url: '/xml/upload' });
+  logger.log("[API CALL]", { method: "POST", url: "/xml/upload" });
   const formData = new FormData();
   formData.append("file", file);
-  const response = await axiosClient.post("/xml/upload", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
+
+  const headers = getHeaders();
+  delete headers["Content-Type"]; // Fetch sets boundary for FormData automatically
+
+  const response = await fetch(`${BASE_URL}/xml/upload`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+  return handleResponse(response);
+};
+
+export const getProductosDocumento = async (
+  fileName: string,
+): Promise<DocumentoProductosResponse> => {
+  logger.log("[API CALL]", {
+    method: "GET",
+    url: "/xml/productos/documento",
+    params: { fileName },
+  });
+  const response = await fetch(
+    `${BASE_URL}/xml/productos/documento?fileName=${encodeURIComponent(fileName)}`,
+    {
+      headers: getHeaders(),
     },
+  );
+  return handleResponse(response);
+};
+
+export const getProductosPendientes = async (
+  fileName: string,
+): Promise<ProductoPendiente[]> => {
+  logger.log("[API CALL]", {
+    method: "GET",
+    url: "/xml/productos/pendientes",
+    params: { fileName },
   });
-  return response.data;
+  const response = await fetch(
+    `${BASE_URL}/xml/productos/pendientes?fileName=${encodeURIComponent(fileName)}`,
+    {
+      headers: getHeaders(),
+    },
+  );
+  return handleResponse(response);
 };
 
-export const getProductosDocumento = async (fileName: string): Promise<DocumentoProductosResponse> => {
-  logger.log('[API CALL]', { method: 'GET', url: '/xml/productos/documento', params: { fileName } });
-  const response = await axiosClient.get<DocumentoProductosResponse>("/xml/productos/documento", {
-    params: { fileName }
+export const homologarProducto = async (
+  data: HomologarPayload,
+): Promise<{ success: boolean; mensaje: string }> => {
+  logger.log("[API CALL]", { method: "POST", url: "/xml/homologar", data });
+  const response = await fetch(`${BASE_URL}/xml/homologar`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
   });
-  return response.data;
+  return handleResponse(response);
 };
 
-export const getProductosPendientes = async (fileName: string): Promise<ProductoPendiente[]> => {
-  logger.log('[API CALL]', { method: 'GET', url: '/xml/productos/pendientes', params: { fileName } });
-  const response = await axiosClient.get<ProductoPendiente[]>("/xml/productos/pendientes", {
-    params: { fileName }
+export const procesarDocumentos = async (
+  files: string[],
+): Promise<XMLProcesarResponse> => {
+  logger.log("[API CALL]", {
+    method: "POST",
+    url: "/documentos/procesar",
+    data: { files },
   });
-  return response.data;
-};
-
-export const homologarProducto = async (data: HomologarPayload): Promise<{ success: boolean; mensaje: string }> => {
-  logger.log('[API CALL]', { method: 'POST', url: '/xml/homologar', data });
-  const response = await axiosClient.post<{ success: boolean; mensaje: string }>("/xml/homologar", data);
-  return response.data;
-};
-
-export const procesarDocumentos = async (files: string[]): Promise<XMLProcesarResponse> => {
-  logger.log('[API CALL]', { method: 'POST', url: '/documentos/procesar', data: { files } });
-  const response = await axiosClient.post<XMLProcesarResponse>("/documentos/procesar", {
-    files,
+  const response = await fetch(`${BASE_URL}/documentos/procesar`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ files }),
   });
-  return response.data;
+  return handleResponse(response);
 };
 
-export const procesarArchivo = async (fileName: string): Promise<XMLProcesarResponse> => {
+export const procesarArchivo = async (
+  fileName: string,
+): Promise<XMLProcesarResponse> => {
   return procesarDocumentos([fileName]);
 };
 
 export const parseXML = async (fileName: string): Promise<XmlDetalle> => {
-  logger.log('[API CALL]', { method: 'POST', url: '/xml/parse', data: { fileName } });
-  const response = await axiosClient.post<XmlDetalle>("/xml/parse", {
-    fileName,
+  logger.log("[API CALL]", { method: "POST", url: "/xml/parse", data: { fileName } });
+  const response = await fetch(`${BASE_URL}/xml/parse`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ fileName }),
   });
-  return response.data;
+  return handleResponse(response);
 };
 
-export const validateXMLFile = async (fileName: string): Promise<BackendValidationResponse> => {
-  logger.log('[API CALL]', { method: 'POST', url: '/xml/validate', data: { fileName } });
-  const response = await axiosClient.post<BackendValidationResponse>("/xml/validate", {
-    fileName,
+export const validateXMLFile = async (
+  fileName: string,
+): Promise<BackendValidationResponse> => {
+  logger.log("[API CALL]", {
+    method: "POST",
+    url: "/xml/validate",
+    data: { fileName },
   });
-  return response.data;
+  const response = await fetch(`${BASE_URL}/xml/validate`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ fileName }),
+  });
+  return handleResponse(response);
 };
 
 // New services for Procesamiento de XML
 export const getXMLFiles = async (): Promise<XMLFileItem[]> => {
-  logger.log('[API CALL]', { method: 'GET', url: '/xml/files' });
-  const response = await axiosClient.get<XMLFileItem[]>("/xml/files");
-  return response.data;
+  logger.log("[API CALL]", { method: "GET", url: "/xml/files" });
+  const response = await fetch(`${BASE_URL}/xml/files`, {
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
 };
 
 export const getXMLFileDetail = async (id: number): Promise<XMLFileDetail> => {
-  logger.log('[API CALL]', { method: 'GET', url: `/xml/files/${id}` });
-  const response = await axiosClient.get<XMLFileDetail>(`/xml/files/${id}`);
-  return response.data;
+  logger.log("[API CALL]", { method: "GET", url: `/xml/files/${id}` });
+  const response = await fetch(`${BASE_URL}/xml/files/${id}`, {
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
 };
 
-export const validateXML = async (fileName: string): Promise<XMLValidationResult> => {
-  logger.log('[API CALL]', { method: 'POST', url: '/xml/validate', data: { fileName } });
-  const response = await axiosClient.post<XMLValidationResult>("/xml/validate", {
-    fileName,
+export const validateXML = async (
+  fileName: string,
+): Promise<XMLValidationResult> => {
+  logger.log("[API CALL]", {
+    method: "POST",
+    url: "/xml/validate",
+    data: { fileName },
   });
-  return response.data;
+  const response = await fetch(`${BASE_URL}/xml/validate`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ fileName }),
+  });
+  return handleResponse(response);
 };
 
-export const procesarXML = async (files: string[]): Promise<XMLProcesarResponse> => {
-  logger.log('[API CALL]', { method: 'POST', url: '/documentos/procesar', data: { files } });
-  const response = await axiosClient.post<XMLProcesarResponse>("/documentos/procesar", {
-    files,
+export const procesarXML = async (
+  files: string[],
+): Promise<XMLProcesarResponse> => {
+  logger.log("[API CALL]", {
+    method: "POST",
+    url: "/documentos/procesar",
+    data: { files },
   });
-  return response.data;
+  const response = await fetch(`${BASE_URL}/documentos/procesar`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ files }),
+  });
+  return handleResponse(response);
 };
