@@ -170,10 +170,12 @@ const XMLDetailDialog: React.FC<XMLDetailDialogProps> = ({ visible, onHide, xmlD
                                 <span className="totals-label">IMPUESTOS</span>
                                 <span className="totals-value">{formatCurrency(xmlDetail.totales.impuestoTotal)}</span>
                             </div>
-                            <div className="totals-row">
-                                <span className="totals-label">RETENCIÓN</span>
-                                <span className="totals-value">{formatCurrency(retencionCalculada)}</span>
-                            </div>
+                            {Number(retencionCalculada) > 0 && (
+                                <div className="totals-row">
+                                    <span className="totals-label">RETENCIÓN</span>
+                                    <span className="totals-value">{formatCurrency(retencionCalculada)}</span>
+                                </div>
+                            )}
                             <div className="totals-row highlight">
                                 <span className="totals-label">TOTAL FINAL</span>
                                 <span className="totals-value">{formatCurrency(xmlDetail.totales.total)}</span>

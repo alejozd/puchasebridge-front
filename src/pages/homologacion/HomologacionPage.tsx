@@ -24,6 +24,11 @@ const HomologacionPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const toast = useRef<Toast>(null);
 
+    const getErrorMessage = (e: unknown): string => {
+        if (e instanceof Error) return e.message;
+        return 'Error desconocido';
+    };
+
     const loadXmlFiles = useCallback(async () => {
         try {
             const files = await xmlService.getXMLList();
@@ -49,6 +54,7 @@ const HomologacionPage: React.FC = () => {
                 return results[0];
             }
         } catch (e: unknown) {
+            console.error(getErrorMessage(e));
             return null;
         }
         return null;
@@ -322,6 +328,7 @@ const HomologacionPage: React.FC = () => {
                 });
             }
         } catch (e: unknown) {
+            console.error(getErrorMessage(e));
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -358,6 +365,7 @@ const HomologacionPage: React.FC = () => {
                 });
             }
         } catch (e: unknown) {
+            console.error(getErrorMessage(e));
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
