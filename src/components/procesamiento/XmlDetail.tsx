@@ -7,6 +7,7 @@ import { Message } from 'primereact/message';
 import { Timeline } from 'primereact/timeline';
 import ProductTable from './ProductTable';
 import type { XMLFileDetail, XMLValidationResult } from '../../types/xml';
+import './XmlDetail.css';
 
 interface XmlDetailProps {
   detail: XMLFileDetail | null;
@@ -47,9 +48,39 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
     );
   }
 
-  const hasPendingHomologation = detail.productos.some(p => !p.equivalenciaId);
-  const isValidated = ['VALIDADO', 'LISTO', 'PROCESADO'].includes(detail.estado.toUpperCase());
-  const isProcessed = detail.estado.toUpperCase() === 'PROCESADO';
+  console.log(detail.productos);
+
+  const hasPendingHomologation = detail.productos.some(
+    p => p.estadoProducto === 'PENDIENTE'
+  );
+  const canProcess = detail.productos.every(
+    (p) => p.estadoProducto === 'HOMOLOGADO'
+  );
+  const pendingCount = detail.productos.filter(
+    (p) => p.estadoProducto !== 'HOMOLOGADO'
+  ).length;
+  const formatDate = (date?: string | null) => {
+    if (!date) return '';
+    return new Date(date).toLocaleString();
+  };
+
+  const timelineEvents = [
+    {
+      label: 'Cargado',
+      date: detail.fechaCarga,
+      done: true
+    },
+    {
+      label: 'Validado',
+      date: detail.fechaValidacion,
+      done: !!detail.fechaValidacion
+    },
+    {
+      label: 'Procesado',
+      date: detail.fechaProceso,
+      done: !!detail.fechaProceso
+    }
+  ];
 
   const getStatusTag = (status: string) => {
     const s = status.toUpperCase();
@@ -68,24 +99,26 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
       <div className="detail-header-professional mb-4">
         <div className="flex justify-content-between align-items-start">
           <div className="header-info">
-            <div className="flex align-items-center gap-3 mb-2">
-                <h2 className="text-2xl font-bold text-primary m-0">{detail.fileName}</h2>
-                {getStatusTag(detail.estado)}
+            <div className="header-title-row">
+              <h2 className="file-name" title={detail.fileName}>
+                {detail.fileName}
+              </h2>
+              {getStatusTag(detail.estado)}
             </div>
-            <div className="flex flex-wrap gap-4 text-secondary text-sm">
-                <div className="flex align-items-center gap-2">
-                    <i className="pi pi-building text-xs"></i>
-                    <span className="font-semibold">{detail.proveedorNombre}</span>
-                    <span className="opacity-60">({detail.proveedorNit})</span>
-                </div>
-                <div className="flex align-items-center gap-2">
-                    <i className="pi pi-calendar text-xs"></i>
-                    <span>{detail.fechaDocumento}</span>
-                </div>
-                <div className="flex align-items-center gap-2">
-                    <i className="pi pi-upload text-xs"></i>
-                    <span>Cargado: {detail.fechaCarga}</span>
-                </div>
+            <div className="header-meta">
+              <div className="header-meta-item">
+                <i className="pi pi-building"></i>
+                <span>{detail.proveedorNombre}</span>
+                <span className="meta-secondary">({detail.proveedorNit})</span>
+              </div>
+              <div className="header-meta-item">
+                <i className="pi pi-calendar"></i>
+                <span>{detail.fechaDocumento}</span>
+              </div>
+              <div className="header-meta-item">
+                <i className="pi pi-upload"></i>
+                <span>Cargado: {detail.fechaCarga}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -94,47 +127,30 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
       <Divider className="my-2" />
 
       {/* TIMELINE VISUAL */}
-      <div className="flex justify-content-center mb-5 mt-2 timeline-wrapper">
-        <Timeline
-          value={[
-            {
-              status: 'Validar',
-              icon: 'pi pi-shield',
-              color: isValidated ? '#22c55e' : '#3b82f6',
-              active: !isValidated,
-              completed: isValidated
-            },
-            {
-              status: 'Procesar',
-              icon: 'pi pi-play-circle',
-              color: isProcessed ? '#22c55e' : (isValidated && !isProcessed ? '#3b82f6' : '#cbd5e1'),
-              active: isValidated && !isProcessed,
-              completed: isProcessed
-            }
-          ]}
-          layout="horizontal"
-          content={(item) => (
-            <span className={`text-xs font-bold uppercase tracking-wider ${item.completed ? 'text-green-500' : item.active ? 'text-primary' : 'text-slate-400'}`}>
-              {item.status}
-            </span>
-          )}
-          marker={(item) => (
-            <span
-              className="flex align-items-center justify-content-center border-circle shadow-1 transition-all transition-duration-300"
-              style={{
-                width: '2.5rem',
-                height: '2.5rem',
-                backgroundColor: item.color,
-                color: '#ffffff',
-                transform: item.active ? 'scale(1.1)' : 'scale(1)',
-                zIndex: 2
-              }}
-            >
-              <i className={`${item.icon} text-lg`}></i>
-            </span>
-          )}
-          style={{ width: '320px' }}
-        />
+      <div className="timeline-wrapper">
+        <div className="timeline-container">
+          <Timeline
+            value={timelineEvents}
+            layout="horizontal"
+            content={(item) => (
+              <div className="timeline-content">
+                <span className={`timeline-label ${item.done ? 'done' : ''}`}>
+                  {item.label}
+                </span>
+                {item.date && (
+                  <small className="timeline-date">
+                    {formatDate(item.date)}
+                  </small>
+                )}
+              </div>
+            )}
+            marker={(item) => (
+              <div className={`timeline-marker ${item.done ? 'done' : ''}`}>
+                <i className={item.done ? 'pi pi-check' : 'pi pi-clock'} />
+              </div>
+            )}
+          />
+        </div>
       </div>
 
       {/* VALIDATION SECTION */}
@@ -195,14 +211,22 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
         )}
 
         {detail.estado.toUpperCase() === 'VALIDADO' && (
+          <div className="flex flex-column align-items-end gap-2">
             <Button
-                label="Procesar ahora"
-                icon="pi pi-play-circle"
-                onClick={onProcesar}
-                loading={processing}
-                disabled={validating || loading}
-                className="p-button-lg p-button-success shadow-2"
+              label="Procesar"
+              icon="pi pi-check"
+              onClick={onProcesar}
+              loading={processing}
+              disabled={!canProcess || processing || loading}
+              tooltip={!canProcess ? 'Todos los productos deben estar homologados' : ''}
+              className="p-button-lg p-button-success shadow-2"
             />
+            {!canProcess && (
+              <small className="text-red-500">
+                Este documento tiene {pendingCount} producto(s) pendiente(s) de homologación.
+              </small>
+            )}
+          </div>
         )}
 
         {detail.estado.toUpperCase() === 'CARGADO' && (

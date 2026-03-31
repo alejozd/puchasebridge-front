@@ -88,8 +88,13 @@
 .detail-header-professional {
     background: linear-gradient(to right, #f8fafc, #ffffff);
     padding: 1.25rem;
+    padding-bottom: 0.5rem;
     border-radius: 0.75rem;
     border: 1px solid #f1f5f9;
+}
+
+.timeline-wrapper {
+    padding: 1rem 0;
 }
 
 .detail-header-professional h2 {

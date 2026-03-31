@@ -36,6 +36,9 @@ const ProcesamientoPage: React.FC = () => {
     const [validationResult, setValidationResult] = useState<XMLValidationResult | null>(null);
     const [generatedDoc, setGeneratedDoc] = useState<string | null>(null);
     const toast = useRef<Toast>(null);
+    const processableFiles = selectedFiles.filter(
+        (f) => f.estado === 'VALIDADO' || f.estado === 'LISTO'
+    );
 
     const handleRowClick = (id: number) => {
         setSelectedId(id);
@@ -57,7 +60,7 @@ const ProcesamientoPage: React.FC = () => {
                     detail: 'El documento es válido para su procesamiento.',
                     life: 3000
                 });
-                await fetchDetail(detail.id);
+                setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: 'VALIDADO' } : f));
             } else {
                 toast.current?.show({
                     severity: 'error',
@@ -65,7 +68,10 @@ const ProcesamientoPage: React.FC = () => {
                     detail: `Se encontraron ${result.errores.length} errores.`,
                     life: 5000
                 });
+                setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: 'ERROR' } : f));
             }
+            await fetchDetail(detail.id);
+            refreshFiles();
         } else {
             toast.current?.show({
                 severity: 'error',
@@ -78,56 +84,89 @@ const ProcesamientoPage: React.FC = () => {
 
     const handleProcesarIndividual = async () => {
         if (!detail) return;
+        if (detail.estado.toUpperCase() === 'PROCESADO') return;
 
-        const result = await procesar([detail.id]);
-        if (result && result.success) {
-            const docId = result.documentoGenerado || 'N/A';
+        const result = await procesar([detail.fileName]);
+        if (!result) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al procesar el archivo',
+                life: 3000
+            });
+            return;
+        }
+
+        const procesados = result.procesados || [];
+        const errores = result.errores || [];
+
+        if (result.success || procesados.length > 0) {
+            const docId = result.documentoGenerado || procesados[0] || 'N/A';
             setGeneratedDoc(docId);
             toast.current?.show({
                 severity: 'success',
                 summary: 'Éxito',
-                detail: 'Archivo procesado correctamente',
+                detail: 'Documento(s) procesado(s) correctamente',
                 life: 3000
             });
-            // Update the file in the list to reflect processed state
-            setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: 'PROCESADO' } : f));
-            // Update the detail view state via fresh fetch
-            await fetchDetail(detail.id);
+            setFiles(prev => prev.map(f => f.id === detail.id ? { ...f, estado: result.estado || 'PROCESADO' } : f));
             setConfirmIndividualDialog(false);
-        } else {
+        }
+
+        if (errores.length > 0) {
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: result?.mensaje || 'Error al procesar el archivo',
-                life: 3000
+                detail: 'Algunos documentos no pudieron procesarse',
+                life: 4000
             });
         }
+        await fetchDetail(detail.id);
+        refreshFiles();
     };
 
     const handleProcesarBatch = async () => {
-        if (selectedFiles.length === 0) return;
+        if (processableFiles.length === 0) return;
 
-        const ids = selectedFiles.map(f => f.id);
-        const result = await procesar(ids);
+        const files = processableFiles.map(f => f.fileName);
+        const result = await procesar(files);
 
-        if (result && result.success) {
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Procesamiento Masivo',
-                detail: `${selectedFiles.length} archivos procesados con éxito.`,
-                life: 3000
-            });
-            refreshFiles();
-            setSelectedFiles([]);
-            setConfirmBatchDialog(false);
-        } else {
+        if (!result) {
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: result?.mensaje || 'Error en el procesamiento masivo',
+                detail: 'Error en el procesamiento masivo',
                 life: 3000
             });
+            return;
         }
+
+        const procesados = result.procesados || [];
+        const errores = result.errores || [];
+
+        if (procesados.length > 0) {
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Procesamiento Masivo',
+                detail: 'Documento(s) procesado(s) correctamente',
+                life: 3000
+            });
+            setSelectedFiles([]);
+            setConfirmBatchDialog(false);
+        }
+
+        if (errores.length > 0) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Algunos documentos no pudieron procesarse',
+                life: 4000
+            });
+        }
+        if (selectedId) {
+            await fetchDetail(selectedId);
+        }
+        refreshFiles();
     };
 
     return (
@@ -152,7 +191,7 @@ const ProcesamientoPage: React.FC = () => {
                             label={`Procesar seleccionados (${selectedFiles.length})`}
                             icon="pi pi-play-circle"
                             onClick={() => setConfirmBatchDialog(true)}
-                            disabled={selectedFiles.length === 0 || processing}
+                            disabled={processableFiles.length === 0 || processing}
                             className="p-button-primary"
                         />
                     </div>
@@ -219,13 +258,22 @@ const ProcesamientoPage: React.FC = () => {
                 footer={
                     <div className="flex justify-content-end gap-2">
                         <Button label="Cancelar" onClick={() => setConfirmBatchDialog(false)} className="p-button-text p-button-secondary" />
-                        <Button label="Procesar Ahora" onClick={handleProcesarBatch} className="p-button-primary" autoFocus loading={processing} />
+                        <Button label="Procesar Ahora" onClick={handleProcesarBatch} className="p-button-primary" autoFocus loading={processing} disabled={processableFiles.length === 0 || processing} />
                     </div>
                 }
             >
                 <div className="flex align-items-center gap-3">
                     <i className="pi pi-exclamation-circle text-primary text-4xl"></i>
-                    <p>¿Está seguro que desea procesar los <b>{selectedFiles.length}</b> archivos seleccionados? Esta acción es irreversible.</p>
+                    <div>
+                        <p>
+                            Se procesarán <b>{processableFiles.length}</b> de <b>{selectedFiles.length}</b> archivos seleccionados.
+                        </p>
+                        {processableFiles.length !== selectedFiles.length && (
+                            <small className="text-yellow-600">
+                                Algunos archivos tienen productos pendientes y no serán procesados.
+                            </small>
+                        )}
+                    </div>
                 </div>
             </Dialog>
 

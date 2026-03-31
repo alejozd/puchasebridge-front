@@ -25,12 +25,16 @@ export const useXmlDetail = () => {
         fechaDocumento: data.fecha_documento || data.fechaDocumento || '',
         estado: data.estado,
         fechaCarga: data.fecha_carga || data.fechaCarga || '',
+        fechaValidacion: data.fecha_validacion ?? data.fechaValidacion ?? null,
+        fechaProceso: data.fecha_proceso ?? data.fechaProceso ?? null,
         productos: (data.productos || []).map(p => ({
           ...p,
-          valorUnitario: p.valor_unitario,
-          valorTotal: p.valor_total,
+          id: p.id ?? 0,
+          unidad: p.unidad || 'UND',
+          valorUnitario: p.valorUnitario ?? p.valor_unitario ?? 0,
+          valorTotal: p.valorTotal ?? p.valor_total ?? 0,
           equivalenciaId: p.equivalencia_id,
-          estadoProducto: p.equivalencia_id ? 'HOMOLOGADO' : 'PENDIENTE'
+          estadoProducto: p.estadoProducto ?? (p.equivalencia_id ? 'HOMOLOGADO' : 'PENDIENTE')
         }))
       };
 
@@ -57,10 +61,10 @@ export const useXmlDetail = () => {
     }
   };
 
-  const procesar = async (ids: number[]): Promise<XMLProcesarResponse | null> => {
+  const procesar = async (files: string[]): Promise<XMLProcesarResponse | null> => {
     setProcessing(true);
     try {
-      const result = await procesarXML(ids);
+      const result = await procesarXML(files);
       return result;
     } catch (err) {
       console.error('Error durante el procesamiento:', err);

@@ -11,29 +11,26 @@ interface ProductTableProps {
 }
 
 const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
+  console.log('productos', productos);
+
   const homologationBodyTemplate = (rowData: XMLProduct) => {
-    // Debug for mapping issues
-    if (!rowData.estadoProducto) {
-       console.warn('Missing estadoProducto for:', rowData.descripcion);
-    }
-    const isHomologated = rowData.estadoProducto === 'HOMOLOGADO' || !!rowData.equivalenciaId;
     return (
       <Tag
-        value={isHomologated ? 'HOMOLOGADO' : 'PENDIENTE'}
-        severity={isHomologated ? 'success' : 'warning'}
+        value={rowData.estadoProducto}
+        severity={rowData.estadoProducto === 'HOMOLOGADO' ? 'success' : 'warning'}
         className="status-tag"
       />
     );
   };
 
-  const currencyBodyTemplate = (value: number | undefined) => {
-    if (!value || isNaN(value)) return '$ 0';
-    return new Intl.NumberFormat('es-CO', {
+  const formatCurrency = (value: unknown) => {
+    const num = Number(value);
+    if (isNaN(num)) return '$ 0';
+
+    return num.toLocaleString('es-CO', {
       style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
+      currency: 'COP'
+    });
   };
 
   return (
@@ -73,14 +70,14 @@ const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
         <Column
           field="unidad"
           header="Unidad"
-          body={(rowData: XMLProduct) => <span className="text-xs uppercase font-medium">{rowData.unidad || 'UND'}</span>}
+          body={(rowData: XMLProduct) => <span className="text-xs uppercase font-medium">{rowData.unidad}</span>}
         />
         <Column
           field="valorUnitario"
           header="Unitario"
           body={(rowData: XMLProduct) => (
             <span className="text-sm">
-               {currencyBodyTemplate(rowData.valorUnitario)}
+              {formatCurrency(rowData.valorUnitario)}
             </span>
           )}
           className="text-right col-price"
@@ -89,9 +86,9 @@ const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
           field="valorTotal"
           header="Total"
           body={(rowData: XMLProduct) => (
-             <span className="text-sm font-bold text-primary">
-                {currencyBodyTemplate(rowData.valorTotal)}
-             </span>
+            <span className="text-sm font-bold text-primary">
+              {formatCurrency(rowData.valorTotal)}
+            </span>
           )}
           className="text-right col-price"
         />

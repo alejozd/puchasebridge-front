@@ -84,18 +84,29 @@ export interface XMLFileItem {
   size: number;
 }
 
+export interface Producto {
+  id: number;
+  descripcion: string;
+  unidad: string;
+  valorUnitario: number;
+  valorTotal: number;
+  estadoProducto: string;
+  equivalenciaId?: number | null;
+}
+
 export interface XMLProduct {
+  id?: number;
   descripcion: string;
   referencia: string;
   cantidad: number;
   unidad: string;
   valor_unitario: number;
-  valorUnitario?: number;
+  valorUnitario: number;
   valor_total: number;
-  valorTotal?: number;
+  valorTotal: number;
   equivalencia_id?: number | string | null;
   equivalenciaId?: number | string | null;
-  estadoProducto?: 'HOMOLOGADO' | 'PENDIENTE';
+  estadoProducto: 'HOMOLOGADO' | 'PENDIENTE' | string;
 }
 
 export interface XMLFileDetail {
@@ -111,6 +122,10 @@ export interface XMLFileDetail {
   estado: string;
   fechaCarga: string;
   fecha_carga?: string;
+  fechaValidacion?: string | null;
+  fecha_validacion?: string | null;
+  fechaProceso?: string | null;
+  fecha_proceso?: string | null;
   productos: XMLProduct[];
 }
 
@@ -121,8 +136,11 @@ export interface XMLValidationResult {
 }
 
 export interface XMLProcesarResponse {
-  success: boolean;
+  success?: boolean;
+  procesados: string[];
+  errores: string[];
   documentoGenerado?: string;
+  estado?: string;
   mensaje?: string;
 }
 
