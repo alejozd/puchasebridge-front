@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Divider } from 'primereact/divider';
@@ -16,6 +16,14 @@ interface XmlDetailProps {
   processing: boolean;
   loading: boolean;
   generatedDoc: string | null;
+}
+
+interface TimelineEvent {
+  label: string;
+  date?: string | null;
+  done: boolean;
+  icon: string;
+  description: string;
 }
 
 const XmlDetail: React.FC<XmlDetailProps> = ({
@@ -45,37 +53,67 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 
   logger.log(detail.productos);
 
-  const hasPendingHomologation = detail.productos.some(
-    p => p.estadoProducto === 'PENDIENTE'
+  const hasPendingHomologation = useMemo(() => 
+    detail.productos.some(p => p.estadoProducto === 'PENDIENTE'),
+    [detail.productos]
   );
-  const canProcess = detail.productos.every(
-    (p) => p.estadoProducto === 'HOMOLOGADO'
-  );
-  const pendingCount = detail.productos.filter(
-    (p) => p.estadoProducto !== 'HOMOLOGADO'
-  ).length;
-  const formatDate = (date?: string | null) => {
-    if (!date) return '';
-    return new Date(date).toLocaleString();
-  };
 
-  const timelineEvents = [
+  const canProcess = useMemo(() => 
+    detail.productos.every(p => p.estadoProducto === 'HOMOLOGADO'),
+    [detail.productos]
+  );
+
+  const pendingCount = useMemo(() => 
+    detail.productos.filter(p => p.estadoProducto !== 'HOMOLOGADO').length,
+    [detail.productos]
+  );
+
+  const timelineEvents = useMemo<TimelineEvent[]>(() => [
     {
       label: 'Cargado',
       date: detail.fechaCarga,
-      done: true
+      done: true,
+      icon: 'pi pi-upload',
+      description: 'Archivo cargado en el sistema'
     },
     {
       label: 'Validado',
       date: detail.fechaValidacion,
-      done: !!detail.fechaValidacion
+      done: !!detail.fechaValidacion,
+      icon: 'pi pi-check-circle',
+      description: 'Documento validado correctamente'
     },
     {
       label: 'Procesado',
       date: detail.fechaProceso,
-      done: !!detail.fechaProceso
+      done: !!detail.fechaProceso,
+      icon: 'pi pi-file-export',
+      description: 'Enviado al ERP'
     }
-  ];
+  ], [detail]);
+
+  const formatDate = (date?: string | null) => {
+    if (!date) return '';
+    return new Date(date).toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatTimeAgo = (date?: string | null) => {
+    if (!date) return '';
+    const now = new Date();
+    const past = new Date(date);
+    const diffInHours = Math.floor((now.getTime() - past.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Justo ahora';
+    if (diffInHours < 24) return `Hace ${diffInHours}h`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `Hace ${diffInDays}d`;
+  };
 
   const getStatusTag = (status: string) => {
     const s = status.toUpperCase();
@@ -87,9 +125,6 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 
   return (
     <div className="xml-detail-container h-full flex flex-column">
-      {/* DEBUG RENDER */}
-      <pre style={{ display: 'none' }}>{JSON.stringify(detail, null, 2)}</pre>
-
       {/* PROFESSIONAL HEADER */}
       <div className="detail-header-professional mb-4">
         <div className="flex justify-content-between align-items-start">
@@ -121,26 +156,31 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 
       <Divider className="my-2" />
 
-      {/* TIMELINE VISUAL */}
-      <div className="timeline-wrapper">
-        <div className="timeline-container">
+      {/* TIMELINE VISUAL - MODERN */}
+      <div className="timeline-wrapper-modern">
+        <div className="timeline-container-modern">
           <Timeline
             value={timelineEvents}
             layout="horizontal"
+            align="alternate"
+            className="modern-timeline"
             content={(item) => (
-              <div className="timeline-content">
-                <span className={`timeline-label ${item.done ? 'done' : ''}`}>
+              <div className="timeline-content-modern">
+                <span className={`timeline-label-modern ${item.done ? 'done' : ''}`}>
                   {item.label}
                 </span>
                 {item.date && (
-                  <small className="timeline-date">
-                    {formatDate(item.date)}
-                  </small>
+                  <>
+                    <small className="timeline-date-modern">
+                      {formatDate(item.date)}
+                    </small>
+                    <span className="timeline-time-ago">{formatTimeAgo(item.date)}</span>
+                  </>
                 )}
               </div>
             )}
             marker={(item) => (
-              <div className={`timeline-marker ${item.done ? 'done' : ''}`}>
+              <div className={`timeline-marker-modern ${item.done ? 'done' : ''} marker-${item.label.toLowerCase()}`}>
                 <i className={item.done ? 'pi pi-check' : 'pi pi-clock'} />
               </div>
             )}
@@ -151,58 +191,90 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 
       {/* RESULT SECTION */}
       {generatedDoc && (
-        <div className="generated-doc-highlight p-4 border-round mb-4 bg-primary-container text-primary-on-container flex align-items-center gap-4">
-            <div className="result-icon-bg">
+        <div className="generated-doc-highlight-modern p-4 border-round mb-4 flex align-items-center gap-4">
+            <div className="result-icon-bg-modern">
                 <i className="pi pi-file-export text-2xl"></i>
             </div>
-            <div>
-                <span className="block text-xs font-bold uppercase tracking-wider opacity-70">Documento Generado en Helisa</span>
+            <div className="flex-grow-1">
+                <span className="block text-xs font-bold uppercase tracking-wider opacity-70 mb-1">Documento Generado en Helisa</span>
                 <span className="block text-xl font-mono font-bold text-primary">{generatedDoc}</span>
             </div>
+            <Button 
+              icon="pi pi-external-link" 
+              label="Ver Documento" 
+              className="p-button-outlined p-button-sm"
+              tooltip="Abrir documento en Helisa"
+            />
         </div>
       )}
 
       {hasPendingHomologation && detail.estado.toUpperCase() === 'CARGADO' && (
-        <div className="alert-warning p-3 border-round mb-4 flex align-items-center gap-2">
-          <i className="pi pi-exclamation-triangle"></i>
-          <span className="text-sm font-semibold">Existen productos pendientes de homologación</span>
-        </div>
+        <Message 
+          severity="warn" 
+          icon="pi pi-exclamation-triangle"
+          text="Existen productos pendientes de homologación. Debes homologar todos los productos antes de procesar el documento." 
+          className="w-full mb-4"
+        />
       )}
 
       <div className="flex-grow-1 overflow-hidden flex flex-column">
-        <h3 className="text-sm font-bold text-secondary uppercase tracking-wider mb-2">Productos en el documento</h3>
-        <div className="flex-grow-1 overflow-auto">
+        <div className="section-header-modern mb-3">
+          <h3 className="text-sm font-bold text-secondary uppercase tracking-wider mb-1">
+            Productos en el documento
+          </h3>
+          <div className="product-stats flex gap-3">
+            <Tag 
+              value={`${detail.productos.length} productos`} 
+              severity="info" 
+              className="stat-tag"
+            />
+            <Tag 
+              value={`${pendingCount} pendientes`} 
+              severity={pendingCount > 0 ? 'warning' : 'success'} 
+              className="stat-tag"
+            />
+          </div>
+        </div>
+        <div className="flex-grow-1 overflow-auto products-table-container">
           <ProductTable productos={detail.productos} />
         </div>
       </div>
 
-      <Divider />
+      <Divider className="my-3" />
 
-      {/* FOOTER ACTIONS - DYNAMIC SMART BUTTONS */}
-      <div className="detail-footer-actions flex justify-content-end align-items-center py-2">
+      {/* FOOTER ACTIONS - MODERN SMART BUTTONS */}
+      <div className="detail-footer-actions-modern flex justify-content-between align-items-center py-3 px-4 border-round bg-surface-50">
         {detail.estado.toUpperCase() === 'PROCESADO' && (
-             <Message severity="success" text="Este documento ya fue procesado y enviado al ERP" className="w-full" />
+             <Message 
+               severity="success" 
+               icon="pi pi-check-circle"
+               text="Documento procesado y enviado al ERP exitosamente" 
+               className="w-full" 
+             />
         )}
 
         {detail.estado.toUpperCase() === 'VALIDADO' && (
-          <div className="flex flex-column align-items-end gap-2">
+          <div className="flex align-items-center gap-3 w-full justify-content-between">
+            {!canProcess && (
+              <Message 
+                severity="warn" 
+                icon="pi pi-info-circle"
+                text={`${pendingCount} producto(s) pendiente(s) de homologación`} 
+                className="flex-grow-1"
+              />
+            )}
             <Button
-              label="Procesar"
-              icon="pi pi-check"
+              label="Procesar Documento"
+              icon="pi pi-file-export"
               onClick={onProcesar}
               loading={processing}
               disabled={!canProcess || processing || loading}
               tooltip={!canProcess ? 'Todos los productos deben estar homologados' : ''}
-              className="p-button-lg p-button-success shadow-2"
+              className="p-button-lg p-button-success shadow-3"
+              rounded
             />
-            {!canProcess && (
-              <small className="text-red-500">
-                Este documento tiene {pendingCount} producto(s) pendiente(s) de homologación.
-              </small>
-            )}
           </div>
         )}
-
       </div>
     </div>
   );
