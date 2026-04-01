@@ -1,10 +1,8 @@
 import React, { useMemo } from 'react';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
-import { Divider } from 'primereact/divider';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Message } from 'primereact/message';
-import { Timeline } from 'primereact/timeline';
 import ProductTable from './ProductTable';
 import type { XMLFileDetail } from '../../types/xml';
 import './XmlDetail.css';
@@ -125,84 +123,76 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 
   return (
     <div className="xml-detail-container h-full flex flex-column">
-      {/* PROFESSIONAL HEADER */}
-      <div className="detail-header-professional mb-4">
-        <div className="flex justify-content-between align-items-start">
-          <div className="header-info">
-            <div className="header-title-row">
+      {/* HEADER COMPACTO */}
+      <div className="detail-header-compact mb-3">
+        <div className="flex justify-content-between align-items-start gap-3">
+          <div className="header-info flex-grow-1">
+            <div className="header-title-row mb-2">
               <h2 className="file-name" title={detail.fileName}>
                 {detail.fileName}
               </h2>
               {getStatusTag(detail.estado)}
             </div>
-            <div className="header-meta">
-              <div className="header-meta-item">
+            <div className="header-meta-compact">
+              <div className="meta-item">
                 <i className="pi pi-building"></i>
                 <span>{detail.proveedorNombre}</span>
-                <span className="meta-secondary">({detail.proveedorNit})</span>
+                <span className="meta-nit">({detail.proveedorNit})</span>
               </div>
-              <div className="header-meta-item">
+              <div className="meta-divider"></div>
+              <div className="meta-item">
                 <i className="pi pi-calendar"></i>
                 <span>{detail.fechaDocumento}</span>
               </div>
-              <div className="header-meta-item">
-                <i className="pi pi-upload"></i>
-                <span>Cargado: {detail.fechaCarga}</span>
+              <div className="meta-divider"></div>
+              <div className="meta-item">
+                <i className="pi pi-clock"></i>
+                <span>{formatTimeAgo(detail.fechaCarga)}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <Divider className="my-2" />
-
-      {/* TIMELINE VISUAL - MODERN */}
-      <div className="timeline-wrapper-modern">
-        <div className="timeline-container-modern">
-          <Timeline
-            value={timelineEvents}
-            layout="horizontal"
-            align="alternate"
-            className="modern-timeline"
-            content={(item) => (
-              <div className="timeline-content-modern">
-                <span className={`timeline-label-modern ${item.done ? 'done' : ''}`}>
-                  {item.label}
-                </span>
-                {item.date && (
-                  <>
-                    <small className="timeline-date-modern">
-                      {formatDate(item.date)}
-                    </small>
-                    <span className="timeline-time-ago">{formatTimeAgo(item.date)}</span>
-                  </>
-                )}
+      {/* TIMELINE SUTIL - Minimalista */}
+      <div className="timeline-subtle-wrapper mb-3">
+        <div className="timeline-subtle">
+          {timelineEvents.map((event, index) => (
+            <React.Fragment key={event.label}>
+              <div className="timeline-event-subtle">
+                <div className={`event-marker ${event.done ? 'done' : ''}`}>
+                  <i className={event.done ? 'pi pi-check' : 'pi pi-circle-on'} />
+                </div>
+                <div className="event-info">
+                  <span className={`event-label ${event.done ? 'done' : ''}`}>
+                    {event.label}
+                  </span>
+                  {event.date && (
+                    <small className="event-date">{formatDate(event.date)}</small>
+                  )}
+                </div>
               </div>
-            )}
-            marker={(item) => (
-              <div className={`timeline-marker-modern ${item.done ? 'done' : ''} marker-${item.label.toLowerCase()}`}>
-                <i className={item.done ? 'pi pi-check' : 'pi pi-clock'} />
-              </div>
-            )}
-          />
+              {index < timelineEvents.length - 1 && (
+                <div className={`event-connector ${timelineEvents[index + 1].done ? 'done' : ''}`} />
+              )}
+            </React.Fragment>
+          ))}
         </div>
       </div>
 
 
-      {/* RESULT SECTION */}
+      {/* RESULT SECTION - Discreto */}
       {generatedDoc && (
-        <div className="generated-doc-highlight-modern p-4 border-round mb-4 flex align-items-center gap-4">
-            <div className="result-icon-bg-modern">
-                <i className="pi pi-file-export text-2xl"></i>
-            </div>
+        <div className="generated-doc-simple p-3 border-round mb-3 flex align-items-center gap-3 bg-blue-50">
+            <i className="pi pi-file-export text-blue-600 text-xl"></i>
             <div className="flex-grow-1">
-                <span className="block text-xs font-bold uppercase tracking-wider opacity-70 mb-1">Documento Generado en Helisa</span>
-                <span className="block text-xl font-mono font-bold text-primary">{generatedDoc}</span>
+                <span className="block text-xs font-medium text-blue-700 mb-0">Documento en Helisa:</span>
+                <span className="block text-sm font-mono font-semibold text-primary">{generatedDoc}</span>
             </div>
             <Button 
               icon="pi pi-external-link" 
-              label="Ver Documento" 
-              className="p-button-outlined p-button-sm"
+              label="Ver" 
+              className="p-button-text p-button-sm"
               tooltip="Abrir documento en Helisa"
             />
         </div>
@@ -218,20 +208,14 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
       )}
 
       <div className="flex-grow-1 overflow-hidden flex flex-column">
-        <div className="section-header-modern mb-3">
-          <h3 className="text-sm font-bold text-secondary uppercase tracking-wider mb-1">
-            Productos en el documento
+        <div className="section-header-simple mb-2 flex justify-content-between align-items-center">
+          <h3 className="text-sm font-semibold text-secondary m-0">
+            Productos ({detail.productos.length})
           </h3>
-          <div className="product-stats flex gap-3">
-            <Tag 
-              value={`${detail.productos.length} productos`} 
-              severity="info" 
-              className="stat-tag"
-            />
+          <div className="product-stats-simple flex gap-2">
             <Tag 
               value={`${pendingCount} pendientes`} 
               severity={pendingCount > 0 ? 'warning' : 'success'} 
-              className="stat-tag"
             />
           </div>
         </div>
@@ -240,15 +224,13 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
         </div>
       </div>
 
-      <Divider className="my-3" />
-
-      {/* FOOTER ACTIONS - MODERN SMART BUTTONS */}
-      <div className="detail-footer-actions-modern flex justify-content-between align-items-center py-3 px-4 border-round bg-surface-50">
+      {/* FOOTER ACTIONS - Simple */}
+      <div className="detail-footer-simple flex justify-content-between align-items-center py-2 mt-3">
         {detail.estado.toUpperCase() === 'PROCESADO' && (
              <Message 
                severity="success" 
                icon="pi pi-check-circle"
-               text="Documento procesado y enviado al ERP exitosamente" 
+               text="Documento procesado y enviado al ERP" 
                className="w-full" 
              />
         )}
@@ -259,7 +241,7 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
               <Message 
                 severity="warn" 
                 icon="pi pi-info-circle"
-                text={`${pendingCount} producto(s) pendiente(s) de homologación`} 
+                text={`${pendingCount} producto(s) pendiente(s)`} 
                 className="flex-grow-1"
               />
             )}
@@ -269,9 +251,8 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
               onClick={onProcesar}
               loading={processing}
               disabled={!canProcess || processing || loading}
-              tooltip={!canProcess ? 'Todos los productos deben estar homologados' : ''}
-              className="p-button-lg p-button-success shadow-3"
-              rounded
+              tooltip={!canProcess ? 'Homologa todos los productos primero' : ''}
+              className="p-button-sm p-button-success"
             />
           </div>
         )}
