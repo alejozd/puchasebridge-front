@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { logger } from "../../utils/logger";
 import {
   DataTable,
@@ -42,11 +42,15 @@ const XMLValidationPage: React.FC = () => {
 
   const toast = useRef<Toast>(null);
 
+  // Cargar lista de XMLs al montar el componente
   useEffect(() => {
     logger.log("[PAGE] XMLValidationPage mounted");
     fetchXMLList();
   }, [fetchXMLList]);
 
+  /**
+   * Maneja la visualización del detalle de un archivo XML
+   */
   const handleViewDetail = async (fileName: string) => {
     setDetailLoading(true);
     setDisplayDetailModal(true);
@@ -70,7 +74,10 @@ const XMLValidationPage: React.FC = () => {
     }
   };
 
-  const handleValidate = async (files: XMLFile[]) => {
+  /**
+   * Maneja la validación de uno o múltiples archivos XML
+   */
+  const handleValidate = useCallback(async (files: XMLFile[]) => {
     if (files.length === 0) return;
 
     const fileNamesToValidate = files.map((f) => f.fileName);
@@ -80,7 +87,7 @@ const XMLValidationPage: React.FC = () => {
       await validateFiles(fileNamesToValidate);
       await fetchXMLList();
 
-      // If single file validation, show issues if any
+      // Si es validación de un solo archivo, mostrar incidencias si las hay
       if (files.length === 1) {
         const updatedFile = useXMLStore
           .getState()
@@ -114,8 +121,11 @@ const XMLValidationPage: React.FC = () => {
         prev.filter((name) => !fileNamesToValidate.includes(name)),
       );
     }
-  };
+  }, [validateFiles, fetchXMLList]);
 
+  /**
+   * Template para mostrar el estado del archivo con Tag de PrimeReact
+   */
   const statusBodyTemplate = (rowData: XMLFile) => {
     const severityMap: Record<
       string,
@@ -138,18 +148,25 @@ const XMLValidationPage: React.FC = () => {
     );
   };
 
+  /**
+   * Template para mostrar el nombre del archivo con ícono
+   */
   const fileNameBodyTemplate = (rowData: XMLFile) => {
     const isError = rowData.estado === "ERROR";
     return (
       <div className="filename-cell">
         <i
           className={`pi pi-file ${isError ? "text-error" : "text-primary"}`}
+          aria-hidden="true"
         ></i>
         <span className="filename-text">{rowData.fileName}</span>
       </div>
     );
   };
 
+  /**
+   * Muestra el modal de incidencias (errores y advertencias) de un archivo
+   */
   const handleViewIssues = (file: XMLFile) => {
     setValidationInfo({
       fileName: file.fileName,
@@ -159,11 +176,17 @@ const XMLValidationPage: React.FC = () => {
     setDisplayValidationModal(true);
   };
 
+  /**
+   * Abre el modal de homologación para un archivo específico
+   */
   const handleHomologar = (fileName: string) => {
     setSelectedFileName(fileName);
     setDisplayHomologacionModal(true);
   };
 
+  /**
+   * Callback ejecutado cuando la homologación se completa exitosamente
+   */
   const handleHomologacionSuccess = async () => {
     setDisplayHomologacionModal(false);
     if (selectedFileName) {
@@ -171,6 +194,9 @@ const XMLValidationPage: React.FC = () => {
     }
   };
 
+  /**
+   * Template para mostrar las acciones disponibles según el estado del archivo
+   */
   const actionBodyTemplate = (rowData: XMLFile) => {
     const isError = rowData.estado === "ERROR";
     const isHomologation = rowData.estado === "PENDIENTE";
@@ -178,7 +204,7 @@ const XMLValidationPage: React.FC = () => {
     const isCurrentlyValidating = validatingFiles.includes(rowData.fileName);
 
     return (
-      <div className="actions-cell">
+      <div className="actions-cell" role="group" aria-label={`Acciones para ${rowData.fileName}`}>
         <Button
           icon="pi pi-check"
           text
@@ -189,6 +215,7 @@ const XMLValidationPage: React.FC = () => {
           onClick={() => handleValidate([rowData])}
           disabled={isValidated || validating || isCurrentlyValidating}
           loading={isCurrentlyValidating}
+          aria-label={`Validar ${rowData.fileName}`}
         />
         <Button
           icon="pi pi-eye"
@@ -198,6 +225,7 @@ const XMLValidationPage: React.FC = () => {
           size="small"
           tooltip="Ver detalle"
           onClick={() => handleViewDetail(rowData.fileName)}
+          aria-label={`Ver detalle de ${rowData.fileName}`}
         />
         {isHomologation && (
           <Button
@@ -208,6 +236,7 @@ const XMLValidationPage: React.FC = () => {
             size="small"
             tooltip="Homologar"
             onClick={() => handleHomologar(rowData.fileName)}
+            aria-label={`Homologar ${rowData.fileName}`}
           />
         )}
         {(isError || isHomologation) && (
@@ -219,12 +248,14 @@ const XMLValidationPage: React.FC = () => {
             size="small"
             tooltip="Ver incidencias"
             onClick={() => handleViewIssues(rowData)}
+            aria-label={`Ver incidencias de ${rowData.fileName}`}
           />
         )}
       </div>
     );
   };
 
+  // Cálculo de métricas para las tarjetas de estadísticas
   const stats = {
     cargados: xmlList.filter((f) => f.estado === "CARGADO").length,
     pendientes: xmlList.filter((f) => f.estado === "PENDIENTE").length,
@@ -233,13 +264,13 @@ const XMLValidationPage: React.FC = () => {
   };
 
   return (
-    <div className="validation-page-container">
+    <div className="validation-page-container" role="main" aria-label="Página de validación de XML">
       <Toast ref={toast} />
 
-      <section className="validation-header">
+      <section className="validation-header" aria-labelledby="page-title">
         <div className="header-info">
           <span className="subtitle">OPERACIONES</span>
-          <PageTitle title="Validación de XML" />
+          <PageTitle title="Validación de XML" id="page-title" />
           <p className="header-description">
             Gestione la integridad de sus documentos fiscales. Revise
             discrepancias y autorice el procesamiento hacia el ERP.
@@ -253,13 +284,15 @@ const XMLValidationPage: React.FC = () => {
             disabled={selectedFiles.length === 0 || validating}
             loading={validating}
             onClick={() => handleValidate(selectedFiles)}
+            aria-disabled={selectedFiles.length === 0 || validating}
           />
         </div>
       </section>
 
-      <div className="metric-cards-grid">
+      {/* Tarjetas de métricas con resumen de estados */}
+      <div className="metric-cards-grid" role="region" aria-label="Métricas de documentos">
         <div className="metric-card primary">
-          <div className="metric-icon-container">
+          <div className="metric-icon-container" aria-hidden="true">
             <i className="pi pi-clock"></i>
           </div>
           <div className="metric-details">
@@ -271,7 +304,7 @@ const XMLValidationPage: React.FC = () => {
           </div>
         </div>
         <div className="metric-card success">
-          <div className="metric-icon-container">
+          <div className="metric-icon-container" aria-hidden="true">
             <i className="pi pi-check-circle"></i>
           </div>
           <div className="metric-details">
@@ -283,7 +316,7 @@ const XMLValidationPage: React.FC = () => {
           </div>
         </div>
         <div className="metric-card warning">
-          <div className="metric-icon-container">
+          <div className="metric-icon-container" aria-hidden="true">
             <i className="pi pi-sync"></i>
           </div>
           <div className="metric-details">
@@ -295,7 +328,7 @@ const XMLValidationPage: React.FC = () => {
           </div>
         </div>
         <div className="metric-card error">
-          <div className="metric-icon-container">
+          <div className="metric-icon-container" aria-hidden="true">
             <i className="pi pi-exclamation-triangle"></i>
           </div>
           <div className="metric-details">
@@ -317,16 +350,19 @@ const XMLValidationPage: React.FC = () => {
               icon="pi pi-filter"
               text
               className="btn-table-action"
+              aria-label="Aplicar filtros avanzados"
             />
             <Button
               label="Exportar"
               icon="pi pi-download"
               text
               className="btn-table-action"
+              aria-label="Exportar datos"
             />
           </div>
         </div>
 
+        {/* Tabla de documentos XML con selección múltiple */}
         <DataTable
           value={xmlList}
           loading={loading}
@@ -341,10 +377,12 @@ const XMLValidationPage: React.FC = () => {
           className="p-datatable-sm validation-table w-full"
           emptyMessage="No hay archivos XML para validar."
           rowHover
+          aria-label="Tabla de documentos XML"
         >
           <Column
             selectionMode="multiple"
             headerStyle={{ width: "3rem" }}
+            aria-label="Seleccionar"
           ></Column>
           <Column
             field="fileName"
@@ -374,13 +412,14 @@ const XMLValidationPage: React.FC = () => {
           />
         </DataTable>
 
-        <div className="table-footer">
+        <div className="table-footer" role="status">
           <span>
             Mostrando {xmlList.length} de {xmlList.length} registros
           </span>
         </div>
       </div>
 
+      {/* Modal de detalle de XML */}
       <XMLDetailDialog
         visible={displayDetailModal}
         onHide={() => {
@@ -394,6 +433,7 @@ const XMLValidationPage: React.FC = () => {
         fechaEmision={selectedDetailFile?.lastModified}
       />
 
+      {/* Modal de resultados de validación (errores y advertencias) */}
       <ValidationResultDialog
         visible={displayValidationModal}
         onHide={() => {
@@ -405,6 +445,7 @@ const XMLValidationPage: React.FC = () => {
         advertencias={validationInfo?.advertencias}
       />
 
+      {/* Modal de homologación de productos */}
       <HomologacionModal
         visible={displayHomologacionModal}
         onHide={() => setDisplayHomologacionModal(false)}
@@ -412,9 +453,10 @@ const XMLValidationPage: React.FC = () => {
         onSuccess={handleHomologacionSuccess}
       />
 
+      {/* Barra de progreso durante la validación */}
       {validating && (
-        <div className="validation-progress-bar">
-          <div className="progress-icon">
+        <div className="validation-progress-bar" role="progressbar" aria-label="Procesando validación">
+          <div className="progress-icon" aria-hidden="true">
             <i className="pi pi-cloud-download"></i>
           </div>
           <div className="progress-info">
