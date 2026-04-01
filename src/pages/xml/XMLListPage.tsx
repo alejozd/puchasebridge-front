@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { logger } from "../../utils/logger";
 import {
   DataTable,
@@ -23,6 +23,10 @@ import * as xmlService from "../../services/xmlService";
 import { fixEncoding } from "../../utils/textUtils";
 import "../../styles/xml-list.css";
 import { logUnknownError } from "../../utils/apiHandler";
+
+// Constants
+const TOAST_ERROR_LIFE = 5000;
+const TOAST_SUCCESS_LIFE = 3000;
 
 const XMLListPage: React.FC = () => {
   const {
@@ -53,53 +57,57 @@ const XMLListPage: React.FC = () => {
   const fileUploadRef = useRef<FileUpload>(null);
   const [files, setFiles] = useState<File[]>([]);
 
+  // Memoized handlers
+  const handleError = useCallback((error: unknown) => {
+    const message = error instanceof Error ? error.message : "Ocurrió un error inesperado";
+    toast.current?.show({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: TOAST_ERROR_LIFE,
+    });
+  }, []);
+
+  const handleSuccess = useCallback((summary: string, detail: string, life = TOAST_SUCCESS_LIFE) => {
+    toast.current?.show({
+      severity: "success",
+      summary,
+      detail,
+      life,
+    });
+  }, []);
+
   useEffect(() => {
     logger.log("[PAGE] XMLListPage mounted");
-    const loadData = async () => {
-      try {
-        await fetchXMLList();
-      } catch (err: unknown) {
-        toast.current?.show({
-          severity: "error",
-          summary: "Error",
-          detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
-          life: 5000,
-        });
-      }
-    };
-    loadData();
-  }, [fetchXMLList]);
+    fetchXMLList().catch(handleError);
+  }, [fetchXMLList, handleError]);
 
-  const formatSize = (bytes: number) => {
+  const formatSize = (bytes: number): string => {
     if (bytes === 0) return "0 B";
     const k = 1024;
     const sizes = ["B", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   };
-  const getEstado = (estado?: string) => (estado || "").toUpperCase();
+  
+  const getEstado = (estado?: string): string => (estado || "").toUpperCase();
+
+  // Status severity mapping
+  const STATUS_SEVERITY: Record<string, "secondary" | "success" | "danger" | "info" | "warning"> = {
+    CARGADO: "secondary",
+    PENDIENTE: "warning",
+    LISTO: "info",
+    PROCESADO: "success",
+    ERROR: "danger",
+  };
 
   const statusBodyTemplate = (rowData: XMLFile) => {
-    const severityMap: Record<
-      string,
-      "secondary" | "success" | "danger" | "info" | "warning"
-    > = {
-      CARGADO: "secondary",
-      PENDIENTE: "warning",
-      LISTO: "info",
-      PROCESADO: "success",
-      ERROR: "danger",
-    };
-
     const estado = getEstado(rowData.estado);
+    const severity = STATUS_SEVERITY[estado] || "secondary";
 
     return (
       <div className="flex align-items-center gap-2">
-        <Tag
-          value={estado}
-          severity={severityMap[estado] || "secondary"}
-          className="status-tag"
-        />
+        <Tag value={estado} severity={severity} className="status-tag" />
         {estado === "ERROR" && (
           <Button
             icon="pi pi-info-circle"
@@ -115,6 +123,7 @@ const XMLListPage: React.FC = () => {
               setDisplayErrorModal(true);
             }}
             tooltip="Ver errores"
+            aria-label={`Ver errores de ${rowData.fileName}`}
           />
         )}
       </div>
@@ -133,83 +142,59 @@ const XMLListPage: React.FC = () => {
     );
   };
 
-  const handleViewDetail = async (fileName: string) => {
+  const handleViewDetail = useCallback(async (fileName: string) => {
     setDetailLoading(true);
     setDisplayDetailModal(true);
-    setSelectedDetailFile(
-      xmlList.find((file) => file.fileName === fileName) || null,
-    );
+    setSelectedDetailFile(xmlList.find((file) => file.fileName === fileName) || null);
+    
     try {
       const data = await xmlService.parseXML(fileName);
       setXmlDetail(data);
     } catch (error: unknown) {
       logUnknownError(error, logger.error);
       setDisplayDetailModal(false);
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: error instanceof Error ? error.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      handleError(error);
     } finally {
       setDetailLoading(false);
     }
-  };
+  }, [xmlList, handleError]);
 
-  const handleValidateFile = async (fileName: string) => {
+  const handleValidateFile = useCallback(async (fileName: string) => {
     setLoadingRow(fileName);
     try {
       await validateFiles([fileName]);
-      toast.current?.show({
-        severity: "success",
-        summary: "Validación Completada",
-        detail: `El archivo ${fileName} ha sido validado.`,
-        life: 3000,
-      });
+      handleSuccess("Validación Completada", `El archivo ${fileName} ha sido validado.`);
     } catch (err: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      handleError(err);
     } finally {
       setLoadingRow(null);
     }
-  };
+  }, [validateFiles, handleSuccess, handleError]);
 
-  const handleProcessFile = async (fileName: string) => {
+  const handleProcessFile = useCallback(async (fileName: string) => {
     setLoadingRow(fileName);
     try {
       const response = await processFiles([fileName]);
       if (response.success) {
-        toast.current?.show({
-          severity: "success",
-          summary: "Procesado con éxito",
-          detail:
-            response.mensaje ||
-            `Documento generado: ${response.documentoGenerado}`,
-          life: 5000,
-        });
+        handleSuccess(
+          "Procesado con éxito",
+          response.mensaje || `Documento generado: ${response.documentoGenerado}`,
+          TOAST_ERROR_LIFE
+        );
       } else {
         toast.current?.show({
           severity: "error",
           summary: "Error al procesar",
           detail: response.mensaje || "No se pudo procesar el documento.",
-          life: 5000,
+          life: TOAST_ERROR_LIFE,
         });
       }
     } catch (err: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      handleError(err);
     } finally {
       setLoadingRow(null);
     }
-  };
+  }, [processFiles, handleSuccess, handleError]);
 
   const actionBodyTemplate = (rowData: XMLFile) => {
     const estado = getEstado(rowData.estado);
@@ -268,18 +253,16 @@ const XMLListPage: React.FC = () => {
     );
   };
 
-  const handleBulkProcess = async () => {
+  const handleBulkProcess = useCallback(async () => {
     if (selectedFiles.length === 0) return;
 
-    const unvalidated = selectedFiles.filter(
-      (f) => getEstado(f.estado) !== "LISTO",
-    );
+    const unvalidated = selectedFiles.filter((f) => getEstado(f.estado) !== "LISTO");
     if (unvalidated.length > 0) {
       toast.current?.show({
         severity: "warn",
         summary: "Validación Requerida",
         detail: "Todos los archivos seleccionados deben estar VALIDADOS.",
-        life: 3000,
+        life: TOAST_SUCCESS_LIFE,
       });
       return;
     }
@@ -288,88 +271,66 @@ const XMLListPage: React.FC = () => {
     try {
       const response = await processFiles(fileNames);
       if (response.success) {
-        toast.current?.show({
-          severity: "success",
-          summary: "Procesado masivo exitoso",
-          detail:
-            response.mensaje ||
-            `${selectedFiles.length} documentos procesados.`,
-          life: 5000,
-        });
+        handleSuccess(
+          "Procesado masivo exitoso",
+          response.mensaje || `${selectedFiles.length} documentos procesados.`,
+          TOAST_ERROR_LIFE
+        );
         setSelectedFiles([]);
       } else {
         toast.current?.show({
           severity: "error",
           summary: "Error en procesamiento masivo",
           detail: response.mensaje,
-          life: 5000,
+          life: TOAST_ERROR_LIFE,
         });
       }
     } catch (err: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      handleError(err);
     }
-  };
+  }, [selectedFiles, processFiles, handleSuccess, handleError]);
 
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     try {
       await fetchXMLList();
-      toast.current?.show({
-        severity: "success",
-        summary: "Actualizado",
-        detail: "La bandeja de XML se ha actualizado correctamente.",
-        life: 3000,
-      });
+      handleSuccess("Actualizado", "La bandeja de XML se ha actualizado correctamente.");
     } catch (err: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      handleError(err);
     }
-  };
+  }, [fetchXMLList, handleSuccess, handleError]);
 
-  const onUploadClick = () => {
+  const onUploadClick = useCallback(() => {
     setDisplayUploadModal(true);
-  };
+  }, []);
 
-  const onTemplateSelect = (e: FileUploadSelectEvent) => {
+  const onTemplateSelect = useCallback((e: FileUploadSelectEvent) => {
     const selectedFiles = Array.from(e.files);
-    const hasInvalidFile = selectedFiles.some(
-      (file) => !file.name.toLowerCase().endsWith(".xml"),
-    );
+    const hasInvalidFile = selectedFiles.some((file) => !file.name.toLowerCase().endsWith(".xml"));
 
     if (hasInvalidFile) {
       toast.current?.show({
         severity: "error",
         summary: "Archivo no válido",
         detail: "Solo se permiten archivos XML.",
-        life: 3000,
+        life: TOAST_SUCCESS_LIFE,
       });
-      // We can't easily filter out files here because they are already in the internal state of FileUpload
-      // but for single upload multiple={false} it should be fine as it replaces the selection.
     }
     setFiles(e.files);
-  };
+  }, []);
 
-  const onTemplateClear = () => {
+  const onTemplateClear = useCallback(() => {
     setFiles([]);
-  };
+  }, []);
 
-  const onTemplateRemove = (
+  const onTemplateRemove = useCallback((
     file: File,
     callback: (event: React.SyntheticEvent) => void,
   ) => {
     setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
     callback({} as React.SyntheticEvent);
-  };
+  }, []);
 
-  const handleUploadSubmit = async (e: FileUploadHandlerEvent) => {
+  const handleUploadSubmit = useCallback(async (e: FileUploadHandlerEvent) => {
     const file = e.files[0];
     if (!file) return;
 
@@ -378,21 +339,11 @@ const XMLListPage: React.FC = () => {
       setDisplayUploadModal(false);
       setFiles([]);
       fileUploadRef.current?.clear();
-      toast.current?.show({
-        severity: "success",
-        summary: "Éxito",
-        detail: "Archivos subidos correctamente.",
-        life: 3000,
-      });
+      handleSuccess("Éxito", "Archivos subidos correctamente.");
     } catch (error: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: error instanceof Error ? error.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      handleError(error);
     }
-  };
+  }, [uploadXML, handleSuccess, handleError]);
 
   const headerTemplate = (options: FileUploadHeaderTemplateOptions) => {
     const { chooseButton, uploadButton, cancelButton } = options;

@@ -125,14 +125,15 @@
 }
 
 .upload-buttons-container {
-    background-color: #eff6ff;
-    border: 1px solid #dbeafe;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #bae6fd;
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     display: flex;
     gap: 1rem;
     align-items: center;
     margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .btn-upload-choose,
@@ -140,54 +141,78 @@
 .btn-upload-cancel {
     font-size: 0.875rem !important;
     font-weight: 700 !important;
-    padding: 0.75rem 1.25rem !important;
+    padding: 0.75rem 1.5rem !important;
     border-radius: var(--radius-md) !important;
-    transition: all 0.2s !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     display: flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
 }
 
+/* Botón Seleccionar - Azul primario */
 .btn-upload-choose {
-    background-color: #3b82f6 !important;
-    border: 1px solid #3b82f6 !important;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    border: none !important;
     color: white !important;
 }
 
+.btn-upload-choose:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4) !important;
+}
+
+.btn-upload-choose:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Botón Subir - Verde éxito */
 .btn-upload-submit {
-    background-color: #93c5fd !important;
-    border: 1px solid #93c5fd !important;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    border: none !important;
     color: white !important;
 }
 
-.btn-upload-submit:not(:disabled) {
-    background-color: #3b82f6 !important;
-    border-color: #3b82f6 !important;
+.btn-upload-submit:hover:not(:disabled) {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
+}
+
+.btn-upload-submit:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 .btn-upload-submit:disabled {
-    background-color: #93c5fd !important;
-    border-color: #93c5fd !important;
-    color: white !important;
-    opacity: 0.7;
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%) !important;
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
+/* Botón Limpiar - Rojo peligro */
 .btn-upload-cancel {
-    background-color: #93c5fd !important;
-    border: 1px solid #93c5fd !important;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    border: none !important;
     color: white !important;
 }
 
-.btn-upload-cancel:not(:disabled) {
-    background-color: #3b82f6 !important;
-    border-color: #3b82f6 !important;
+.btn-upload-cancel:hover:not(:disabled) {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4) !important;
+}
+
+.btn-upload-cancel:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 .btn-upload-cancel:disabled {
-    background-color: #93c5fd !important;
-    border-color: #93c5fd !important;
-    color: white !important;
-    opacity: 0.7;
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%) !important;
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .btn-dialog-close {
@@ -202,11 +227,18 @@
     display: flex;
     align-items: center;
     padding: 1rem 1.5rem;
-    background-color: white;
-    border: 1px solid #cbd5e1;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 2px solid #e2e8f0;
     border-radius: var(--radius-md);
     margin-top: 0.5rem;
     gap: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.upload-item-container:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
 .upload-item-info {
@@ -248,22 +280,26 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2.5rem 1.5rem;
-    border: 2px dashed #3b82f6;
+    padding: 3rem 1.5rem;
+    border: 3px dashed #3b82f6;
     border-radius: var(--radius-lg);
-    background-color: #f8fafc;
-    transition: all 0.2s;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
 }
 
 .upload-empty-area:hover {
-    background-color: #f1f5f9;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-color: #2563eb;
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
 }
 
 .upload-empty-text {
     color: #475569;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-align: center;
 }
 
 /* Detail Modal V2 Styles */
