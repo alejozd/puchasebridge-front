@@ -216,18 +216,41 @@
 
 .form-header {
   margin-bottom: 2.5rem;
+  position: relative;
 }
 
 .form-title {
-  font-size: 1.875rem;
-  font-weight: 800;
+  font-size: 2.25rem;
+  font-weight: 900;
   font-family: var(--font-headline);
   color: var(--color-on-surface);
   margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #1e293b 0%, #4059aa 50%, #6b7fd7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  display: inline-block;
+}
+
+.form-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #4059aa 0%, #6b7fd7 100%);
+  border-radius: 2px;
 }
 
 .form-subtitle {
   color: var(--color-on-surface-variant);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin-top: 1rem;
 }
 
 .login-form {
