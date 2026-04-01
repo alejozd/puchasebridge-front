@@ -59,11 +59,12 @@ const XMLValidationPage: React.FC = () => {
     } catch (error: unknown) {
       logUnknownError(error, logger.error);
       setDisplayDetailModal(false);
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error instanceof Error ? error.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
     } finally {
       setDetailLoading(false);
     }
@@ -102,13 +103,12 @@ const XMLValidationPage: React.FC = () => {
       });
       setSelectedFiles([]);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error(err.message);
-        alert(err.message);
-      } else {
-        console.error("Error desconocido", err);
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
     } finally {
       setValidatingFiles((prev) =>
         prev.filter((name) => !fileNamesToValidate.includes(name)),

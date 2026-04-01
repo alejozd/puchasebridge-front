@@ -59,13 +59,12 @@ const XMLListPage: React.FC = () => {
       try {
         await fetchXMLList();
       } catch (err: unknown) {
-        if (err instanceof Error) {
-          console.error(err.message);
-          alert(err.message);
-        } else {
-          console.error("Error desconocido", err);
-          alert("Ocurrió un error inesperado");
-        }
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
+          life: 5000,
+        });
       }
     };
     loadData();
@@ -146,11 +145,12 @@ const XMLListPage: React.FC = () => {
     } catch (error: unknown) {
       logUnknownError(error, logger.error);
       setDisplayDetailModal(false);
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error instanceof Error ? error.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
     } finally {
       setDetailLoading(false);
     }
@@ -167,13 +167,12 @@ const XMLListPage: React.FC = () => {
         life: 3000,
       });
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error(err.message);
-        alert(err.message);
-      } else {
-        console.error("Error desconocido", err);
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
     } finally {
       setLoadingRow(null);
     }
@@ -201,13 +200,12 @@ const XMLListPage: React.FC = () => {
         });
       }
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error(err.message);
-        alert(err.message);
-      } else {
-        console.error("Error desconocido", err);
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
     } finally {
       setLoadingRow(null);
     }
@@ -308,13 +306,12 @@ const XMLListPage: React.FC = () => {
         });
       }
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error(err.message);
-        alert(err.message);
-      } else {
-        console.error("Error desconocido", err);
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
     }
   };
 
@@ -328,13 +325,12 @@ const XMLListPage: React.FC = () => {
         life: 3000,
       });
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error(err.message);
-        alert(err.message);
-      } else {
-        console.error("Error desconocido", err);
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
     }
   };
 
@@ -389,13 +385,12 @@ const XMLListPage: React.FC = () => {
         life: 3000,
       });
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        alert(error.message);
-      } else {
-        console.error("Error desconocido", error);
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error instanceof Error ? error.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
     }
   };
 

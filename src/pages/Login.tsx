@@ -44,10 +44,10 @@ const Login: React.FC = () => {
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error(err.message);
-        alert(err.message);
+        setError(err.message);
       } else {
         console.error("Error desconocido", err);
-        alert("Ocurrió un error inesperado");
+        setError("Ocurrió un error inesperado");
       }
       logUnknownError(err, logger.error);
     } finally {

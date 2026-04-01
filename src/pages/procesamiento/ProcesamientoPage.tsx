@@ -93,13 +93,12 @@ const ProcesamientoPage: React.FC = () => {
       await fetchDetail(detail.id);
       refreshFiles();
     } catch (e: unknown) {
-      if (e instanceof Error) {
-        console.error(e.message);
-        alert(e.message);
-      } else {
-        console.error("Error desconocido", e);
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: e instanceof Error ? e.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
     }
   };
 
@@ -147,13 +146,12 @@ const ProcesamientoPage: React.FC = () => {
       }
       refreshFiles();
     } catch (e: unknown) {
-      if (e instanceof Error) {
-        console.error(e.message);
-        alert(e.message);
-      } else {
-        console.error("Error desconocido", e);
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: e instanceof Error ? e.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
     }
   };
 

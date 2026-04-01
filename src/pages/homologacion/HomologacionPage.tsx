@@ -33,13 +33,12 @@ const HomologacionPage: React.FC = () => {
       const files = await xmlService.getXMLList();
       setXmlFiles(files);
     } catch (e: unknown) {
-      if (e instanceof Error) {
-        console.error(e.message);
-        alert(e.message);
-      } else {
-        console.error("Error desconocido", e);
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: e instanceof Error ? e.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
       logUnknownError(e, logger.error);
     }
   }, []);
@@ -50,9 +49,7 @@ const HomologacionPage: React.FC = () => {
       return null;
 
     try {
-      const results = await erpService.searchErpProductos(
-        item.nombreProducto.substring(0, 15),
-      );
+      const results = await erpService.searchErpProductos(item.referenciaXML);
       if (results && results.length > 0) {
         // Return the first match as a suggestion
         return results[0];
@@ -133,13 +130,12 @@ const HomologacionPage: React.FC = () => {
           }),
         );
       } catch (e: unknown) {
-        if (e instanceof Error) {
-          console.error(e.message);
-          alert(e.message);
-        } else {
-          console.error("Error desconocido", e);
-          alert("Ocurrió un error inesperado");
-        }
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: e instanceof Error ? e.message : "Ocurrió un error inesperado",
+          life: 5000,
+        });
         logUnknownError(e, logger.error);
       } finally {
         setLoading(false);
@@ -203,13 +199,12 @@ const HomologacionPage: React.FC = () => {
         ),
       );
     } catch (e: unknown) {
-      if (e instanceof Error) {
-        console.error(e.message);
-        alert(e.message);
-      } else {
-        console.error("Error desconocido", e);
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: e instanceof Error ? e.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
       logUnknownError(e, logger.error);
       // Silently fail
     }
@@ -295,13 +290,12 @@ const HomologacionPage: React.FC = () => {
       }
     } catch (e: unknown) {
       if (!silent) {
-        if (e instanceof Error) {
-          console.error(e.message);
-          alert(e.message);
-        } else {
-          console.error("Error desconocido", e);
-          alert("Ocurrió un error inesperado");
-        }
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: e instanceof Error ? e.message : "Ocurrió un error inesperado",
+          life: 5000,
+        });
       }
       logUnknownError(e, logger.error);
       return false;
@@ -335,11 +329,12 @@ const HomologacionPage: React.FC = () => {
       }
     } catch (e: unknown) {
       logUnknownError(e, logger.error);
-      if (e instanceof Error) {
-        alert(e.message);
-      } else {
-        alert("Ocurrió un error inesperado");
-      }
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: e instanceof Error ? e.message : "Ocurrió un error inesperado",
+        life: 5000,
+      });
     } finally {
       setLoading(false);
     }
