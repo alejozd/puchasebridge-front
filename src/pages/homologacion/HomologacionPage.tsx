@@ -49,9 +49,7 @@ const HomologacionPage: React.FC = () => {
       return null;
 
     try {
-      const results = await erpService.searchErpProductos(
-        item.nombreProducto.substring(0, 15),
-      );
+      const results = await erpService.searchErpProductos(item.referenciaXML);
       if (results && results.length > 0) {
         // Return the first match as a suggestion
         return results[0];
