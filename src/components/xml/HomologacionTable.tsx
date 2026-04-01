@@ -87,7 +87,7 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
       <div className="flex flex-column gap-1">
         <div className="p-input-icon-right w-full">
           <AutoComplete
-            value={rowData.productoSistema || rowData.referenciaErp}
+            value={rowData.productoSistema}
             suggestions={rowData.erpSuggestions || []}
             completeMethod={(e) => searchErpProducts(e, rowData)}
             onChange={(e: AutoCompleteChangeEvent) => {
@@ -100,7 +100,19 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
             onSelect={(e) =>
               onErpProductSelect(e.value as ErpProducto, rowData)
             }
+            onPaste={() => {
+              setTimeout(() => {
+                const inputElement = document.activeElement as HTMLInputElement;
+                if (inputElement && inputElement.value) {
+                  const fakeEvent = {
+                    query: inputElement.value,
+                  } as AutoCompleteCompleteEvent;
+                  searchErpProducts(fakeEvent, rowData);
+                }
+              }, 0);
+            }}
             itemTemplate={itemTemplate}
+            field="referencia"
             placeholder="Buscar producto en ERP..."
             className="w-full"
             inputClassName="p-inputtext-sm w-full pr-5"
@@ -108,6 +120,7 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
             loadingIcon="pi pi-spin pi-spinner"
             delay={100}
             minLength={1}
+            forceSelection
           />
           <i className="pi pi-search text-xs erp-search-icon" />
         </div>
