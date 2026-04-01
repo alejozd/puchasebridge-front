@@ -100,6 +100,17 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
             onSelect={(e) =>
               onErpProductSelect(e.value as ErpProducto, rowData)
             }
+            onPaste={() => {
+              setTimeout(() => {
+                const inputElement = document.activeElement as HTMLInputElement;
+                if (inputElement && inputElement.value) {
+                  const fakeEvent = {
+                    query: inputElement.value,
+                  } as AutoCompleteCompleteEvent;
+                  searchErpProducts(fakeEvent, rowData);
+                }
+              }, 0);
+            }}
             itemTemplate={itemTemplate}
             field="referencia"
             placeholder="Buscar producto en ERP..."
