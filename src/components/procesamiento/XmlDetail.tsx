@@ -1,10 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
-import { Divider } from 'primereact/divider';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Message } from 'primereact/message';
-import { Timeline } from 'primereact/timeline';
 import ProductTable from './ProductTable';
 import type { XMLFileDetail } from '../../types/xml';
 import './XmlDetail.css';
@@ -16,6 +14,14 @@ interface XmlDetailProps {
   processing: boolean;
   loading: boolean;
   generatedDoc: string | null;
+}
+
+interface TimelineEvent {
+  label: string;
+  date?: string | null;
+  done: boolean;
+  icon: string;
+  description: string;
 }
 
 const XmlDetail: React.FC<XmlDetailProps> = ({
@@ -45,37 +51,67 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 
   logger.log(detail.productos);
 
-  const hasPendingHomologation = detail.productos.some(
-    p => p.estadoProducto === 'PENDIENTE'
+  const hasPendingHomologation = useMemo(() => 
+    detail.productos.some(p => p.estadoProducto === 'PENDIENTE'),
+    [detail.productos]
   );
-  const canProcess = detail.productos.every(
-    (p) => p.estadoProducto === 'HOMOLOGADO'
-  );
-  const pendingCount = detail.productos.filter(
-    (p) => p.estadoProducto !== 'HOMOLOGADO'
-  ).length;
-  const formatDate = (date?: string | null) => {
-    if (!date) return '';
-    return new Date(date).toLocaleString();
-  };
 
-  const timelineEvents = [
+  const canProcess = useMemo(() => 
+    detail.productos.every(p => p.estadoProducto === 'HOMOLOGADO'),
+    [detail.productos]
+  );
+
+  const pendingCount = useMemo(() => 
+    detail.productos.filter(p => p.estadoProducto !== 'HOMOLOGADO').length,
+    [detail.productos]
+  );
+
+  const timelineEvents = useMemo<TimelineEvent[]>(() => [
     {
       label: 'Cargado',
       date: detail.fechaCarga,
-      done: true
+      done: true,
+      icon: 'pi pi-upload',
+      description: 'Archivo cargado en el sistema'
     },
     {
       label: 'Validado',
       date: detail.fechaValidacion,
-      done: !!detail.fechaValidacion
+      done: !!detail.fechaValidacion,
+      icon: 'pi pi-check-circle',
+      description: 'Documento validado correctamente'
     },
     {
       label: 'Procesado',
       date: detail.fechaProceso,
-      done: !!detail.fechaProceso
+      done: !!detail.fechaProceso,
+      icon: 'pi pi-file-export',
+      description: 'Enviado al ERP'
     }
-  ];
+  ], [detail]);
+
+  const formatDate = (date?: string | null) => {
+    if (!date) return '';
+    return new Date(date).toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatTimeAgo = (date?: string | null) => {
+    if (!date) return '';
+    const now = new Date();
+    const past = new Date(date);
+    const diffInHours = Math.floor((now.getTime() - past.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Justo ahora';
+    if (diffInHours < 24) return `Hace ${diffInHours}h`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `Hace ${diffInDays}d`;
+  };
 
   const getStatusTag = (status: string) => {
     const s = status.toUpperCase();
@@ -87,122 +123,139 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
 
   return (
     <div className="xml-detail-container h-full flex flex-column">
-      {/* DEBUG RENDER */}
-      <pre style={{ display: 'none' }}>{JSON.stringify(detail, null, 2)}</pre>
-
-      {/* PROFESSIONAL HEADER */}
-      <div className="detail-header-professional mb-4">
-        <div className="flex justify-content-between align-items-start">
-          <div className="header-info">
-            <div className="header-title-row">
+      {/* HEADER COMPACTO */}
+      <div className="detail-header-compact mb-3">
+        <div className="flex justify-content-between align-items-start gap-3">
+          <div className="header-info flex-grow-1">
+            <div className="header-title-row mb-2">
               <h2 className="file-name" title={detail.fileName}>
                 {detail.fileName}
               </h2>
               {getStatusTag(detail.estado)}
             </div>
-            <div className="header-meta">
-              <div className="header-meta-item">
+            <div className="header-meta-compact">
+              <div className="meta-item">
                 <i className="pi pi-building"></i>
                 <span>{detail.proveedorNombre}</span>
-                <span className="meta-secondary">({detail.proveedorNit})</span>
+                <span className="meta-nit">({detail.proveedorNit})</span>
               </div>
-              <div className="header-meta-item">
+              <div className="meta-divider"></div>
+              <div className="meta-item">
                 <i className="pi pi-calendar"></i>
                 <span>{detail.fechaDocumento}</span>
               </div>
-              <div className="header-meta-item">
-                <i className="pi pi-upload"></i>
-                <span>Cargado: {detail.fechaCarga}</span>
+              <div className="meta-divider"></div>
+              <div className="meta-item">
+                <i className="pi pi-clock"></i>
+                <span>{formatTimeAgo(detail.fechaCarga)}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <Divider className="my-2" />
-
-      {/* TIMELINE VISUAL */}
-      <div className="timeline-wrapper">
-        <div className="timeline-container">
-          <Timeline
-            value={timelineEvents}
-            layout="horizontal"
-            content={(item) => (
-              <div className="timeline-content">
-                <span className={`timeline-label ${item.done ? 'done' : ''}`}>
-                  {item.label}
-                </span>
-                {item.date && (
-                  <small className="timeline-date">
-                    {formatDate(item.date)}
-                  </small>
-                )}
+      {/* TIMELINE SUTIL - Minimalista */}
+      <div className="timeline-subtle-wrapper mb-3">
+        <div className="timeline-subtle">
+          {timelineEvents.map((event, index) => (
+            <React.Fragment key={event.label}>
+              <div className="timeline-event-subtle">
+                <div className={`event-marker ${event.done ? 'done' : ''}`}>
+                  <i className={event.done ? 'pi pi-check' : 'pi pi-circle-on'} />
+                </div>
+                <div className="event-info">
+                  <span className={`event-label ${event.done ? 'done' : ''}`}>
+                    {event.label}
+                  </span>
+                  {event.date && (
+                    <small className="event-date">{formatDate(event.date)}</small>
+                  )}
+                </div>
               </div>
-            )}
-            marker={(item) => (
-              <div className={`timeline-marker ${item.done ? 'done' : ''}`}>
-                <i className={item.done ? 'pi pi-check' : 'pi pi-clock'} />
-              </div>
-            )}
-          />
+              {index < timelineEvents.length - 1 && (
+                <div className={`event-connector ${timelineEvents[index + 1].done ? 'done' : ''}`} />
+              )}
+            </React.Fragment>
+          ))}
         </div>
       </div>
 
 
-      {/* RESULT SECTION */}
+      {/* RESULT SECTION - Discreto */}
       {generatedDoc && (
-        <div className="generated-doc-highlight p-4 border-round mb-4 bg-primary-container text-primary-on-container flex align-items-center gap-4">
-            <div className="result-icon-bg">
-                <i className="pi pi-file-export text-2xl"></i>
+        <div className="generated-doc-simple p-3 border-round mb-3 flex align-items-center gap-3 bg-blue-50">
+            <i className="pi pi-file-export text-blue-600 text-xl"></i>
+            <div className="flex-grow-1">
+                <span className="block text-xs font-medium text-blue-700 mb-0">Documento en Helisa:</span>
+                <span className="block text-sm font-mono font-semibold text-primary">{generatedDoc}</span>
             </div>
-            <div>
-                <span className="block text-xs font-bold uppercase tracking-wider opacity-70">Documento Generado en Helisa</span>
-                <span className="block text-xl font-mono font-bold text-primary">{generatedDoc}</span>
-            </div>
+            <Button 
+              icon="pi pi-external-link" 
+              label="Ver" 
+              className="p-button-text p-button-sm"
+              tooltip="Abrir documento en Helisa"
+            />
         </div>
       )}
 
       {hasPendingHomologation && detail.estado.toUpperCase() === 'CARGADO' && (
-        <div className="alert-warning p-3 border-round mb-4 flex align-items-center gap-2">
-          <i className="pi pi-exclamation-triangle"></i>
-          <span className="text-sm font-semibold">Existen productos pendientes de homologación</span>
-        </div>
+        <Message 
+          severity="warn" 
+          icon="pi pi-exclamation-triangle"
+          text="Existen productos pendientes de homologación. Debes homologar todos los productos antes de procesar el documento." 
+          className="w-full mb-4"
+        />
       )}
 
       <div className="flex-grow-1 overflow-hidden flex flex-column">
-        <h3 className="text-sm font-bold text-secondary uppercase tracking-wider mb-2">Productos en el documento</h3>
-        <div className="flex-grow-1 overflow-auto">
+        <div className="section-header-simple mb-2 flex justify-content-between align-items-center">
+          <h3 className="text-sm font-semibold text-secondary m-0">
+            Productos ({detail.productos.length})
+          </h3>
+          <div className="product-stats-simple flex gap-2">
+            <Tag 
+              value={`${pendingCount} pendientes`} 
+              severity={pendingCount > 0 ? 'warning' : 'success'} 
+            />
+          </div>
+        </div>
+        <div className="flex-grow-1 overflow-auto products-table-container">
           <ProductTable productos={detail.productos} />
         </div>
       </div>
 
-      <Divider />
-
-      {/* FOOTER ACTIONS - DYNAMIC SMART BUTTONS */}
-      <div className="detail-footer-actions flex justify-content-end align-items-center py-2">
+      {/* FOOTER ACTIONS - Simple */}
+      <div className="detail-footer-simple flex justify-content-between align-items-center py-2 mt-3">
         {detail.estado.toUpperCase() === 'PROCESADO' && (
-             <Message severity="success" text="Este documento ya fue procesado y enviado al ERP" className="w-full" />
+             <Message 
+               severity="success" 
+               icon="pi pi-check-circle"
+               text="Documento procesado y enviado al ERP" 
+               className="w-full" 
+             />
         )}
 
         {detail.estado.toUpperCase() === 'VALIDADO' && (
-          <div className="flex flex-column align-items-end gap-2">
+          <div className="flex align-items-center gap-3 w-full justify-content-between">
+            {!canProcess && (
+              <Message 
+                severity="warn" 
+                icon="pi pi-info-circle"
+                text={`${pendingCount} producto(s) pendiente(s)`} 
+                className="flex-grow-1"
+              />
+            )}
             <Button
-              label="Procesar"
-              icon="pi pi-check"
+              label="Procesar Documento"
+              icon="pi pi-file-export"
               onClick={onProcesar}
               loading={processing}
               disabled={!canProcess || processing || loading}
-              tooltip={!canProcess ? 'Todos los productos deben estar homologados' : ''}
-              className="p-button-lg p-button-success shadow-2"
+              tooltip={!canProcess ? 'Homologa todos los productos primero' : ''}
+              className="p-button-sm p-button-success"
             />
-            {!canProcess && (
-              <small className="text-red-500">
-                Este documento tiene {pendingCount} producto(s) pendiente(s) de homologación.
-              </small>
-            )}
           </div>
         )}
-
       </div>
     </div>
   );
