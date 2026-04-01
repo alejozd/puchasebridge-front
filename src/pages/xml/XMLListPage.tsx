@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { logger } from "../../utils/logger";
 import {
   DataTable,
@@ -23,6 +23,23 @@ import * as xmlService from "../../services/xmlService";
 import { fixEncoding } from "../../utils/textUtils";
 import "../../styles/xml-list.css";
 import { logUnknownError } from "../../utils/apiHandler";
+
+// Constants
+const FILE_STATES = {
+  CARGADO: "CARGADO",
+  PENDIENTE: "PENDIENTE",
+  LISTO: "LISTO",
+  PROCESADO: "PROCESADO",
+  ERROR: "ERROR",
+} as const;
+
+const SEVERITY_MAP: Record<string, "secondary" | "success" | "danger" | "info" | "warning"> = {
+  [FILE_STATES.CARGADO]: "secondary",
+  [FILE_STATES.PENDIENTE]: "warning",
+  [FILE_STATES.LISTO]: "info",
+  [FILE_STATES.PROCESADO]: "success",
+  [FILE_STATES.ERROR]: "danger",
+};
 
 const XMLListPage: React.FC = () => {
   const {
@@ -70,37 +87,29 @@ const XMLListPage: React.FC = () => {
     loadData();
   }, [fetchXMLList]);
 
-  const formatSize = (bytes: number) => {
+  const formatSize = useCallback((bytes: number): string => {
     if (bytes === 0) return "0 B";
     const k = 1024;
     const sizes = ["B", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
-  const getEstado = (estado?: string) => (estado || "").toUpperCase();
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+  }, []);
 
-  const statusBodyTemplate = (rowData: XMLFile) => {
-    const severityMap: Record<
-      string,
-      "secondary" | "success" | "danger" | "info" | "warning"
-    > = {
-      CARGADO: "secondary",
-      PENDIENTE: "warning",
-      LISTO: "info",
-      PROCESADO: "success",
-      ERROR: "danger",
-    };
+  const getEstado = useCallback((estado?: string): string => {
+    return (estado || "").toUpperCase();
+  }, []);
 
+  const statusBodyTemplate = useCallback((rowData: XMLFile) => {
     const estado = getEstado(rowData.estado);
 
     return (
       <div className="flex align-items-center gap-2">
         <Tag
           value={estado}
-          severity={severityMap[estado] || "secondary"}
+          severity={SEVERITY_MAP[estado] || "secondary"}
           className="status-tag"
         />
-        {estado === "ERROR" && (
+        {estado === FILE_STATES.ERROR && (
           <Button
             icon="pi pi-info-circle"
             text
@@ -115,25 +124,27 @@ const XMLListPage: React.FC = () => {
               setDisplayErrorModal(true);
             }}
             tooltip="Ver errores"
+            aria-label={`Ver errores de ${rowData.fileName}`}
           />
         )}
       </div>
     );
-  };
+  }, [getEstado]);
 
-  const fileNameBodyTemplate = (rowData: XMLFile) => {
-    const isError = getEstado(rowData.estado) === "ERROR";
+  const fileNameBodyTemplate = useCallback((rowData: XMLFile) => {
+    const isError = getEstado(rowData.estado) === FILE_STATES.ERROR;
     return (
       <div className="filename-cell">
         <i
           className={`pi pi-file ${isError ? "text-error" : "text-primary"}`}
+          aria-hidden="true"
         ></i>
         <span className="filename-text">{rowData.fileName}</span>
       </div>
     );
-  };
+  }, [getEstado]);
 
-  const handleViewDetail = async (fileName: string) => {
+  const handleViewDetail = useCallback(async (fileName: string) => {
     setDetailLoading(true);
     setDisplayDetailModal(true);
     setSelectedDetailFile(
@@ -154,9 +165,9 @@ const XMLListPage: React.FC = () => {
     } finally {
       setDetailLoading(false);
     }
-  };
+  }, [xmlList]);
 
-  const handleValidateFile = async (fileName: string) => {
+  const handleValidateFile = useCallback(async (fileName: string) => {
     setLoadingRow(fileName);
     try {
       await validateFiles([fileName]);
@@ -176,9 +187,9 @@ const XMLListPage: React.FC = () => {
     } finally {
       setLoadingRow(null);
     }
-  };
+  }, [validateFiles]);
 
-  const handleProcessFile = async (fileName: string) => {
+  const handleProcessFile = useCallback(async (fileName: string) => {
     setLoadingRow(fileName);
     try {
       const response = await processFiles([fileName]);
@@ -209,12 +220,12 @@ const XMLListPage: React.FC = () => {
     } finally {
       setLoadingRow(null);
     }
-  };
+  }, [processFiles]);
 
-  const actionBodyTemplate = (rowData: XMLFile) => {
+  const actionBodyTemplate = useCallback((rowData: XMLFile) => {
     const estado = getEstado(rowData.estado);
-    const canValidate = estado === "CARGADO" || estado === "ERROR";
-    const canProcess = estado === "LISTO";
+    const canValidate = estado === FILE_STATES.CARGADO || estado === FILE_STATES.ERROR;
+    const canProcess = estado === FILE_STATES.LISTO;
     const isProcessing =
       loadingRow === rowData.fileName || processing || validating;
 
@@ -229,17 +240,20 @@ const XMLListPage: React.FC = () => {
           tooltip="Ver detalle"
           onClick={() => handleViewDetail(rowData.fileName)}
           disabled={isProcessing}
+          aria-label={`Ver detalle de ${rowData.fileName}`}
         />
         {canValidate && (
           <Button
             icon="pi pi-check-circle"
             text
             rounded
+            severity="info"
             size="small"
             tooltip="Validar"
             onClick={() => handleValidateFile(rowData.fileName)}
             loading={loadingRow === rowData.fileName && validating}
             disabled={isProcessing}
+            aria-label={`Validar ${rowData.fileName}`}
           />
         )}
         {canProcess && (
@@ -253,6 +267,7 @@ const XMLListPage: React.FC = () => {
             onClick={() => handleProcessFile(rowData.fileName)}
             loading={loadingRow === rowData.fileName && processing}
             disabled={isProcessing}
+            aria-label={`Procesar ${rowData.fileName}`}
           />
         )}
         <Button
@@ -263,16 +278,17 @@ const XMLListPage: React.FC = () => {
           size="small"
           tooltip="Descargar"
           disabled={isProcessing}
+          aria-label={`Descargar ${rowData.fileName}`}
         />
       </div>
     );
-  };
+  }, [getEstado, loadingRow, processing, validating, handleViewDetail, handleValidateFile, handleProcessFile]);
 
-  const handleBulkProcess = async () => {
+  const handleBulkProcess = useCallback(async () => {
     if (selectedFiles.length === 0) return;
 
     const unvalidated = selectedFiles.filter(
-      (f) => getEstado(f.estado) !== "LISTO",
+      (f) => getEstado(f.estado) !== FILE_STATES.LISTO,
     );
     if (unvalidated.length > 0) {
       toast.current?.show({
@@ -313,7 +329,7 @@ const XMLListPage: React.FC = () => {
         life: 5000,
       });
     }
-  };
+  }, [selectedFiles, getEstado, processFiles]);
 
   const onRefresh = async () => {
     try {

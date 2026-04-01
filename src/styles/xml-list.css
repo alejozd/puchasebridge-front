@@ -125,68 +125,104 @@
 }
 
 .upload-buttons-container {
-    background-color: #eff6ff;
-    border: 1px solid #dbeafe;
-    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #bae6fd;
+    border-radius: var(--radius-xl);
     padding: 1.5rem;
     display: flex;
     gap: 1rem;
     align-items: center;
     margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
 }
 
-.btn-upload-choose,
-.btn-upload-submit,
-.btn-upload-cancel {
+.upload-buttons-container:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    border-color: #7dd3fc;
+}
+
+.modern-upload-header .p-button {
     font-size: 0.875rem !important;
     font-weight: 700 !important;
-    padding: 0.75rem 1.25rem !important;
-    border-radius: var(--radius-md) !important;
-    transition: all 0.2s !important;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: var(--radius-lg) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     display: flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.btn-upload-choose {
-    background-color: #3b82f6 !important;
-    border: 1px solid #3b82f6 !important;
+/* Botón Seleccionar - Primary */
+.btn-upload-choose,
+.upload-buttons-container .p-button.p-button-secondary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    border: none !important;
     color: white !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
 }
 
-.btn-upload-submit {
-    background-color: #93c5fd !important;
-    border: 1px solid #93c5fd !important;
+.btn-upload-choose:hover,
+.upload-buttons-container .p-button.p-button-secondary:not(:disabled):hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
+}
+
+.btn-upload-choose:active,
+.upload-buttons-container .p-button.p-button-secondary:not(:disabled):active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Botón Subir - Success */
+.btn-upload-submit,
+.upload-buttons-container .p-button.p-button-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    border: none !important;
     color: white !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
 }
 
-.btn-upload-submit:not(:disabled) {
-    background-color: #3b82f6 !important;
-    border-color: #3b82f6 !important;
+.btn-upload-submit:hover,
+.upload-buttons-container .p-button.p-button-success:not(:disabled):hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
 }
 
-.btn-upload-submit:disabled {
-    background-color: #93c5fd !important;
-    border-color: #93c5fd !important;
-    color: white !important;
+.btn-upload-submit:disabled,
+.upload-buttons-container .p-button.p-button-success:disabled {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%) !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
     opacity: 0.7;
 }
 
-.btn-upload-cancel {
-    background-color: #93c5fd !important;
-    border: 1px solid #93c5fd !important;
+/* Botón Limpiar - Danger */
+.btn-upload-cancel,
+.upload-buttons-container .p-button.p-button-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    border: none !important;
     color: white !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
 }
 
-.btn-upload-cancel:not(:disabled) {
-    background-color: #3b82f6 !important;
-    border-color: #3b82f6 !important;
+.btn-upload-cancel:hover,
+.upload-buttons-container .p-button.p-button-danger:not(:disabled):hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4) !important;
 }
 
-.btn-upload-cancel:disabled {
-    background-color: #93c5fd !important;
-    border-color: #93c5fd !important;
-    color: white !important;
+.btn-upload-cancel:disabled,
+.upload-buttons-container .p-button.p-button-danger:disabled {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%) !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
     opacity: 0.7;
 }
 
