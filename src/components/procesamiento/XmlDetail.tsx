@@ -31,6 +31,49 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
   loading,
   generatedDoc
 }) => {
+  // Mover todos los hooks antes de los early returns
+  const hasPendingHomologation = useMemo(() => 
+    detail?.productos.some(p => p.estadoProducto === 'PENDIENTE') ?? false,
+    [detail?.productos]
+  );
+
+  const canProcess = useMemo(() => 
+    detail?.productos.every(p => p.estadoProducto === 'HOMOLOGADO') ?? false,
+    [detail?.productos]
+  );
+
+  const pendingCount = useMemo(() => 
+    detail?.productos.filter(p => p.estadoProducto !== 'HOMOLOGADO').length ?? 0,
+    [detail?.productos]
+  );
+
+  const timelineEvents = useMemo<TimelineEvent[]>(() => {
+    if (!detail) return [];
+    return [
+      {
+        label: 'Cargado',
+        date: detail.fechaCarga,
+        done: true,
+        icon: 'pi pi-upload',
+        description: 'Archivo cargado en el sistema'
+      },
+      {
+        label: 'Validado',
+        date: detail.fechaValidacion,
+        done: !!detail.fechaValidacion,
+        icon: 'pi pi-check-circle',
+        description: 'Documento validado correctamente'
+      },
+      {
+        label: 'Procesado',
+        date: detail.fechaProceso,
+        done: !!detail.fechaProceso,
+        icon: 'pi pi-file-export',
+        description: 'Enviado al ERP'
+      }
+    ];
+  }, [detail]);
+
   if (loading) {
     return (
       <div className="detail-empty-state flex-column gap-3">
@@ -50,45 +93,6 @@ const XmlDetail: React.FC<XmlDetailProps> = ({
   }
 
   logger.log(detail.productos);
-
-  const hasPendingHomologation = useMemo(() => 
-    detail.productos.some(p => p.estadoProducto === 'PENDIENTE'),
-    [detail.productos]
-  );
-
-  const canProcess = useMemo(() => 
-    detail.productos.every(p => p.estadoProducto === 'HOMOLOGADO'),
-    [detail.productos]
-  );
-
-  const pendingCount = useMemo(() => 
-    detail.productos.filter(p => p.estadoProducto !== 'HOMOLOGADO').length,
-    [detail.productos]
-  );
-
-  const timelineEvents = useMemo<TimelineEvent[]>(() => [
-    {
-      label: 'Cargado',
-      date: detail.fechaCarga,
-      done: true,
-      icon: 'pi pi-upload',
-      description: 'Archivo cargado en el sistema'
-    },
-    {
-      label: 'Validado',
-      date: detail.fechaValidacion,
-      done: !!detail.fechaValidacion,
-      icon: 'pi pi-check-circle',
-      description: 'Documento validado correctamente'
-    },
-    {
-      label: 'Procesado',
-      date: detail.fechaProceso,
-      done: !!detail.fechaProceso,
-      icon: 'pi pi-file-export',
-      description: 'Enviado al ERP'
-    }
-  ], [detail]);
 
   const formatDate = (date?: string | null) => {
     if (!date) return '';

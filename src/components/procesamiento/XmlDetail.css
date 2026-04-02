@@ -62,6 +62,7 @@
 .timeline-subtle {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0;
   padding: 0.5rem 0;
   width: 100%;
@@ -72,6 +73,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
+  flex: 1;
 }
 
 .event-marker {
@@ -122,10 +124,11 @@
 }
 
 .event-connector {
-  width: 60px;
+  flex: 1;
+  max-width: 80px;
   height: 2px;
   background-color: var(--surface-200);
-  margin: 0 0.25rem;
+  margin: 0 0.5rem;
   align-self: center;
 }
 
