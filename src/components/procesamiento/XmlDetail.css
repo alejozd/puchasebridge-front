@@ -40,7 +40,20 @@
 
 .meta-item i {
   font-size: 0.85rem;
-  color: var(--primary-color);
+  transition: color 0.2s ease;
+}
+
+/* Colores específicos para cada tipo de icono del proveedor */
+.meta-item i.pi-building {
+  color: var(--blue-600, #2563eb);
+}
+
+.meta-item i.pi-calendar {
+  color: var(--purple-600, #9333ea);
+}
+
+.meta-item i.pi-clock {
+  color: var(--orange-600, #ea580c);
 }
 
 .meta-nit {
