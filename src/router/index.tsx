@@ -6,6 +6,7 @@ import XMLListPage from "../pages/xml/XMLListPage";
 import XMLValidationPage from "../pages/xml/XMLValidationPage";
 import HomologacionPage from "../pages/homologacion/HomologacionPage";
 import ProcesamientoPage from "../pages/procesamiento/ProcesamientoPage";
+import LicenciaPage from "../pages/licencia/LicenciaPage";
 import { createBrowserRouter } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
           {
             path: "procesamiento",
             element: <ProcesamientoPage />,
+          },
+          {
+            path: "licencia",
+            element: <LicenciaPage />,
           },
         ],
       },
