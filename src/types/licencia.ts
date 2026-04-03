@@ -1,7 +1,7 @@
 export interface LicenciaEstado {
   estado: 'activa' | 'demo' | 'bloqueado';
-  diasRestantes: number;
-  fechaExpiracion: string;
+  dias_restantes: number;
+  expira: string;
 }
 
 export interface RegistrarLicenciaPayload {

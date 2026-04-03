@@ -20,6 +20,7 @@ const LicenciaPage: React.FC = () => {
         setLoading(true);
         try {
             const data = await getLicenciaEstado();
+            console.log("Licencia:", data);
             setEstado(data);
         } catch (error: unknown) {
             toast.current?.show({
@@ -89,6 +90,13 @@ const LicenciaPage: React.FC = () => {
         }
     };
 
+    const formatExpiracion = (expira: string | undefined) => {
+        if (!expira) return "Sin fecha";
+        const fecha = new Date(expira);
+        if (isNaN(fecha.getTime())) return "Fecha inválida";
+        return fecha.toLocaleDateString();
+    };
+
     if (loading && !estado) {
         return (
             <div className="flex justify-content-center align-items-center" style={{ height: '80vh' }}>
@@ -117,19 +125,35 @@ const LicenciaPage: React.FC = () => {
                                 </div>
                                 <div className="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2">
                                     <span className="font-semibold">Días restantes:</span>
-                                    <span className={`text-xl font-bold ${estado.diasRestantes <= 5 ? 'text-red-500' : 'text-primary'}`}>
-                                        {estado.diasRestantes} días
+                                    <span className={`text-xl font-bold ${estado.dias_restantes <= 5 ? 'text-red-500' : 'text-primary'}`}>
+                                        {estado.dias_restantes} días
                                     </span>
                                 </div>
                                 <div className="flex align-items-center justify-content-between">
                                     <span className="font-semibold">Fecha de expiración:</span>
-                                    <span>{new Date(estado.fechaExpiracion).toLocaleDateString()}</span>
+                                    <span>{formatExpiracion(estado.expira)}</span>
                                 </div>
 
-                                {estado.diasRestantes <= 5 && estado.estado !== 'bloqueado' && (
+                                {estado.dias_restantes <= 5 && estado.estado !== 'bloqueado' && (
                                     <Message
                                         severity="warn"
-                                        text={`¡Atención! Su licencia expira en ${estado.diasRestantes} días.`}
+                                        text={`¡Atención! Su licencia expira en ${estado.dias_restantes} días.`}
+                                        className="mt-2 w-full justify-content-start"
+                                    />
+                                )}
+
+                                {estado.estado === 'activa' && (
+                                    <Message
+                                        severity="success"
+                                        text="Su licencia está activa y funcionando correctamente."
+                                        className="mt-2 w-full justify-content-start"
+                                    />
+                                )}
+
+                                {estado.estado === 'demo' && (
+                                    <Message
+                                        severity="info"
+                                        text="El sistema está en modo demo con funcionalidades limitadas."
                                         className="mt-2 w-full justify-content-start"
                                     />
                                 )}
