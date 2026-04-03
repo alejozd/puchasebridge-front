@@ -6,13 +6,14 @@ import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { getLicenciaEstado, registrarLicencia } from '../../services/licenciaService';
+import { getLicenciaEstado, registrarLicencia, activarOnline } from '../../services/licenciaService';
 import type { LicenciaEstado } from '../../types/licencia';
 
 const LicenciaPage: React.FC = () => {
     const [estado, setEstado] = useState<LicenciaEstado | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [submitting, setSubmitting] = useState<boolean>(false);
+    const [onlineLoading, setOnlineLoading] = useState<boolean>(false);
     const [codigo, setCodigo] = useState<string>('');
     const toast = useRef<Toast>(null);
 
@@ -78,6 +79,38 @@ const LicenciaPage: React.FC = () => {
             });
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handleActivarOnline = async () => {
+        setOnlineLoading(true);
+        try {
+            const response = await activarOnline();
+            if (response.success) {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: response.mensaje || 'Licencia activada en línea correctamente',
+                    life: 3000
+                });
+                await fetchEstado();
+            } else {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: response.mensaje || 'No se pudo activar la licencia en línea',
+                    life: 3000
+                });
+            }
+        } catch (error: unknown) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: error instanceof Error ? error.message : 'Error al activar en línea',
+                life: 3000
+            });
+        } finally {
+            setOnlineLoading(false);
         }
     };
 
@@ -211,12 +244,25 @@ const LicenciaPage: React.FC = () => {
                                 {estado?.estado === 'demo' && (
                                     <Message
                                         severity="info"
-                                        text="Sistema en modo demo. Ingrese su código de activación para habilitar todas las funciones."
+                                        text="Sistema en modo demo. Ingrese su código de activación o active en línea."
                                         className="w-full justify-content-start"
                                     />
                                 )}
 
-                                <div className="flex flex-column gap-2">
+                                <div className="border-bottom-1 surface-border pb-3">
+                                    <h4 className="m-0 mb-3 text-900">Activación Rápida</h4>
+                                    <Button
+                                        label="Activar en línea"
+                                        icon="pi pi-globe"
+                                        onClick={handleActivarOnline}
+                                        loading={onlineLoading}
+                                        disabled={submitting}
+                                        className="p-button-outlined p-button-success w-full"
+                                    />
+                                </div>
+
+                                <div className="flex flex-column gap-2 mt-2">
+                                    <h4 className="m-0 mb-1 text-900">Activación Manual</h4>
                                     <label htmlFor="codigoLicencia" className="font-medium">Código de Licencia</label>
                                     <div className="p-inputgroup">
                                         <span className="p-inputgroup-addon">
@@ -227,17 +273,18 @@ const LicenciaPage: React.FC = () => {
                                             value={codigo}
                                             onChange={(e) => setCodigo(e.target.value)}
                                             placeholder="XXXX-XXXX-XXXX-XXXX"
-                                            disabled={submitting}
+                                            disabled={submitting || onlineLoading}
                                             className="w-full"
                                         />
                                     </div>
                                 </div>
 
                                 <Button
-                                    label="Activar Licencia"
+                                    label="Activar Licencia Manualmente"
                                     icon="pi pi-check-circle"
                                     onClick={handleActivar}
                                     loading={submitting}
+                                    disabled={onlineLoading}
                                     className="p-button-primary w-full"
                                 />
                             </div>

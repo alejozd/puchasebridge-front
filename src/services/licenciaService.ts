@@ -10,6 +10,15 @@ export const getLicenciaEstado = async (): Promise<LicenciaEstado> => {
   return handleResponse(response);
 };
 
+export const activarOnline = async (): Promise<RegistrarLicenciaResponse> => {
+  logger.log("[API CALL]", { method: "POST", url: "/licencia/activar-online" });
+  const response = await fetch(`${BASE_URL}/licencia/activar-online`, {
+    method: "POST",
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
+};
+
 export const registrarLicencia = async (payload: RegistrarLicenciaPayload): Promise<RegistrarLicenciaResponse> => {
   logger.log("[API CALL]", { method: "POST", url: "/licencia/registrar", data: payload });
   const response = await fetch(`${BASE_URL}/licencia/registrar`, {
