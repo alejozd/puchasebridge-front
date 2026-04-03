@@ -97,6 +97,24 @@ const LicenciaPage: React.FC = () => {
         return fecha.toLocaleDateString();
     };
 
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text).then(() => {
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Copiado',
+                detail: 'ID de instalación copiado al portapapeles',
+                life: 2000
+            });
+        }).catch(() => {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo copiar el ID',
+                life: 2000
+            });
+        });
+    };
+
     if (loading && !estado) {
         return (
             <div className="flex justify-content-center align-items-center" style={{ height: '80vh' }}>
@@ -129,9 +147,25 @@ const LicenciaPage: React.FC = () => {
                                         {estado.dias_restantes} días
                                     </span>
                                 </div>
-                                <div className="flex align-items-center justify-content-between">
+                                <div className="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2">
                                     <span className="font-semibold">Fecha de expiración:</span>
                                     <span>{formatExpiracion(estado.expira)}</span>
+                                </div>
+
+                                <div className="flex flex-column gap-2 mt-2">
+                                    <span className="font-semibold">ID Instalación:</span>
+                                    <div className="flex align-items-center gap-2 p-2 surface-100 border-round overflow-hidden">
+                                        <span className="text-sm font-monospace text-overflow-ellipsis white-space-nowrap overflow-hidden flex-1" style={{ fontFamily: 'monospace' }}>
+                                            {estado.instalacion_hash}
+                                        </span>
+                                        <Button
+                                            icon="pi pi-copy"
+                                            className="p-button-rounded p-button-text p-button-sm"
+                                            onClick={() => copyToClipboard(estado.instalacion_hash)}
+                                            tooltip="Copiar ID"
+                                            tooltipOptions={{ position: 'top' }}
+                                        />
+                                    </div>
                                 </div>
 
                                 {estado.dias_restantes <= 5 && estado.estado !== 'bloqueado' && (
