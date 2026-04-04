@@ -22,7 +22,7 @@ import type { XMLFile, XmlDetalle } from "../../types/xml";
 import * as xmlService from "../../services/xmlService";
 import { fixEncoding } from "../../utils/textUtils";
 import "../../styles/xml-list.css";
-import { logUnknownError, isLicenciaExpiradaError, getErrorMessage } from "../../utils/apiHandler";
+import { logUnknownError, isLicenciaBloqueadaError, getErrorMessage } from "../../utils/apiHandler";
 
 // Constants
 const FILE_STATES = {
@@ -77,7 +77,7 @@ const XMLListPage: React.FC = () => {
         await fetchXMLList();
       } catch (err: unknown) {
         // No mostrar toast para error de licencia (ya se redirige automáticamente)
-        if (!isLicenciaExpiradaError(err)) {
+        if (!isLicenciaBloqueadaError(err)) {
           toast.current?.show({
             severity: "error",
             summary: "Error",
@@ -158,7 +158,7 @@ const XMLListPage: React.FC = () => {
       setXmlDetail(data);
     } catch (error: unknown) {
       // No loguear ni mostrar toast para error de licencia (ya se redirige automáticamente)
-      if (!isLicenciaExpiradaError(error)) {
+      if (!isLicenciaBloqueadaError(error)) {
         logUnknownError(error, logger.error);
         setDisplayDetailModal(false);
         toast.current?.show({
@@ -185,7 +185,7 @@ const XMLListPage: React.FC = () => {
       });
     } catch (err: unknown) {
       // No mostrar toast para error de licencia (ya se redirige automáticamente)
-      if (!isLicenciaExpiradaError(err)) {
+      if (!isLicenciaBloqueadaError(err)) {
         toast.current?.show({
           severity: "error",
           summary: "Error",
@@ -221,7 +221,7 @@ const XMLListPage: React.FC = () => {
       }
     } catch (err: unknown) {
       // No mostrar toast para error de licencia (ya se redirige automáticamente)
-      if (!isLicenciaExpiradaError(err)) {
+      if (!isLicenciaBloqueadaError(err)) {
         toast.current?.show({
           severity: "error",
           summary: "Error",
@@ -335,7 +335,7 @@ const XMLListPage: React.FC = () => {
       }
     } catch (err: unknown) {
       // No mostrar toast para error de licencia (ya se redirige automáticamente)
-      if (!isLicenciaExpiradaError(err)) {
+      if (!isLicenciaBloqueadaError(err)) {
         toast.current?.show({
           severity: "error",
           summary: "Error",
@@ -357,7 +357,7 @@ const XMLListPage: React.FC = () => {
       });
     } catch (err: unknown) {
       // No mostrar toast para error de licencia (ya se redirige automáticamente)
-      if (!isLicenciaExpiradaError(err)) {
+      if (!isLicenciaBloqueadaError(err)) {
         toast.current?.show({
           severity: "error",
           summary: "Error",
@@ -420,7 +420,7 @@ const XMLListPage: React.FC = () => {
       });
     } catch (error: unknown) {
       // No mostrar toast para error de licencia (ya se redirige automáticamente)
-      if (!isLicenciaExpiradaError(error)) {
+      if (!isLicenciaBloqueadaError(error)) {
         toast.current?.show({
           severity: "error",
           summary: "Error",

@@ -248,65 +248,93 @@ const LicenciaPage: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {estado.dias_restantes !== null && estado.dias_restantes === 0 && (estado.estado || 'demo') !== 'bloqueado' && (
-                                    <Message
-                                        severity="error"
-                                        text="¡ADVERTENCIA! Su licencia ha expirado hoy. El sistema se bloqueará mañana si no se renueva."
-                                        className="mt-2 w-full justify-content-start font-bold"
-                                    />
-                                )}
+                                {/* Mensajes mutuamente excluyentes según estado de licencia */}
+                                {(() => {
+                                    const estadoLicencia = estado.estado || 'demo';
+                                    const diasRestantes = estado.dias_restantes;
+                                    
+                                    // Prioridad 1: Sistema bloqueado - mostrar mensaje de bloqueo
+                                    if (estadoLicencia === 'bloqueado') {
+                                        return (
+                                            <Message
+                                                severity="error"
+                                                text="El sistema se encuentra bloqueado. Por favor, active una licencia válida."
+                                                className="mt-2 w-full justify-content-start font-bold"
+                                            />
+                                        );
+                                    }
+                                    
+                                    // Prioridad 2: Licencia expirada hoy (0 días) - mostrar advertencia de expiración
+                                    if (diasRestantes !== null && diasRestantes === 0) {
+                                        return (
+                                            <Message
+                                                severity="error"
+                                                text="¡ADVERTENCIA! Su licencia ha expirado hoy. El sistema se bloqueará mañana si no se renueva."
+                                                className="mt-2 w-full justify-content-start font-bold"
+                                            />
+                                        );
+                                    }
+                                    
+                                    // Prioridad 3: Licencia próxima a expirar (1-5 días) - mostrar mensaje de expiración
+                                    if (diasRestantes !== null && diasRestantes > 0 && diasRestantes <= 5) {
+                                        return (
+                                            <Message
+                                                severity="warn"
+                                                text={`¡Atención! Su licencia expira en ${diasRestantes} días.`}
+                                                className="mt-2 w-full justify-content-start"
+                                            />
+                                        );
+                                    }
+                                    
+                                    // Prioridad 4: Licencia demo activa con más de 5 días - mostrar modo de prueba
+                                    if (estadoLicencia === 'demo') {
+                                        return (
+                                            <Message
+                                                severity="warn"
+                                                text="Modo de prueba activo"
+                                                className="mt-2 w-full justify-content-start"
+                                            />
+                                        );
+                                    }
+                                    
+                                    // Prioridad 5: Licencia anual activa
+                                    if (estadoLicencia === 'activa' && (estado.tipo_licencia || 'demo') === 'anual') {
+                                        return (
+                                            <Message
+                                                severity="success"
+                                                text="Licencia anual activa"
+                                                className="mt-2 w-full justify-content-start"
+                                            />
+                                        );
+                                    }
+                                    
+                                    // Prioridad 6: Licencia permanente activa
+                                    if (estadoLicencia === 'activa' && (estado.tipo_licencia || 'demo') === 'permanente') {
+                                        return (
+                                            <Message
+                                                severity="success"
+                                                text="Licencia permanente activa"
+                                                className="mt-2 w-full justify-content-start"
+                                            />
+                                        );
+                                    }
+                                    
+                                    // Prioridad 7: Licencia demo activa (caso general)
+                                    if (estadoLicencia === 'activa' && (estado.tipo_licencia || 'demo') === 'demo') {
+                                        return (
+                                            <Message
+                                                severity="success"
+                                                text="Su licencia está activa y funcionando correctamente."
+                                                className="mt-2 w-full justify-content-start"
+                                            />
+                                        );
+                                    }
+                                    
+                                    return null;
+                                })()}
 
-                                {estado.dias_restantes !== null && estado.dias_restantes > 0 && estado.dias_restantes <= 5 && (estado.estado || 'demo') !== 'bloqueado' && (
-                                    <Message
-                                        severity="warn"
-                                        text={`¡Atención! Su licencia expira en ${estado.dias_restantes} días.`}
-                                        className="mt-2 w-full justify-content-start"
-                                    />
-                                )}
-
-                                {/* Mensajes claros según estado */}
-                                {(estado.estado || 'demo') === 'demo' && (
-                                    <Message
-                                        severity="warn"
-                                        text="Modo de prueba activo"
-                                        className="mt-2 w-full justify-content-start"
-                                    />
-                                )}
-
-                                {(estado.estado || 'demo') === 'activa' && (estado.tipo_licencia || 'demo') === 'anual' && (
-                                    <Message
-                                        severity="success"
-                                        text="Licencia anual activa"
-                                        className="mt-2 w-full justify-content-start"
-                                    />
-                                )}
-
-                                {(estado.estado || 'demo') === 'activa' && (estado.tipo_licencia || 'demo') === 'permanente' && (
-                                    <Message
-                                        severity="success"
-                                        text="Licencia permanente activa"
-                                        className="mt-2 w-full justify-content-start"
-                                    />
-                                )}
-
-                                {(estado.estado || 'demo') === 'activa' && (estado.tipo_licencia || 'demo') === 'demo' && (
-                                    <Message
-                                        severity="success"
-                                        text="Su licencia está activa y funcionando correctamente."
-                                        className="mt-2 w-full justify-content-start"
-                                    />
-                                )}
-
-                                {(estado.estado || 'demo') === 'bloqueado' && (
-                                    <Message
-                                        severity="error"
-                                        text="El sistema se encuentra bloqueado. Por favor, active una licencia válida."
-                                        className="mt-2 w-full justify-content-start"
-                                    />
-                                )}
-
-                                {/* Mostrar mensaje de bloqueo por redirección desde Login */}
-                                {mensajeBloqueo && (
+                                {/* Mostrar mensaje de bloqueo por redirección desde Login - solo si no hay licencia bloqueada */}
+                                {mensajeBloqueo && (!estado || estado.estado !== 'bloqueado') && (
                                     <Message
                                         severity="error"
                                         text={mensajeBloqueo}
