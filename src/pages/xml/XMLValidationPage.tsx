@@ -16,7 +16,7 @@ import { useXMLStore } from "../../store/xmlStore";
 import type { XMLFile, XmlDetalle } from "../../types/xml";
 import * as xmlService from "../../services/xmlService";
 import "../../styles/xml-validation.css";
-import { logUnknownError } from "../../utils/apiHandler";
+import { logUnknownError, isLicenciaExpiradaError, getErrorMessage } from "../../utils/apiHandler";
 
 const XMLValidationPage: React.FC = () => {
   const { xmlList, loading, validating, fetchXMLList, validateFiles } =
@@ -61,14 +61,17 @@ const XMLValidationPage: React.FC = () => {
       const data = await xmlService.parseXML(fileName);
       setXmlDetail(data);
     } catch (error: unknown) {
-      logUnknownError(error, logger.error);
-      setDisplayDetailModal(false);
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: error instanceof Error ? error.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      // No loguear ni mostrar toast para error de licencia (ya se redirige automáticamente)
+      if (!isLicenciaExpiradaError(error)) {
+        logUnknownError(error, logger.error);
+        setDisplayDetailModal(false);
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: getErrorMessage(error),
+          life: 5000,
+        });
+      }
     } finally {
       setDetailLoading(false);
     }
@@ -110,12 +113,15 @@ const XMLValidationPage: React.FC = () => {
       });
       setSelectedFiles([]);
     } catch (err: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      // No mostrar toast para error de licencia (ya se redirige automáticamente)
+      if (!isLicenciaExpiradaError(err)) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: getErrorMessage(err),
+          life: 5000,
+        });
+      }
     } finally {
       setValidatingFiles((prev) =>
         prev.filter((name) => !fileNamesToValidate.includes(name)),

@@ -43,13 +43,21 @@ const Login: React.FC = () => {
       navigate("/app");
     } catch (err: unknown) {
       if (err instanceof Error) {
-        console.error(err.message);
-        setError(err.message);
+        // No mostrar logs de error en consola para bloqueo por licencia
+        if (err.message === "LICENCIA_EXPIRADA") {
+          setError("El sistema está bloqueado por licencia expirada. Por favor active una licencia.");
+        } else {
+          console.error(err.message);
+          setError(err.message);
+        }
       } else {
         console.error("Error desconocido", err);
         setError("Ocurrió un error inesperado");
       }
-      logUnknownError(err, logger.error);
+      // Solo loguear errores que no sean de licencia
+      if (!(err instanceof Error) || err.message !== "LICENCIA_EXPIRADA") {
+        logUnknownError(err, logger.error);
+      }
     } finally {
       setLoading(false);
     }

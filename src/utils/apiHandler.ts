@@ -1,4 +1,6 @@
 import { useAuthStore } from "../store/authStore";
+import { useLicenciaStore } from "../store/licenciaStore";
+import { logger } from "./logger";
 
 export const BASE_URL = "http://localhost:9000";
 
@@ -28,6 +30,28 @@ export const handleResponse = async (response: Response) => {
     throw new Error("Sesión expirada");
   }
 
+  // Detectar bloqueo por licencia (HTTP 403)
+  if (response.status === 403) {
+    // Marcar sistema como bloqueado en el store global
+    useLicenciaStore.getState().setLicencia({
+      estado: 'bloqueado',
+      tipo_licencia: 'anual',
+      dias_restantes: 0,
+      expira: null,
+      nit: '',
+      instalacion_hash: '',
+    });
+
+    // Redirigir a página de licencia si no estamos ya allí
+    if (window.location.pathname !== "/app/licencia" && window.location.pathname !== "/licencia") {
+      logger.log("[API HANDLER] Sistema bloqueado por licencia - redirigiendo a /app/licencia");
+      window.location.href = "/app/licencia";
+    }
+
+    // Lanzar error específico que puede ser capturado por el frontend
+    throw new Error("LICENCIA_EXPIRADA");
+  }
+
   if (!response.ok) {
     let errorMessage = "Error en la petición";
 
@@ -54,4 +78,28 @@ export const logUnknownError = (
   }
 
   log("Error desconocido", error);
+};
+
+/**
+ * Verifica si un error es de tipo LICENCIA_EXPIRADA
+ * @param error - El error a verificar
+ * @returns true si el error es de licencia expirada
+ */
+export const isLicenciaExpiradaError = (error: unknown): boolean => {
+  return error instanceof Error && error.message === "LICENCIA_EXPIRADA";
+};
+
+/**
+ * Obtiene el mensaje de error apropiado para mostrar al usuario
+ * @param error - El error capturado
+ * @returns El mensaje de error formateado
+ */
+export const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    if (error.message === "LICENCIA_EXPIRADA") {
+      return "El sistema está bloqueado por licencia expirada. Por favor active una licencia.";
+    }
+    return error.message;
+  }
+  return "Ocurrió un error inesperado";
 };

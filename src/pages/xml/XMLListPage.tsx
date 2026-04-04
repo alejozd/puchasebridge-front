@@ -22,7 +22,7 @@ import type { XMLFile, XmlDetalle } from "../../types/xml";
 import * as xmlService from "../../services/xmlService";
 import { fixEncoding } from "../../utils/textUtils";
 import "../../styles/xml-list.css";
-import { logUnknownError } from "../../utils/apiHandler";
+import { logUnknownError, isLicenciaExpiradaError, getErrorMessage } from "../../utils/apiHandler";
 
 // Constants
 const FILE_STATES = {
@@ -76,12 +76,15 @@ const XMLListPage: React.FC = () => {
       try {
         await fetchXMLList();
       } catch (err: unknown) {
-        toast.current?.show({
-          severity: "error",
-          summary: "Error",
-          detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
-          life: 5000,
-        });
+        // No mostrar toast para error de licencia (ya se redirige automáticamente)
+        if (!isLicenciaExpiradaError(err)) {
+          toast.current?.show({
+            severity: "error",
+            summary: "Error",
+            detail: getErrorMessage(err),
+            life: 5000,
+          });
+        }
       }
     };
     loadData();
@@ -154,14 +157,17 @@ const XMLListPage: React.FC = () => {
       const data = await xmlService.parseXML(fileName);
       setXmlDetail(data);
     } catch (error: unknown) {
-      logUnknownError(error, logger.error);
-      setDisplayDetailModal(false);
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: error instanceof Error ? error.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      // No loguear ni mostrar toast para error de licencia (ya se redirige automáticamente)
+      if (!isLicenciaExpiradaError(error)) {
+        logUnknownError(error, logger.error);
+        setDisplayDetailModal(false);
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: getErrorMessage(error),
+          life: 5000,
+        });
+      }
     } finally {
       setDetailLoading(false);
     }
@@ -178,12 +184,15 @@ const XMLListPage: React.FC = () => {
         life: 3000,
       });
     } catch (err: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      // No mostrar toast para error de licencia (ya se redirige automáticamente)
+      if (!isLicenciaExpiradaError(err)) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: getErrorMessage(err),
+          life: 5000,
+        });
+      }
     } finally {
       setLoadingRow(null);
     }
@@ -211,12 +220,15 @@ const XMLListPage: React.FC = () => {
         });
       }
     } catch (err: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      // No mostrar toast para error de licencia (ya se redirige automáticamente)
+      if (!isLicenciaExpiradaError(err)) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: getErrorMessage(err),
+          life: 5000,
+        });
+      }
     } finally {
       setLoadingRow(null);
     }
@@ -322,12 +334,15 @@ const XMLListPage: React.FC = () => {
         });
       }
     } catch (err: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      // No mostrar toast para error de licencia (ya se redirige automáticamente)
+      if (!isLicenciaExpiradaError(err)) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: getErrorMessage(err),
+          life: 5000,
+        });
+      }
     }
   }, [selectedFiles, getEstado, processFiles]);
 
@@ -341,12 +356,15 @@ const XMLListPage: React.FC = () => {
         life: 3000,
       });
     } catch (err: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: err instanceof Error ? err.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      // No mostrar toast para error de licencia (ya se redirige automáticamente)
+      if (!isLicenciaExpiradaError(err)) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: getErrorMessage(err),
+          life: 5000,
+        });
+      }
     }
   };
 
@@ -401,12 +419,15 @@ const XMLListPage: React.FC = () => {
         life: 3000,
       });
     } catch (error: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: error instanceof Error ? error.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      // No mostrar toast para error de licencia (ya se redirige automáticamente)
+      if (!isLicenciaExpiradaError(error)) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: getErrorMessage(error),
+          life: 5000,
+        });
+      }
     }
   };
 

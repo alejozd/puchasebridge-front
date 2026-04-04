@@ -5,7 +5,6 @@ node_modules/
 # Build artifacts
 node_modules/.tmp/
 
-# Environment
-.env
-.env.
+# Logs and temp files
+*.tmp
 ```
