@@ -6,6 +6,7 @@ import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { getLicenciaEstado, activarOnline } from '../../services/licenciaService';
+import { useLicenciaStore } from '../../store/licenciaStore';
 import type { LicenciaEstado } from '../../types/licencia';
 
 const LicenciaPage: React.FC = () => {
@@ -13,19 +14,66 @@ const LicenciaPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [onlineLoading, setOnlineLoading] = useState<boolean>(false);
     const toast = useRef<Toast>(null);
+    
+    // Store de licencia
+    const licenciaStore = useLicenciaStore();
+    const existeEnServidor = useLicenciaStore(state => state.existeEnServidor);
+
+    const crearLicenciaDemo = (): LicenciaEstado => {
+        console.log("[LICENCIA] Creando nueva licencia demo");
+        return {
+            estado: 'demo',
+            tipo_licencia: 'demo',
+            dias_restantes: 30,
+            expira: null,
+            nit: '',
+            instalacion_hash: `DEMO-${Date.now()}`
+        };
+    };
 
     const fetchEstado = async () => {
         setLoading(true);
         try {
+            console.log("[LICENCIA] Intentando validación online obligatoria...");
             const data = await getLicenciaEstado();
-            console.log("Licencia:", data);
-            setEstado(data);
+            
+            if (data === null) {
+                // No existe licencia en servidor
+                console.log("[LICENCIA] No existe licencia en servidor");
+                console.log("[LICENCIA] Limpiando datos locales");
+                licenciaStore.clearLicencia();
+                
+                console.log("[LICENCIA] Creando nueva licencia demo");
+                const demoLicencia = crearLicenciaDemo();
+                setEstado(demoLicencia);
+                licenciaStore.setLicencia(demoLicencia);
+                licenciaStore.setExisteEnServidor(false);
+            } else {
+                // Licencia válida obtenida del servidor
+                console.log("[LICENCIA] Usando licencia del servidor");
+                setEstado(data);
+                licenciaStore.setLicencia(data);
+                licenciaStore.setExisteEnServidor(true);
+            }
         } catch (error: unknown) {
+            console.error("[LICENCIA] Error en validación online:", error);
+            
+            // Solo permitir validación offline si ya existe licencia previamente sincronizada
+            if (existeEnServidor === true && licenciaStore.licencia) {
+                console.log("[LICENCIA] Usando licencia local (offline)");
+                setEstado(licenciaStore.licencia);
+            } else {
+                console.log("[LICENCIA] No hay licencia local válida, creando demo");
+                const demoLicencia = crearLicenciaDemo();
+                setEstado(demoLicencia);
+                licenciaStore.setLicencia(demoLicencia);
+            }
+            
             toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: error instanceof Error ? error.message : 'Error al obtener estado de licencia',
-                life: 3000
+                severity: 'warn',
+                summary: 'Sin conexión',
+                detail: 'No se pudo conectar con el servidor. Usando modo offline.',
+                life: 4000
             });
         } finally {
             setLoading(false);
@@ -151,7 +199,7 @@ const LicenciaPage: React.FC = () => {
                                 {estado.dias_restantes !== null && (
                                     <div className="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2">
                                         <span className="font-semibold">Fecha de expiración:</span>
-                                        <span>{formatExpiracion(estado.expira)}</span>
+                                        <span>{formatExpiracion(estado.expira ?? undefined)}</span>
                                     </div>
                                 )}
 
@@ -190,7 +238,7 @@ const LicenciaPage: React.FC = () => {
                                 {/* Mensajes claros según estado */}
                                 {(estado.estado || 'demo') === 'demo' && (
                                     <Message
-                                        severity="warning"
+                                        severity="warn"
                                         text="Modo de prueba activo"
                                         className="mt-2 w-full justify-content-start"
                                     />
