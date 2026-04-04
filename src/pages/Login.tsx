@@ -6,7 +6,7 @@ import { Message } from "primereact/message";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import "../styles/login.css";
-import { logUnknownError, handleResponse, BASE_URL } from "../utils/apiHandler";
+import { logUnknownError, handleResponse, BASE_URL, isLicenciaExpiradaError } from "../utils/apiHandler";
 import { logger } from "../utils/logger";
 
 const Login: React.FC = () => {
@@ -42,6 +42,18 @@ const Login: React.FC = () => {
       login(usuario, empresa, token);
       navigate("/app");
     } catch (err: unknown) {
+      // Si es error de licencia expirada, redirigir inmediatamente a la página de licencia
+      if (isLicenciaExpiradaError(err)) {
+        logger.log("[LOGIN] Sistema bloqueado por licencia - redirigiendo a /app/licencia");
+        navigate("/app/licencia", { 
+          state: { 
+            mensaje: "El sistema está bloqueado por licencia expirada. Por favor active una licencia." 
+          } 
+        });
+        return;
+      }
+      
+      // Para otros errores, mostrar mensaje en el login
       if (err instanceof Error) {
         console.error(err.message);
         setError(err.message);

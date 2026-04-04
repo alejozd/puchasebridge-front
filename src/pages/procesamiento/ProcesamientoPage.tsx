@@ -9,6 +9,7 @@ import { useXmlFiles } from "../../hooks/useXmlFiles";
 import { useXmlDetail } from "../../hooks/useXmlDetail";
 import type { XMLFileItem } from "../../types/xml";
 import "../../styles/procesamiento.css";
+import { isLicenciaExpiradaError, getErrorMessage } from "../../utils/apiHandler";
 
 const ProcesamientoPage: React.FC = () => {
   const {
@@ -93,12 +94,15 @@ const ProcesamientoPage: React.FC = () => {
       await fetchDetail(detail.id);
       refreshFiles();
     } catch (e: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: e instanceof Error ? e.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      // No mostrar toast para error de licencia (ya se redirige automáticamente)
+      if (!isLicenciaExpiradaError(e)) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: getErrorMessage(e),
+          life: 5000,
+        });
+      }
     }
   };
 
@@ -146,12 +150,15 @@ const ProcesamientoPage: React.FC = () => {
       }
       refreshFiles();
     } catch (e: unknown) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: e instanceof Error ? e.message : "Ocurrió un error inesperado",
-        life: 5000,
-      });
+      // No mostrar toast para error de licencia (ya se redirige automáticamente)
+      if (!isLicenciaExpiradaError(e)) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: getErrorMessage(e),
+          life: 5000,
+        });
+      }
     }
   };
 
