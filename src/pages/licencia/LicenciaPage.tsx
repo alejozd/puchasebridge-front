@@ -124,9 +124,11 @@ const LicenciaPage: React.FC = () => {
     };
 
     const formatExpiracion = (expira: string | undefined) => {
-        if (!expira) return "Sin fecha";
+        if (!expira) return "Sin fecha de expiración";
         const fecha = new Date(expira);
-        if (isNaN(fecha.getTime())) return "Fecha inválida";
+        if (isNaN(fecha.getTime())) return "Sin fecha de expiración";
+        // Detectar fechas inválidas de Delphi (ej: 1899-12-30)
+        if (fecha.getFullYear() < 2000) return "Sin fecha de expiración";
         return fecha.toLocaleDateString();
     };
 
