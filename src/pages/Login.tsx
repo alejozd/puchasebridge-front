@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
@@ -9,8 +9,6 @@ import "../styles/login.css";
 import { logUnknownError, handleResponse, BASE_URL, isLicenciaExpiradaError, getErrorMessage } from "../utils/apiHandler";
 import { logger } from "../utils/logger";
 
-const LICENCIA_BLOQUEO_KEY = 'licencia_bloqueo_mensaje';
-
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -20,18 +18,10 @@ const Login: React.FC = () => {
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  // Cargar mensaje de bloqueo de licencia al montar el componente (persistencia entre recargas)
-  useEffect(() => {
-    const mensajeBloqueo = sessionStorage.getItem(LICENCIA_BLOQUEO_KEY);
-    if (mensajeBloqueo) {
-      setError(mensajeBloqueo);
-    }
-  }, []);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError(null); // Limpiar error anterior al iniciar nuevo intento
 
     try {
       const response = await fetch(`${BASE_URL}/auth/login`, {
@@ -52,10 +42,9 @@ const Login: React.FC = () => {
       login(usuario, empresa, token);
       navigate("/app");
     } catch (err: unknown) {
-      // Si es error de licencia expirada, mostrar mensaje persistente en el login
+      // Si es error de licencia expirada, mostrar mensaje solo para este intento
       if (isLicenciaExpiradaError(err)) {
         const mensajeBloqueo = "El sistema está bloqueado por licencia expirada. Por favor active una licencia.";
-        sessionStorage.setItem(LICENCIA_BLOQUEO_KEY, mensajeBloqueo);
         setError(mensajeBloqueo);
         logger.log("[LOGIN] Sistema bloqueado por licencia - mensaje mostrado en login");
         return;

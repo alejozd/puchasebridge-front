@@ -42,13 +42,9 @@ export const handleResponse = async (response: Response) => {
       instalacion_hash: '',
     };
     useLicenciaStore.getState().setLicencia(licenciaBloqueada);
-    
-    // Guardar mensaje de bloqueo en sessionStorage para persistencia entre recargas
-    const mensajeBloqueo = "El sistema está bloqueado por licencia expirada. Por favor active una licencia.";
-    sessionStorage.setItem('licencia_bloqueo_mensaje', mensajeBloqueo);
 
     // Lanzar error específico que puede ser capturado por el frontend
-    // La redirección se maneja en el componente que llama
+    // El mensaje se muestra solo en el intento actual de login
     throw new Error("LICENCIA_EXPIRADA");
   }
 
