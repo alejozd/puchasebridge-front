@@ -169,7 +169,7 @@ const LicenciaPage: React.FC = () => {
                                 <div className="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2">
                                     <span className="font-semibold">Estado:</span>
                                     <Tag
-                                        value={estado.estado.toUpperCase()}
+                                        value={(estado.estado || 'demo').toUpperCase()}
                                         severity={getEstadoSeverity(estado.estado)}
                                         style={{ fontSize: '0.9rem', padding: '0.4rem 0.8rem' }}
                                     />
@@ -177,7 +177,7 @@ const LicenciaPage: React.FC = () => {
                                 <div className="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2">
                                     <span className="font-semibold">Tipo de Licencia:</span>
                                     <Tag
-                                        value={estado.tipo_licencia.toUpperCase()}
+                                        value={(estado.tipo_licencia || 'demo').toUpperCase()}
                                         severity="info"
                                         style={{ fontSize: '0.8rem' }}
                                     />
@@ -195,7 +195,7 @@ const LicenciaPage: React.FC = () => {
                                 {estado.dias_restantes !== null && (
                                     <div className="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2">
                                         <span className="font-semibold">Fecha de expiración:</span>
-                                        <span>{formatExpiracion(estado.expira || undefined)}</span>
+                                        <span>{formatExpiracion(estado.expira)}</span>
                                     </div>
                                 )}
 
@@ -215,7 +215,7 @@ const LicenciaPage: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {estado.dias_restantes !== null && estado.dias_restantes === 0 && estado.estado !== 'bloqueado' && (
+                                {estado.dias_restantes !== null && estado.dias_restantes === 0 && (estado.estado || 'demo') !== 'bloqueado' && (
                                     <Message
                                         severity="error"
                                         text="¡ADVERTENCIA! Su licencia ha expirado hoy. El sistema se bloqueará mañana si no se renueva."
@@ -223,7 +223,7 @@ const LicenciaPage: React.FC = () => {
                                     />
                                 )}
 
-                                {estado.dias_restantes !== null && estado.dias_restantes > 0 && estado.dias_restantes <= 5 && estado.estado !== 'bloqueado' && (
+                                {estado.dias_restantes !== null && estado.dias_restantes > 0 && estado.dias_restantes <= 5 && (estado.estado || 'demo') !== 'bloqueado' && (
                                     <Message
                                         severity="warn"
                                         text={`¡Atención! Su licencia expira en ${estado.dias_restantes} días.`}
@@ -231,7 +231,7 @@ const LicenciaPage: React.FC = () => {
                                     />
                                 )}
 
-                                {estado.estado === 'activa' && estado.tipo_licencia === 'demo' && (
+                                {(estado.estado || 'demo') === 'activa' && (estado.tipo_licencia || 'demo') === 'demo' && (
                                     <div className="mt-3">
                                         <Button
                                             label="Activar licencia completa"
@@ -243,7 +243,7 @@ const LicenciaPage: React.FC = () => {
                                     </div>
                                 )}
 
-                                {estado.estado === 'activa' && (
+                                {(estado.estado || 'demo') === 'activa' && (
                                     <Message
                                         severity="success"
                                         text="Su licencia está activa y funcionando correctamente."
@@ -251,7 +251,7 @@ const LicenciaPage: React.FC = () => {
                                     />
                                 )}
 
-                                {estado.estado === 'demo' && (
+                                {(estado.estado || 'demo') === 'demo' && (
                                     <Message
                                         severity="info"
                                         text="El sistema está en modo demo con funcionalidades limitadas."
@@ -259,7 +259,7 @@ const LicenciaPage: React.FC = () => {
                                     />
                                 )}
 
-                                {estado.estado === 'bloqueado' && (
+                                {(estado.estado || 'demo') === 'bloqueado' && (
                                     <Message
                                         severity="error"
                                         text="El sistema se encuentra bloqueado. Por favor, active una licencia válida."
@@ -271,11 +271,11 @@ const LicenciaPage: React.FC = () => {
                     </Card>
                 </div>
 
-                {(estado?.estado === 'demo' || estado?.estado === 'bloqueado') && (
+                {((estado?.estado || 'demo') === 'demo' || estado?.estado === 'bloqueado') && (
                     <div className="col-12 md:col-6">
                         <Card title="Activar Licencia" className="shadow-2">
                             <div className="flex flex-column gap-4">
-                                {estado?.estado === 'demo' && (
+                                {(estado?.estado || 'demo') === 'demo' && (
                                     <Message
                                         severity="info"
                                         text="Sistema en modo demo. Ingrese su código de activación o active en línea."
