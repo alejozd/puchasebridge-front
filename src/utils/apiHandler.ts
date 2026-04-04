@@ -2,12 +2,15 @@ import { useAuthStore } from "../store/authStore";
 
 export const BASE_URL = "http://localhost:9000";
 
-export const getHeaders = () => {
+export const getHeaders = (includeContentType = true) => {
   const token = localStorage.getItem("token");
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
     Accept: "application/json",
   };
+
+  if (includeContentType) {
+    headers["Content-Type"] = "application/json";
+  }
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
