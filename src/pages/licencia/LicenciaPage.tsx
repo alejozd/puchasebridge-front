@@ -251,32 +251,24 @@ const LicenciaPage: React.FC = () => {
                                 {/* Mensajes mutuamente excluyentes según estado de licencia */}
                                 {(() => {
                                     const estadoLicencia = estado.estado || 'demo';
+                                    const tipoLicencia = estado.tipo_licencia || 'demo';
                                     const diasRestantes = estado.dias_restantes;
-                                    
-                                    // Prioridad 1: Sistema bloqueado - mostrar mensaje de bloqueo
-                                    if (estadoLicencia === 'bloqueado') {
+                                    const licenciaDemoConDias = tipoLicencia === 'demo' && diasRestantes !== null && diasRestantes > 0;
+                                    const licenciaVencidaOBloqueada = estadoLicencia === 'bloqueado' || (diasRestantes !== null && diasRestantes <= 0);
+
+                                    // Prioridad 1: Sistema bloqueado o licencia vencida
+                                    if (licenciaVencidaOBloqueada) {
                                         return (
                                             <Message
                                                 severity="error"
-                                                text="El sistema se encuentra bloqueado. Por favor, active una licencia válida."
+                                                text="El sistema está bloqueado por licencia expirada. Por favor active una licencia."
                                                 className="mt-2 w-full justify-content-start font-bold"
                                             />
                                         );
                                     }
-                                    
-                                    // Prioridad 2: Licencia expirada hoy (0 días) - mostrar advertencia de expiración
-                                    if (diasRestantes !== null && diasRestantes === 0) {
-                                        return (
-                                            <Message
-                                                severity="error"
-                                                text="¡ADVERTENCIA! Su licencia ha expirado hoy. El sistema se bloqueará mañana si no se renueva."
-                                                className="mt-2 w-full justify-content-start font-bold"
-                                            />
-                                        );
-                                    }
-                                    
-                                    // Prioridad 3: Licencia próxima a expirar (1-5 días) - mostrar mensaje de expiración
-                                    if (diasRestantes !== null && diasRestantes > 0 && diasRestantes <= 5) {
+
+                                    // Prioridad 2: Licencia demo con días restantes - mostrar aviso de expiración
+                                    if (licenciaDemoConDias) {
                                         return (
                                             <Message
                                                 severity="warn"
@@ -285,7 +277,7 @@ const LicenciaPage: React.FC = () => {
                                             />
                                         );
                                     }
-                                    
+
                                     // Prioridad 4: Licencia demo activa con más de 5 días - mostrar modo de prueba
                                     if (estadoLicencia === 'demo') {
                                         return (
@@ -333,8 +325,15 @@ const LicenciaPage: React.FC = () => {
                                     return null;
                                 })()}
 
-                                {/* Mostrar mensaje de bloqueo por redirección desde Login - solo si no hay licencia bloqueada */}
-                                {mensajeBloqueo && (!estado || estado.estado !== 'bloqueado') && (
+                                {/* Mostrar mensaje de bloqueo por redirección desde Login solo si realmente corresponde bloqueo */}
+                                {(() => {
+                                    const estadoLicencia = estado.estado || 'demo';
+                                    const diasRestantes = estado.dias_restantes;
+                                    const licenciaDemoConDias = (estado.tipo_licencia || 'demo') === 'demo' && diasRestantes !== null && diasRestantes > 0;
+                                    const licenciaVencidaOBloqueada = estadoLicencia === 'bloqueado' || (diasRestantes !== null && diasRestantes <= 0);
+
+                                    return mensajeBloqueo && licenciaVencidaOBloqueada && !licenciaDemoConDias;
+                                })() && (
                                     <Message
                                         severity="error"
                                         text={mensajeBloqueo}
