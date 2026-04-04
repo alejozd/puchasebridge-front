@@ -32,14 +32,19 @@ export const handleResponse = async (response: Response) => {
   // Detectar bloqueo por licencia (HTTP 403)
   if (response.status === 403) {
     // Marcar sistema como bloqueado en el store global
-    useLicenciaStore.getState().setLicencia({
+    const licenciaBloqueada = {
       estado: 'bloqueado',
       tipo_licencia: 'anual',
       dias_restantes: 0,
       expira: null,
       nit: '',
       instalacion_hash: '',
-    });
+    };
+    useLicenciaStore.getState().setLicencia(licenciaBloqueada);
+    
+    // Guardar mensaje de bloqueo en sessionStorage para persistencia entre recargas
+    const mensajeBloqueo = "El sistema está bloqueado por licencia expirada. Por favor active una licencia.";
+    sessionStorage.setItem('licencia_bloqueo_mensaje', mensajeBloqueo);
 
     // Lanzar error específico que puede ser capturado por el frontend
     // La redirección se maneja en el componente que llama
