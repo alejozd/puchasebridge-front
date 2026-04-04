@@ -2,17 +2,33 @@ import { BASE_URL, getHeaders, handleResponse } from "../utils/apiHandler";
 import type { LicenciaEstado, RegistrarLicenciaPayload, RegistrarLicenciaResponse } from "../types/licencia";
 import { logger } from "../utils/logger";
 
-export const getLicenciaEstado = async (): Promise<LicenciaEstado> => {
+export const getLicenciaEstado = async (): Promise<LicenciaEstado | null> => {
   logger.log("[API CALL]", { method: "GET", url: "/licencia/estado" });
-  const response = await fetch(`${BASE_URL}/licencia/estado`, {
-    headers: getHeaders(),
-  });
-  return handleResponse(response);
+  try {
+    const response = await fetch(`${BASE_URL}/licencia/estado`, {
+      headers: getHeaders(),
+    });
+    
+    // Si el backend responde con 404 o indica que no existe licencia
+    if (!response.ok) {
+      if (response.status === 404) {
+        logger.log("[LICENCIA] No existe licencia en servidor");
+        return null;
+      }
+    }
+    
+    const data = await handleResponse(response);
+    logger.log("[LICENCIA] Estado obtenido del servidor:", data);
+    return data;
+  } catch (error) {
+    logger.error("[LICENCIA] Error al obtener estado:", error);
+    throw error;
+  }
 };
 
 export const activarOnline = async (): Promise<RegistrarLicenciaResponse> => {
-  logger.log("[API CALL]", { method: "POST", url: "/api/licencia/activar-online" });
-  const response = await fetch(`${BASE_URL}/api/licencia/activar-online`, {
+  logger.log("[API CALL]", { method: "POST", url: "/licencia/activar-online" });
+  const response = await fetch(`${BASE_URL}/licencia/activar-online`, {
     method: "POST",
     headers: getHeaders(false),
   });
