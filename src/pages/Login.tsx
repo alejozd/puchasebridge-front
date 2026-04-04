@@ -5,23 +5,36 @@ import { Button } from "primereact/button";
 import { Message } from "primereact/message";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { useLicenciaStore } from "../store/licenciaStore";
 import "../styles/login.css";
-import { logUnknownError, handleResponse, BASE_URL, isLicenciaExpiradaError, getErrorMessage } from "../utils/apiHandler";
+import { 
+  logUnknownError, 
+  handleResponse, 
+  BASE_URL, 
+  isLicenciaBloqueadaError, 
+  getErrorMessage,
+  isLicenciaDemoConDias
+} from "../utils/apiHandler";
 import { logger } from "../utils/logger";
+import type { LicenciaEstado } from "../types/licencia";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+  
   const login = useAuthStore((state) => state.login);
+  const setLicencia = useLicenciaStore((state) => state.setLicencia);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null); // Limpiar error anterior al iniciar nuevo intento
+    // Limpiar errores y avisos anteriores al iniciar nuevo intento
+    setError(null);
+    setWarning(null);
 
     try {
       const response = await fetch(`${BASE_URL}/auth/login`, {
@@ -38,12 +51,24 @@ const Login: React.FC = () => {
 
       const data = await handleResponse(response);
 
+      // ============================================================
+      // CASO 1: Licencia demo con días restantes - Mostrar aviso pero permitir login
+      // ============================================================
+      if (data.licencia && isLicenciaDemoConDias(data.licencia)) {
+        const diasRestantes = data.licencia.dias_restantes;
+        setWarning(`¡Atención! Su licencia expira en ${diasRestantes} día${diasRestantes === 1 ? '' : 's'}.`);
+        // Guardar la licencia en el store para referencia futura
+        setLicencia(data.licencia);
+      }
+
       const { usuario, empresa, token } = data;
       login(usuario, empresa, token);
       navigate("/app");
     } catch (err: unknown) {
-      // Si es error de licencia expirada, mostrar mensaje solo para este intento
-      if (isLicenciaExpiradaError(err)) {
+      // ============================================================
+      // CASO 2: Licencia bloqueada - Mostrar error y NO permitir login
+      // ============================================================
+      if (isLicenciaBloqueadaError(err)) {
         const mensajeBloqueo = "El sistema está bloqueado por licencia expirada. Por favor active una licencia.";
         setError(mensajeBloqueo);
         logger.log("[LOGIN] Sistema bloqueado por licencia - mensaje mostrado en login");
@@ -145,8 +170,14 @@ const Login: React.FC = () => {
               </div>
             </div>
 
+            {/* Mensaje de error (licencia bloqueada u otros errores) */}
             {error && (
               <Message severity="error" text={error} className="error-msg" />
+            )}
+
+            {/* Mensaje de aviso (licencia demo con días restantes) */}
+            {warning && (
+              <Message severity="warn" text={warning} className="warning-msg" />
             )}
 
             {/* Action Button */}
