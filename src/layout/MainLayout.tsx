@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { useLicenciaStore } from "../store/licenciaStore";
 import { Tooltip } from "primereact/tooltip";
+import { Badge } from "primereact/badge";
 import packageJson from "../../package.json";
 import "../styles/layout.css";
 
@@ -12,6 +14,7 @@ const MainLayout: React.FC = () => {
   });
   const logout = useAuthStore((state) => state.logout);
   const usuario = useAuthStore((state) => state.usuario);
+  const licenciaEstado = useLicenciaStore((state) => state.licencia?.estado);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -38,6 +41,23 @@ const MainLayout: React.FC = () => {
     setIsCollapsed(newState);
     localStorage.setItem('sidebar-collapsed', JSON.stringify(newState));
   };
+
+  /**
+   * Badge de estado de licencia para el menú lateral.
+   * Si en el futuro cambian los estados de licencia, actualiza este mapeo.
+   */
+  const getLicenciaBadgeConfig = () => {
+    switch (licenciaEstado) {
+      case "activa":
+        return { label: "Activa", severity: "success" as const };
+      case "demo":
+        return { label: "Demo", severity: "warning" as const };
+      default:
+        return { label: "Pendiente", severity: "danger" as const };
+    }
+  };
+
+  const licenciaBadge = getLicenciaBadgeConfig();
 
   return (
     <div className={`layout-wrapper ${isCollapsed ? "collapsed" : ""}`}>
@@ -69,7 +89,15 @@ const MainLayout: React.FC = () => {
               data-pr-tooltip={isCollapsed ? item.label : ""}
             >
               <i className={item.icon}></i>
-              <span>{item.label}</span>
+              <span className="menu-item-label">{item.label}</span>
+              {/* Badge agregado junto al ítem "Licencia" sin alterar navegación */}
+              {item.label === "Licencia" && (
+                <Badge
+                  value={licenciaBadge.label}
+                  severity={licenciaBadge.severity}
+                  className="menu-item-licencia-badge"
+                />
+              )}
             </Link>
           ))}
         </nav>

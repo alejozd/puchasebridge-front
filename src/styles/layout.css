@@ -204,6 +204,16 @@
   text-align: center;
 }
 
+.menu-item-label {
+  white-space: nowrap;
+}
+
+.menu-item-licencia-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  min-width: fit-content;
+}
+
 .sidebar-footer {
   margin-top: auto;
   padding: 1rem;
