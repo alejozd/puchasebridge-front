@@ -3,19 +3,15 @@
 node_modules/
 
 # Build artifacts
-build/
 dist/
-target/
+build/
 
 # Temporary files
 *.tmp
 node_modules/.tmp/
 
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+# TypeScript/JavaScript build info
+*.tsbuildinfo
 
 # Logs
 *.log
@@ -23,26 +19,36 @@ __pycache__/
 # Environment variables
 .env
 .env.local
-*.env.*
+.env.*
 
-# Editors
+# Editor files
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# OS generated files
+# OS files
 .DS_Store
 Thumbs.db
 
 # Coverage reports
 coverage/
 htmlcov/
-.coverage
+*.coverage
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 # Testing
-.mypy_cache/
 .pytest_cache/
-.nyc_output
-coverage/lcov-report
+.mypy_cache/
+
+# Java/Gradle
+target/
+.gradle/
 
 # Compression
 *.zip
@@ -63,8 +69,4 @@ coverage/lcov-report
 *.Z
 *.lz
 *.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
 ```

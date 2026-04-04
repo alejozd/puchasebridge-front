@@ -9,7 +9,7 @@ import { useXmlFiles } from "../../hooks/useXmlFiles";
 import { useXmlDetail } from "../../hooks/useXmlDetail";
 import type { XMLFileItem } from "../../types/xml";
 import "../../styles/procesamiento.css";
-import { isLicenciaExpiradaError, getErrorMessage } from "../../utils/apiHandler";
+import { isLicenciaBloqueadaError, getErrorMessage } from "../../utils/apiHandler";
 
 const ProcesamientoPage: React.FC = () => {
   const {
@@ -95,7 +95,7 @@ const ProcesamientoPage: React.FC = () => {
       refreshFiles();
     } catch (e: unknown) {
       // No mostrar toast para error de licencia (ya se redirige automáticamente)
-      if (!isLicenciaExpiradaError(e)) {
+      if (!isLicenciaBloqueadaError(e)) {
         toast.current?.show({
           severity: "error",
           summary: "Error",
@@ -151,7 +151,7 @@ const ProcesamientoPage: React.FC = () => {
       refreshFiles();
     } catch (e: unknown) {
       // No mostrar toast para error de licencia (ya se redirige automáticamente)
-      if (!isLicenciaExpiradaError(e)) {
+      if (!isLicenciaBloqueadaError(e)) {
         toast.current?.show({
           severity: "error",
           summary: "Error",

@@ -16,7 +16,6 @@ import {
   isLicenciaDemoConDias
 } from "../utils/apiHandler";
 import { logger } from "../utils/logger";
-import type { LicenciaEstado } from "../types/licencia";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
