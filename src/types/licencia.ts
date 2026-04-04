@@ -1,5 +1,6 @@
 export interface LicenciaEstado {
   estado: 'activa' | 'demo' | 'bloqueado';
+  tipo_licencia: 'demo' | 'anual' | 'permanente';
   dias_restantes: number | null;
   expira: string | null;
   nit: string;

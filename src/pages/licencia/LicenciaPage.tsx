@@ -175,6 +175,14 @@ const LicenciaPage: React.FC = () => {
                                     />
                                 </div>
                                 <div className="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2">
+                                    <span className="font-semibold">Tipo de Licencia:</span>
+                                    <Tag
+                                        value={estado.tipo_licencia.toUpperCase()}
+                                        severity="info"
+                                        style={{ fontSize: '0.8rem' }}
+                                    />
+                                </div>
+                                <div className="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2">
                                     <span className="font-semibold">Días restantes:</span>
                                     {estado.dias_restantes !== null ? (
                                         <span className={`text-xl font-bold ${estado.dias_restantes <= 5 ? 'text-red-500' : 'text-primary'}`}>
@@ -207,12 +215,32 @@ const LicenciaPage: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {estado.dias_restantes !== null && estado.dias_restantes <= 5 && estado.estado !== 'bloqueado' && (
+                                {estado.dias_restantes !== null && estado.dias_restantes === 0 && estado.estado !== 'bloqueado' && (
+                                    <Message
+                                        severity="error"
+                                        text="¡ADVERTENCIA! Su licencia ha expirado hoy. El sistema se bloqueará mañana si no se renueva."
+                                        className="mt-2 w-full justify-content-start font-bold"
+                                    />
+                                )}
+
+                                {estado.dias_restantes !== null && estado.dias_restantes > 0 && estado.dias_restantes <= 5 && estado.estado !== 'bloqueado' && (
                                     <Message
                                         severity="warn"
                                         text={`¡Atención! Su licencia expira en ${estado.dias_restantes} días.`}
                                         className="mt-2 w-full justify-content-start"
                                     />
+                                )}
+
+                                {estado.estado === 'activa' && estado.tipo_licencia === 'demo' && (
+                                    <div className="mt-3">
+                                        <Button
+                                            label="Activar licencia completa"
+                                            icon="pi pi-star"
+                                            onClick={handleActivarOnline}
+                                            loading={onlineLoading}
+                                            className="p-button-primary w-full shadow-2"
+                                        />
+                                    </div>
                                 )}
 
                                 {estado.estado === 'activa' && (

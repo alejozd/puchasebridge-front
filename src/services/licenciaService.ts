@@ -11,8 +11,8 @@ export const getLicenciaEstado = async (): Promise<LicenciaEstado> => {
 };
 
 export const activarOnline = async (): Promise<RegistrarLicenciaResponse> => {
-  logger.log("[API CALL]", { method: "POST", url: "/licencia/activar-online" });
-  const response = await fetch(`${BASE_URL}/licencia/activar-online`, {
+  logger.log("[API CALL]", { method: "POST", url: "/api/licencias/activar-online" });
+  const response = await fetch(`${BASE_URL}/api/licencias/activar-online`, {
     method: "POST",
     headers: getHeaders(false),
   });
