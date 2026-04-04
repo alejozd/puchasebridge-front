@@ -26,6 +26,7 @@ const MainLayout: React.FC = () => {
     { label: "Validación", icon: "pi pi-check-square", to: "/app/validacion" },
     { label: "Homologación", icon: "pi pi-share-alt", to: "/app/homologacion" },
     { label: "Procesamiento", icon: "pi pi-cog", to: "/app/procesamiento" },
+    { label: "Licencia", icon: "pi pi-key", to: "/app/licencia" },
   ];
 
   const isActive = (path: string) => {
