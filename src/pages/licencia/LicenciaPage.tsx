@@ -176,14 +176,20 @@ const LicenciaPage: React.FC = () => {
                                 </div>
                                 <div className="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2">
                                     <span className="font-semibold">Días restantes:</span>
-                                    <span className={`text-xl font-bold ${estado.dias_restantes <= 5 ? 'text-red-500' : 'text-primary'}`}>
-                                        {estado.dias_restantes} días
-                                    </span>
+                                    {estado.dias_restantes !== null ? (
+                                        <span className={`text-xl font-bold ${estado.dias_restantes <= 5 ? 'text-red-500' : 'text-primary'}`}>
+                                            {estado.dias_restantes} días
+                                        </span>
+                                    ) : (
+                                        <Tag value="LICENCIA PERMANENTE" severity="success" style={{ fontSize: '0.8rem' }} />
+                                    )}
                                 </div>
-                                <div className="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2">
-                                    <span className="font-semibold">Fecha de expiración:</span>
-                                    <span>{formatExpiracion(estado.expira)}</span>
-                                </div>
+                                {estado.dias_restantes !== null && (
+                                    <div className="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2">
+                                        <span className="font-semibold">Fecha de expiración:</span>
+                                        <span>{formatExpiracion(estado.expira || undefined)}</span>
+                                    </div>
+                                )}
 
                                 <div className="flex flex-column gap-2 mt-2">
                                     <span className="font-semibold">ID Instalación:</span>
@@ -201,7 +207,7 @@ const LicenciaPage: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {estado.dias_restantes <= 5 && estado.estado !== 'bloqueado' && (
+                                {estado.dias_restantes !== null && estado.dias_restantes <= 5 && estado.estado !== 'bloqueado' && (
                                     <Message
                                         severity="warn"
                                         text={`¡Atención! Su licencia expira en ${estado.dias_restantes} días.`}

@@ -1,7 +1,7 @@
 export interface LicenciaEstado {
   estado: 'activa' | 'demo' | 'bloqueado';
-  dias_restantes: number;
-  expira: string;
+  dias_restantes: number | null;
+  expira: string | null;
   nit: string;
   instalacion_hash: string;
 }
