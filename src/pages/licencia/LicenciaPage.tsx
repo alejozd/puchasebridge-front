@@ -17,8 +17,25 @@ const LicenciaPage: React.FC = () => {
     const toast = useRef<Toast>(null);
     const location = useLocation();
     
-    // Obtener mensaje de redirección desde el estado de navegación
-    const mensajeBloqueo = location.state?.mensaje as string | undefined;
+    // Clave para almacenar el mensaje de bloqueo en sessionStorage
+    const LICENCIA_BLOQUEO_KEY = 'licencia_bloqueo_mensaje';
+    
+    // Obtener mensaje de redirección desde el estado de navegación o desde sessionStorage
+    const getMensajeBloqueo = (): string | undefined => {
+        // Primero intentar obtener del estado de navegación
+        const mensajeFromState = location.state?.mensaje as string | undefined;
+        
+        // Si viene del estado de navegación, guardarlo en sessionStorage para persistencia
+        if (mensajeFromState) {
+            sessionStorage.setItem(LICENCIA_BLOQUEO_KEY, mensajeFromState);
+            return mensajeFromState;
+        }
+        
+        // Si no viene del estado, intentar obtener de sessionStorage (para recargas)
+        return sessionStorage.getItem(LICENCIA_BLOQUEO_KEY) || undefined;
+    };
+    
+    const mensajeBloqueo = getMensajeBloqueo();
     
     // Store de licencia
     const licenciaStore = useLicenciaStore();
@@ -88,6 +105,13 @@ const LicenciaPage: React.FC = () => {
     useEffect(() => {
         fetchEstado();
     }, []);
+
+    // Limpiar el mensaje de bloqueo cuando la licencia se active exitosamente
+    useEffect(() => {
+        if (estado && estado.estado === 'activa' && mensajeBloqueo) {
+            sessionStorage.removeItem(LICENCIA_BLOQUEO_KEY);
+        }
+    }, [estado, mensajeBloqueo]);
 
     const handleActivarOnline = async () => {
         setOnlineLoading(true);
