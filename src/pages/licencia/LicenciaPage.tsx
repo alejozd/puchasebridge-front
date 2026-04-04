@@ -5,6 +5,7 @@ import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { useLocation } from 'react-router-dom';
 import { getLicenciaEstado, activarOnline } from '../../services/licenciaService';
 import { useLicenciaStore } from '../../store/licenciaStore';
 import type { LicenciaEstado } from '../../types/licencia';
@@ -14,6 +15,10 @@ const LicenciaPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [onlineLoading, setOnlineLoading] = useState<boolean>(false);
     const toast = useRef<Toast>(null);
+    const location = useLocation();
+    
+    // Obtener mensaje de redirección desde el estado de navegación
+    const mensajeBloqueo = location.state?.mensaje as string | undefined;
     
     // Store de licencia
     const licenciaStore = useLicenciaStore();
@@ -273,6 +278,15 @@ const LicenciaPage: React.FC = () => {
                                         severity="error"
                                         text="El sistema se encuentra bloqueado. Por favor, active una licencia válida."
                                         className="mt-2 w-full justify-content-start"
+                                    />
+                                )}
+
+                                {/* Mostrar mensaje de bloqueo por redirección desde Login */}
+                                {mensajeBloqueo && (
+                                    <Message
+                                        severity="error"
+                                        text={mensajeBloqueo}
+                                        className="mt-2 w-full justify-content-start font-bold"
                                     />
                                 )}
 

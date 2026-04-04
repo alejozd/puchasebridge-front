@@ -1,6 +1,5 @@
 import { useAuthStore } from "../store/authStore";
 import { useLicenciaStore } from "../store/licenciaStore";
-import { logger } from "./logger";
 
 export const BASE_URL = "http://localhost:9000";
 
@@ -42,13 +41,8 @@ export const handleResponse = async (response: Response) => {
       instalacion_hash: '',
     });
 
-    // Redirigir a página de licencia si no estamos ya allí
-    if (window.location.pathname !== "/app/licencia" && window.location.pathname !== "/licencia") {
-      logger.log("[API HANDLER] Sistema bloqueado por licencia - redirigiendo a /app/licencia");
-      window.location.href = "/app/licencia";
-    }
-
     // Lanzar error específico que puede ser capturado por el frontend
+    // La redirección se maneja en el componente que llama
     throw new Error("LICENCIA_EXPIRADA");
   }
 
