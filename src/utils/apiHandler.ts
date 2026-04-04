@@ -1,5 +1,6 @@
 import { useAuthStore } from "../store/authStore";
 import { useLicenciaStore } from "../store/licenciaStore";
+import type { LicenciaEstado } from "../types/licencia";
 
 export const BASE_URL = "http://localhost:9000";
 
@@ -32,7 +33,7 @@ export const handleResponse = async (response: Response) => {
   // Detectar bloqueo por licencia (HTTP 403)
   if (response.status === 403) {
     // Marcar sistema como bloqueado en el store global
-    const licenciaBloqueada = {
+    const licenciaBloqueada: LicenciaEstado = {
       estado: 'bloqueado',
       tipo_licencia: 'anual',
       dias_restantes: 0,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
@@ -6,8 +6,10 @@ import { Message } from "primereact/message";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import "../styles/login.css";
-import { logUnknownError, handleResponse, BASE_URL, isLicenciaExpiradaError } from "../utils/apiHandler";
+import { logUnknownError, handleResponse, BASE_URL, isLicenciaExpiradaError, getErrorMessage } from "../utils/apiHandler";
 import { logger } from "../utils/logger";
+
+const LICENCIA_BLOQUEO_KEY = 'licencia_bloqueo_mensaje';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -17,6 +19,14 @@ const Login: React.FC = () => {
 
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
+
+  // Cargar mensaje de bloqueo de licencia al montar el componente (persistencia entre recargas)
+  useEffect(() => {
+    const mensajeBloqueo = sessionStorage.getItem(LICENCIA_BLOQUEO_KEY);
+    if (mensajeBloqueo) {
+      setError(mensajeBloqueo);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,25 +52,18 @@ const Login: React.FC = () => {
       login(usuario, empresa, token);
       navigate("/app");
     } catch (err: unknown) {
-      // Si es error de licencia expirada, redirigir inmediatamente a la página de licencia
+      // Si es error de licencia expirada, mostrar mensaje persistente en el login
       if (isLicenciaExpiradaError(err)) {
-        logger.log("[LOGIN] Sistema bloqueado por licencia - redirigiendo a /app/licencia");
-        navigate("/app/licencia", { 
-          state: { 
-            mensaje: "El sistema está bloqueado por licencia expirada. Por favor active una licencia." 
-          } 
-        });
+        const mensajeBloqueo = "El sistema está bloqueado por licencia expirada. Por favor active una licencia.";
+        sessionStorage.setItem(LICENCIA_BLOQUEO_KEY, mensajeBloqueo);
+        setError(mensajeBloqueo);
+        logger.log("[LOGIN] Sistema bloqueado por licencia - mensaje mostrado en login");
         return;
       }
-      
+
       // Para otros errores, mostrar mensaje en el login
-      if (err instanceof Error) {
-        console.error(err.message);
-        setError(err.message);
-      } else {
-        console.error("Error desconocido", err);
-        setError("Ocurrió un error inesperado");
-      }
+      const errorMessage = getErrorMessage(err);
+      setError(errorMessage);
       logUnknownError(err, logger.error);
     } finally {
       setLoading(false);
