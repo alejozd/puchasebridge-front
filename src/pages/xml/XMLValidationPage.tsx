@@ -16,7 +16,11 @@ import { useXMLStore } from "../../store/xmlStore";
 import type { XMLFile, XmlDetalle } from "../../types/xml";
 import * as xmlService from "../../services/xmlService";
 import "../../styles/xml-validation.css";
-import { logUnknownError, isLicenciaBloqueadaError, getErrorMessage } from "../../utils/apiHandler";
+import {
+  logUnknownError,
+  isLicenciaBloqueadaError,
+  getErrorMessage,
+} from "../../utils/apiHandler";
 
 const XMLValidationPage: React.FC = () => {
   const { xmlList, loading, validating, fetchXMLList, validateFiles } =
@@ -80,54 +84,57 @@ const XMLValidationPage: React.FC = () => {
   /**
    * Maneja la validación de uno o múltiples archivos XML
    */
-  const handleValidate = useCallback(async (files: XMLFile[]) => {
-    if (files.length === 0) return;
+  const handleValidate = useCallback(
+    async (files: XMLFile[]) => {
+      if (files.length === 0) return;
 
-    const fileNamesToValidate = files.map((f) => f.fileName);
-    setValidatingFiles((prev) => [...prev, ...fileNamesToValidate]);
+      const fileNamesToValidate = files.map((f) => f.fileName);
+      setValidatingFiles((prev) => [...prev, ...fileNamesToValidate]);
 
-    try {
-      await validateFiles(fileNamesToValidate);
-      await fetchXMLList();
+      try {
+        await validateFiles(fileNamesToValidate);
+        await fetchXMLList();
 
-      // Si es validación de un solo archivo, mostrar incidencias si las hay
-      if (files.length === 1) {
-        const updatedFile = useXMLStore
-          .getState()
-          .xmlList.find((f) => f.fileName === files[0].fileName);
-        if (
-          updatedFile &&
-          (updatedFile.estado === "ERROR" ||
-            (updatedFile.advertenciasValidacion &&
-              updatedFile.advertenciasValidacion.length > 0))
-        ) {
-          handleViewIssues(updatedFile);
+        // Si es validación de un solo archivo, mostrar incidencias si las hay
+        if (files.length === 1) {
+          const updatedFile = useXMLStore
+            .getState()
+            .xmlList.find((f) => f.fileName === files[0].fileName);
+          if (
+            updatedFile &&
+            (updatedFile.estado === "ERROR" ||
+              (updatedFile.advertenciasValidacion &&
+                updatedFile.advertenciasValidacion.length > 0))
+          ) {
+            handleViewIssues(updatedFile);
+          }
         }
-      }
 
-      toast.current?.show({
-        severity: "success",
-        summary: "Validación completada",
-        detail: `${files.length} archivo(s) procesado(s).`,
-        life: 3000,
-      });
-      setSelectedFiles([]);
-    } catch (err: unknown) {
-      // No mostrar toast para error de licencia (ya se redirige automáticamente)
-      if (!isLicenciaBloqueadaError(err)) {
         toast.current?.show({
-          severity: "error",
-          summary: "Error",
-          detail: getErrorMessage(err),
-          life: 5000,
+          severity: "success",
+          summary: "Validación completada",
+          detail: `${files.length} archivo(s) procesado(s).`,
+          life: 3000,
         });
+        setSelectedFiles([]);
+      } catch (err: unknown) {
+        // No mostrar toast para error de licencia (ya se redirige automáticamente)
+        if (!isLicenciaBloqueadaError(err)) {
+          toast.current?.show({
+            severity: "error",
+            summary: "Error",
+            detail: getErrorMessage(err),
+            life: 5000,
+          });
+        }
+      } finally {
+        setValidatingFiles((prev) =>
+          prev.filter((name) => !fileNamesToValidate.includes(name)),
+        );
       }
-    } finally {
-      setValidatingFiles((prev) =>
-        prev.filter((name) => !fileNamesToValidate.includes(name)),
-      );
-    }
-  }, [validateFiles, fetchXMLList]);
+    },
+    [validateFiles, fetchXMLList],
+  );
 
   /**
    * Template para mostrar el estado del archivo con Tag de PrimeReact
@@ -210,7 +217,11 @@ const XMLValidationPage: React.FC = () => {
     const isCurrentlyValidating = validatingFiles.includes(rowData.fileName);
 
     return (
-      <div className="actions-cell" role="group" aria-label={`Acciones para ${rowData.fileName}`}>
+      <div
+        className="actions-cell"
+        role="group"
+        aria-label={`Acciones para ${rowData.fileName}`}
+      >
         <Button
           icon="pi pi-check"
           text
@@ -270,12 +281,15 @@ const XMLValidationPage: React.FC = () => {
   };
 
   return (
-    <div className="validation-page-container" role="main" aria-label="Página de validación de XML">
+    <div
+      className="validation-page-container"
+      role="main"
+      aria-label="Página de validación de XML"
+    >
       <Toast ref={toast} />
 
       <section className="validation-header" aria-labelledby="page-title">
         <div className="header-info">
-          <span className="subtitle">OPERACIONES</span>
           <PageTitle title="Validación de XML" id="page-title" />
           <p className="header-description">
             Gestione la integridad de sus documentos fiscales. Revise
@@ -296,7 +310,11 @@ const XMLValidationPage: React.FC = () => {
       </section>
 
       {/* Tarjetas de métricas con resumen de estados */}
-      <div className="metric-cards-grid" role="region" aria-label="Métricas de documentos">
+      <div
+        className="metric-cards-grid"
+        role="region"
+        aria-label="Métricas de documentos"
+      >
         <div className="metric-card primary">
           <div className="metric-icon-container" aria-hidden="true">
             <i className="pi pi-clock"></i>
@@ -461,7 +479,11 @@ const XMLValidationPage: React.FC = () => {
 
       {/* Barra de progreso durante la validación */}
       {validating && (
-        <div className="validation-progress-bar" role="progressbar" aria-label="Procesando validación">
+        <div
+          className="validation-progress-bar"
+          role="progressbar"
+          aria-label="Procesando validación"
+        >
           <div className="progress-icon" aria-hidden="true">
             <i className="pi pi-cloud-download"></i>
           </div>

@@ -1,0 +1,166 @@
+:root {
+    --invoice-primary: #2563eb;
+    --invoice-bg-soft: #f1f5f9;
+    --invoice-border: #e2e8f0;
+    --invoice-text-main: #0f172a;
+    --invoice-text-muted: #64748b;
+}
+
+/* Header */
+.filename-blue {
+    color: var(--invoice-primary) !important;
+    font-weight: 700 !important;
+}
+
+.doc-type-tag {
+    background: #334155;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Proveedor */
+.provider-container {
+    background: white;
+    border: 1px solid var(--invoice-border);
+}
+
+.info-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-label {
+    font-size: 0.65rem;
+    color: var(--invoice-text-muted);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    color: var(--invoice-text-main);
+}
+
+/* Tabla Compacta */
+.compact-rows .p-datatable-tbody > tr > td {
+    padding: 0.5rem 0.75rem !important; /* Filas más pequeñas */
+}
+
+.products-detail-table .p-datatable-thead > tr > th {
+    background: var(--invoice-bg-soft);
+    color: var(--invoice-text-muted);
+    font-size: 0.7rem;
+    padding: 0.75rem;
+}
+
+/* Totales */
+.totals-container-modern {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.totals-card {
+    width: 100%;
+    max-width: 450px; /* Más ancho para que quepa en una línea */
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid var(--invoice-border);
+}
+
+.total-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+}
+
+.total-line.final.single-line {
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.total-line.final .label {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--invoice-text-main);
+    white-space: nowrap;
+}
+
+.value-large {
+    color: var(--invoice-primary);
+    font-weight: 800;
+    font-size: 1.75rem; /* Fuente más grande para el total */
+    letter-spacing: -1px;
+}
+
+/* Botón personalizado */
+.custom-primary-btn {
+    background: var(--invoice-primary) !important;
+    border-color: var(--invoice-primary) !important;
+}
+/* --- Nueva organización del Header --- */
+.detail-modal-header-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    padding-right: 2rem; /* Espacio para la X de cerrar */
+}
+
+.header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.detail-modal-title {
+    margin: 0;
+    font-size: 1.4rem; /* Un poco más grande para destacar */
+    line-height: 1.2;
+    word-break: break-all;
+}
+
+.detail-modal-subtitle {
+    display: flex;
+    align-items: center;
+    color: var(--invoice-text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Ajuste para que el tag no se vea tan pegado al borde */
+.doc-type-tag {
+    background: #334155;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+}
+
+/* --- Mejoras en la Sección Proveedor (Grid) --- */
+.provider-container {
+    background: #ffffff;
+    border: 1px solid var(--invoice-border);
+    border-left: 4px solid var(--invoice-primary); /* Un detalle elegante */
+}
+
+.info-label {
+    display: flex;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--invoice-text-muted);
+    margin-bottom: 2px;
+}
+
+/* --- Ajuste de Totales --- */
+.totals-card {
+    border: 1px solid var(--invoice-border);
+    background: linear-gradient(to right, #ffffff, #f8fafc);
+}
