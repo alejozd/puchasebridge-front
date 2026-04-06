@@ -213,163 +213,134 @@ const LicenciaPage: React.FC = () => {
     <div className="licencia-container anim-fadein">
       <Toast ref={toast} />
 
-      {/* Encabezado: Título azul, grande y negrita (estilizado en CSS) */}
       <div className="licencia-header">
         <h2>Gestión de Licencia</h2>
         <p>Información detallada sobre el estado de tu suscripción.</p>
       </div>
 
       <div className="flex justify-content-center">
-        <div className="col-12 md:col-10 lg:col-7">
+        <div className="col-12 xl:col-11">
           <Card className="licencia-card shadow-4">
             {estado && (
-              <div className="flex flex-column gap-2">
-                {/* SECCIÓN 1: ESTADO PRINCIPAL */}
-                <div className="licencia-data-row">
-                  <div className="licencia-label">
-                    <i className="pi pi-verified text-xl"></i>
-                    <span>Estado del Sistema</span>
-                  </div>
-                  <div className="licencia-value estado-tag">
-                    <Tag
-                      value={(estado.estado || "demo").toUpperCase()}
-                      severity={getEstadoSeverity(estado.estado)}
-                    />
-                  </div>
-                </div>
+              <div className="grid">
+                {/* COLUMNA IZQUIERDA: Datos de la licencia */}
+                <div className="col-12 lg:col-7 p-4">
+                  <div className="flex flex-column gap-2">
+                    <div className="licencia-data-row">
+                      <div className="licencia-label">
+                        <i className="pi pi-verified text-xl"></i>
+                        <span>Estado del Sistema</span>
+                      </div>
+                      <Tag
+                        value={(estado.estado || "demo").toUpperCase()}
+                        severity={getEstadoSeverity(estado.estado)}
+                      />
+                    </div>
 
-                <Divider />
+                    <Divider />
 
-                {/* SECCIÓN 2: DETALLES DE SUSCRIPCIÓN */}
-                <div className="licencia-data-row">
-                  <div className="licencia-label">
-                    <i className="pi pi-id-card text-xl"></i>
-                    <span>Tipo de Licencia</span>
-                  </div>
-                  <div className="licencia-value">
-                    <Tag
-                      value={(estado.tipo_licencia || "demo").toUpperCase()}
-                      severity="info"
-                    />
-                  </div>
-                </div>
+                    <div className="licencia-data-row">
+                      <div className="licencia-label">
+                        <i className="pi pi-id-card text-xl"></i>
+                        <span>Tipo de Licencia</span>
+                      </div>
+                      <Tag
+                        value={(estado.tipo_licencia || "demo").toUpperCase()}
+                        severity="info"
+                      />
+                    </div>
 
-                <div className="licencia-data-row">
-                  <div className="licencia-label">
-                    <i className="pi pi-calendar-clock text-xl"></i>
-                    <span>Días restantes</span>
-                  </div>
-                  <div className="licencia-value">
-                    {estado.dias_restantes !== null ? (
+                    <div className="licencia-data-row">
+                      <div className="licencia-label">
+                        <i className="pi pi-calendar-clock text-xl"></i>
+                        <span>Días restantes</span>
+                      </div>
+                      {/* Corrección: Validamos que no sea null antes de comparar */}
                       <span
-                        className={`dias-restantes-value ${
+                        className={`dias-restantes-value font-bold ${
+                          estado.dias_restantes !== null &&
                           estado.dias_restantes <= 5
-                            ? "dias-critico"
-                            : "dias-normal"
+                            ? "text-red-500"
+                            : "text-blue-500"
                         }`}
                       >
-                        {estado.dias_restantes} días
+                        {estado.dias_restantes !== null
+                          ? `${estado.dias_restantes} días`
+                          : "PERMANENTE"}
                       </span>
-                    ) : (
-                      <Tag value="LICENCIA PERMANENTE" severity="success" />
-                    )}
-                  </div>
-                </div>
-
-                {estado.dias_restantes !== null && (
-                  <div className="licencia-data-row">
-                    <div className="licencia-label">
-                      <i className="pi pi-calendar-times text-xl"></i>
-                      <span>Fecha de expiración</span>
                     </div>
-                    <div className="licencia-value">
+
+                    <div className="licencia-data-row">
+                      <div className="licencia-label">
+                        <i className="pi pi-calendar-times text-xl"></i>
+                        <span>Fecha de expiración</span>
+                      </div>
                       <span className="font-bold">
                         {formatExpiracion(estado.expira ?? undefined)}
                       </span>
                     </div>
                   </div>
-                )}
-
-                <Divider className="mt-4" />
-
-                {/* SECCIÓN 3: INFORMACIÓN TÉCNICA */}
-                <div className="flex flex-column gap-2 mt-2">
-                  <div className="licencia-label">
-                    <i className="pi pi-key text-xl"></i>
-                    <span>ID de Instalación</span>
-                  </div>
-                  <div className="id-instalacion-container shadow-1">
-                    <div className="id-text-wrapper">
-                      <span className="font-monospace">
-                        {estado.instalacion_hash}
-                      </span>
-                    </div>
-                    <Button
-                      icon="pi pi-copy"
-                      className="p-button-rounded p-button-secondary p-button-text p-button-sm"
-                      onClick={() => copyToClipboard(estado.instalacion_hash)}
-                      tooltip="Copiar ID"
-                    />
-                  </div>
                 </div>
 
-                {/* SECCIÓN 4: MENSAJES DE ALERTA */}
-                <div className="alerta-mensaje mt-4">
-                  {(() => {
-                    const estadoLicencia = estado.estado || "demo";
-                    const diasRestantes = estado.dias_restantes;
-                    const tipoLicencia = estado.tipo_licencia || "demo";
-
-                    if (
-                      estadoLicencia === "bloqueado" ||
-                      (diasRestantes !== null && diasRestantes <= 0)
-                    ) {
-                      return (
-                        <Message
-                          severity="error"
-                          text="El sistema está bloqueado por licencia expirada."
-                          className="w-full justify-content-start font-bold"
+                {/* COLUMNA DERECHA: ID de Instalación y Acciones */}
+                <div className="col-12 lg:col-5 p-4 bg-gray-50 border-round-right-lg">
+                  <div className="flex flex-column gap-4">
+                    <div>
+                      <label className="licencia-label mb-2">
+                        <i className="pi pi-key text-xl"></i>
+                        <span>ID de Instalación</span>
+                      </label>
+                      <div className="id-instalacion-container shadow-1 mt-2">
+                        <span className="font-monospace mr-2">
+                          {estado.instalacion_hash}
+                        </span>
+                        <Button
+                          icon="pi pi-copy"
+                          className="p-button-rounded p-button-secondary p-button-text"
+                          onClick={() =>
+                            copyToClipboard(estado.instalacion_hash)
+                          }
                         />
-                      );
-                    }
+                      </div>
+                    </div>
 
-                    if (tipoLicencia === "demo" && diasRestantes !== null) {
-                      return (
-                        <Message
-                          severity={diasRestantes <= 5 ? "error" : "warn"}
-                          text={`¡Atención! Su licencia de prueba expira en ${diasRestantes} días.`}
-                          className="w-full justify-content-start font-bold"
-                        />
-                      );
-                    }
-
-                    if (estadoLicencia === "activa") {
-                      return (
+                    <div className="alerta-mensaje">
+                      {/* Corrección: Manejo seguro de mensajes con nulidad */}
+                      {estado.estado === "activa" ? (
                         <Message
                           severity="success"
-                          text="Su licencia está activa y funcionando correctamente."
-                          className="w-full justify-content-start"
+                          text="Suscripción Activa"
+                          className="w-full"
                         />
-                      );
-                    }
+                      ) : (
+                        <Message
+                          severity={
+                            estado.dias_restantes !== null &&
+                            estado.dias_restantes <= 5
+                              ? "error"
+                              : "warn"
+                          }
+                          text={
+                            estado.dias_restantes !== null
+                              ? `Expira en ${estado.dias_restantes} días`
+                              : "Verifique su suscripción"
+                          }
+                          className="w-full"
+                        />
+                      )}
+                    </div>
 
-                    return null;
-                  })()}
-                </div>
-
-                {/* BOTÓN DE ACTIVACIÓN */}
-                {((estado.estado || "demo") === "demo" ||
-                  (estado.estado || "demo") === "bloqueado") && (
-                  <div className="activar-btn mt-3">
-                    <Button
-                      label="Activar Licencia Online"
-                      icon="pi pi-globe"
-                      onClick={handleActivarOnline}
-                      loading={onlineLoading}
-                      className="p-button-primary w-full shadow-2 font-bold"
-                    />
+                    {(estado.estado || "demo") !== "activa" && (
+                      <Button
+                        label="Activar Licencia Online"
+                        icon="pi pi-globe"
+                        onClick={handleActivarOnline}
+                        loading={onlineLoading}
+                        className="p-button-primary w-full p-3 font-bold shadow-2"
+                      />
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             )}
           </Card>
