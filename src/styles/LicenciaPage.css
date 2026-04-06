@@ -1,0 +1,74 @@
+/* LicenciaPage.css */
+
+.licencia-container {
+    max-width: 800px;
+    margin: 2rem auto; /* Centra el contenedor horizontalmente */
+    padding: 0 1rem;
+}
+
+.licencia-header {
+    text-align: center; /* Centramos el título como en la imagen */
+    margin-bottom: 2.5rem;
+}
+
+.licencia-header h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #3B82F6; /* Azul brillante */
+    margin-bottom: 0.5rem;
+}
+
+.licencia-header p {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+/* Forzamos que la Card se vea como un bloque centrado */
+.licencia-card {
+    border-radius: 12px !important;
+    padding: 1.5rem;
+}
+
+/* Filas de datos */
+.licencia-data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.licencia-data-row:last-of-type {
+    border-bottom: none;
+}
+
+.licencia-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.licencia-label i {
+    color: #64748b;
+}
+
+/* ID de Instalación (estilo compacto) */
+.id-instalacion-container {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.font-monospace {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #64748b;
+    word-break: break-all;
+}
