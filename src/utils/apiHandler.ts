@@ -107,14 +107,14 @@ export const handleResponse = async (response: Response) => {
 
 export const logUnknownError = (
   error: unknown,
-  log: (message?: unknown, ...optionalParams: unknown[]) => void,
+  log: (message: string, module?: string, data?: unknown) => void,
 ) => {
   if (error instanceof Error) {
     log(error.message);
     return;
   }
 
-  log("Error desconocido", error);
+  log("Error desconocido", undefined, error);
 };
 
 /**

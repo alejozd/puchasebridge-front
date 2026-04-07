@@ -5,13 +5,10 @@ node_modules/
 # Build artifacts
 dist/
 build/
+target/
 
-# Temporary files
-*.tmp
-node_modules/.tmp/
-
-# TypeScript/JavaScript build info
-*.tsbuildinfo
+# TypeScript/JavaScript build cache
+**/*.tsbuildinfo
 
 # Logs
 *.log
@@ -19,54 +16,12 @@ node_modules/.tmp/
 # Environment variables
 .env
 .env.local
-.env.*
+*.env.*
 
-# Editor files
+# Temporary files
+*.tmp
+
+# IDE specific
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Coverage reports
-coverage/
-htmlcov/
-*.coverage
-
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Testing
-.pytest_cache/
-.mypy_cache/
-
-# Java/Gradle
-target/
-.gradle/
-
-# Compression
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
 ```

@@ -12,7 +12,7 @@ interface ProductTableProps {
 }
 
 const ProductTable: React.FC<ProductTableProps> = ({ productos }) => {
-  logger.log('productos', productos);
+  logger.debug('productos', 'ProductTable', productos);
 
   const homologationBodyTemplate = (rowData: XMLProduct) => {
     return (

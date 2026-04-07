@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { LicenciaEstado } from '../types/licencia';
-import { logger } from '../utils/logger';
+import { logStore, logger } from '../utils/logger';
 
 interface LicenciaState {
   licencia: LicenciaEstado | null;
@@ -25,7 +25,7 @@ export const useLicenciaStore = create<LicenciaState>()(
       ...initialState,
       
       setLicencia: (licencia: LicenciaEstado | null) => {
-        logger.log('[LICENCIA STORE] Estableciendo licencia:', licencia);
+        logStore('SET_LICENCIA', licencia);
         set({ 
           licencia, 
           ultimaValidacion: Date.now(),
@@ -34,17 +34,17 @@ export const useLicenciaStore = create<LicenciaState>()(
       },
       
       setExisteEnServidor: (existe: boolean) => {
-        logger.log(`[LICENCIA STORE] Existe en servidor: ${existe}`);
+        logger.info(`[LICENCIA STORE] Existe en servidor: ${existe}`, 'LicenciaStore');
         set({ existeEnServidor: existe });
       },
       
       clearLicencia: () => {
-        logger.log('[LICENCIA STORE] Limpiando datos locales de licencia');
+        logger.info('[LICENCIA STORE] Limpiando datos locales de licencia', 'LicenciaStore');
         set({ licencia: null, ultimaValidacion: null });
       },
       
       reset: () => {
-        logger.log('[LICENCIA STORE] Reset completo del store');
+        logger.info('[LICENCIA STORE] Reset completo del store', 'LicenciaStore');
         set(initialState);
       },
     }),
