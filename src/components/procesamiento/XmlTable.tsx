@@ -56,6 +56,8 @@ const XmlTable: React.FC<XmlTableProps> = ({
         emptyMessage="No se encontraron archivos XML."
         scrollable
         scrollHeight="flex"
+        responsiveLayout="stack"
+        breakpoint="768px"
       >
         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
         <Column

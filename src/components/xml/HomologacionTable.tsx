@@ -16,6 +16,8 @@ interface HomologacionTableProps {
   productos: ProductoMapeo[];
   filteredProducts: ProductoMapeo[];
   loading: boolean;
+  responsiveLayout?: "scroll" | "stack";
+  breakpoint?: string;
   unidades: ErpUnidad[];
   updateRowState: (referenciaXML: string, newState: Partial<ProductoMapeo>) => void;
   handleSaveRow: (row: ProductoMapeo) => void;
@@ -29,6 +31,8 @@ interface HomologacionTableProps {
 const HomologacionTable: React.FC<HomologacionTableProps> = ({
   filteredProducts,
   loading,
+  responsiveLayout,
+  breakpoint,
   updateRowState,
   handleSaveRow,
   searchErpProducts,
@@ -256,6 +260,8 @@ const HomologacionTable: React.FC<HomologacionTableProps> = ({
       emptyMessage="No hay productos que coincidan con el filtro actual."
       scrollable
       scrollHeight="550px"
+      responsiveLayout={responsiveLayout}
+      breakpoint={breakpoint}
       stripedRows
       rowHover
       rowClassName={(data) => {

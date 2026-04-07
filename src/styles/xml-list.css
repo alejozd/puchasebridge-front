@@ -528,6 +528,34 @@
 }
 
 @media (max-width: 768px) {
+    .xml-list-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .xml-list-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .xml-list-actions .p-button {
+        width: 100%;
+    }
+
+    .metric-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .upload-dialog {
+        width: 95vw !important;
+    }
+
+    .upload-buttons-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
     .provider-info-card {
         grid-template-columns: 1fr;
     }

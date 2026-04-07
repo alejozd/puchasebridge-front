@@ -87,3 +87,27 @@
     padding: 0.6rem 1rem !important;
     font-size: 0.8rem;
 }
+@media (max-width: 768px) {
+    .header-glass-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-glass-container .flex.gap-2 {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .header-glass-container .p-button {
+        width: 100%;
+    }
+
+    .panel-card-modern {
+        min-height: auto !important;
+    }
+
+    .procesamiento-container {
+        padding: 0.5rem !important;
+    }
+}

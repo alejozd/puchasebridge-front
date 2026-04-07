@@ -208,3 +208,48 @@
     gap: 0.75rem;
   }
 }
+
+@media (max-width: 768px) {
+    .header-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .header-meta-compact {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .meta-divider {
+        display: none;
+    }
+
+    .timeline-subtle {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .event-connector {
+        width: 2px !important;
+        height: 1rem !important;
+        margin-left: 0.75rem !important;
+        margin-top: -0.5rem !important;
+        margin-bottom: -0.5rem !important;
+    }
+
+    .detail-footer-simple {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .detail-footer-simple .flex {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .detail-footer-simple .p-button {
+        width: 100%;
+    }
+}
