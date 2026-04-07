@@ -2,7 +2,9 @@ import { useAuthStore } from "../store/authStore";
 import { useLicenciaStore } from "../store/licenciaStore";
 import type { LicenciaEstado } from "../types/licencia";
 
-export const BASE_URL = "http://localhost:9000";
+// export const BASE_URL = "http://localhost:9000";
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:9000";
+// export const BASE_URL = "http://192.168.1.7:8080";
 
 export const getHeaders = (includeContentType = true) => {
   const token = localStorage.getItem("token");
