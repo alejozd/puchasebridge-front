@@ -15,7 +15,7 @@ import {
   getErrorMessage,
   isLicenciaDemoConDias
 } from "../utils/apiHandler";
-import { logger } from "../utils/logger";
+import { logger } from "@/utils/logger";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -70,7 +70,7 @@ const Login: React.FC = () => {
       if (isLicenciaBloqueadaError(err)) {
         const mensajeBloqueo = "El sistema está bloqueado por licencia expirada. Por favor active una licencia.";
         setError(mensajeBloqueo);
-        logger.log("[LOGIN] Sistema bloqueado por licencia - mensaje mostrado en login");
+        logger.warn("Sistema bloqueado por licencia - mensaje mostrado en login", "LOGIN");
         return;
       }
 

@@ -15,6 +15,7 @@ import {
 } from "../../services/licenciaService";
 import { useLicenciaStore } from "../../store/licenciaStore";
 import type { LicenciaEstado } from "../../types/licencia";
+import { logger } from "@/utils/logger";
 import "../../styles/LicenciaPage.css";
 
 const LicenciaPage: React.FC = () => {
@@ -49,7 +50,7 @@ const LicenciaPage: React.FC = () => {
   const existeEnServidor = useLicenciaStore((state) => state.existeEnServidor);
 
   const crearLicenciaDemo = (): LicenciaEstado => {
-    console.log("[LICENCIA] Creando nueva licencia demo");
+    logger.info("Creando nueva licencia demo", "LICENCIA");
     return {
       estado: "demo",
       tipo_licencia: "demo",
@@ -63,36 +64,36 @@ const LicenciaPage: React.FC = () => {
   const fetchEstado = async () => {
     setLoading(true);
     try {
-      console.log("[LICENCIA] Intentando validación online obligatoria...");
+      logger.info("Intentando validación online obligatoria...", "LICENCIA");
       const data = await getLicenciaEstado();
 
       if (data === null) {
         // No existe licencia en servidor
-        console.log("[LICENCIA] No existe licencia en servidor");
-        console.log("[LICENCIA] Limpiando datos locales");
+        logger.info("No existe licencia en servidor", "LICENCIA");
+        logger.info("Limpiando datos locales", "LICENCIA");
         licenciaStore.clearLicencia();
 
-        console.log("[LICENCIA] Creando nueva licencia demo");
+        logger.info("Creando nueva licencia demo", "LICENCIA");
         const demoLicencia = crearLicenciaDemo();
         setEstado(demoLicencia);
         licenciaStore.setLicencia(demoLicencia);
         licenciaStore.setExisteEnServidor(false);
       } else {
         // Licencia válida obtenida del servidor
-        console.log("[LICENCIA] Usando licencia del servidor");
+        logger.info("Usando licencia del servidor", "LICENCIA");
         setEstado(data);
         licenciaStore.setLicencia(data);
         licenciaStore.setExisteEnServidor(true);
       }
     } catch (error: unknown) {
-      console.error("[LICENCIA] Error en validación online:", error);
+      logger.error("Error en validación online", "LICENCIA", error);
 
       // Solo permitir validación offline si ya existe licencia previamente sincronizada
       if (existeEnServidor === true && licenciaStore.licencia) {
-        console.log("[LICENCIA] Usando licencia local (offline)");
+        logger.info("Usando licencia local (offline)", "LICENCIA");
         setEstado(licenciaStore.licencia);
       } else {
-        console.log("[LICENCIA] No hay licencia local válida, creando demo");
+        logger.info("No hay licencia local válida, creando demo", "LICENCIA");
         const demoLicencia = crearLicenciaDemo();
         setEstado(demoLicencia);
         licenciaStore.setLicencia(demoLicencia);

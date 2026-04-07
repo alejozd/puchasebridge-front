@@ -12,7 +12,7 @@ import {
   procesarDocumentos,
 } from "../services/xmlService";
 import { fixEncoding } from "../utils/textUtils";
-import { logger } from "../utils/logger";
+import { logStore } from "@/utils/logger";
 import { logUnknownError } from "../utils/apiHandler";
 
 interface XMLState {
@@ -33,11 +33,11 @@ export const useXMLStore = create<XMLState>((set, get) => ({
   processing: false,
 
   fetchXMLList: async () => {
-    logger.log("[STORE] fetchXMLList ejecutado");
+    logStore("fetchXMLList ejecutado");
     set({ loading: true });
     try {
       const data = await getXMLFiles();
-      logger.log("[STORE] response XMLList:", data);
+      logStore("response XMLList", data);
       // Ensure default state is set if missing
       const processedData: XMLFile[] = data.map((item) => ({
         fileName: item.fileName,
@@ -48,10 +48,10 @@ export const useXMLStore = create<XMLState>((set, get) => ({
         size: item.size,
         tipoDocumento: "Factura",
       }));
-      logger.log("[MAPPED SIZE]", processedData);
+      logStore("MAPPED SIZE", processedData);
       set({ xmlList: processedData, loading: false });
     } catch (error: unknown) {
-      logUnknownError(error, logger.error);
+      logUnknownError(error, console.error);
       set({ loading: false });
       throw error;
     }
@@ -65,7 +65,7 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       await get().fetchXMLList();
       set({ loading: false });
     } catch (error: unknown) {
-      logUnknownError(error, logger.error);
+      logUnknownError(error, console.error);
       set({ loading: false });
       throw error;
     }
@@ -146,7 +146,7 @@ export const useXMLStore = create<XMLState>((set, get) => ({
 
       set({ xmlList: updatedList, validating: false });
     } catch (error: unknown) {
-      logUnknownError(error, logger.error);
+      logUnknownError(error, console.error);
       set({ validating: false });
       throw error;
     }
@@ -166,7 +166,7 @@ export const useXMLStore = create<XMLState>((set, get) => ({
       }
       return response;
     } catch (error: unknown) {
-      logUnknownError(error, logger.error);
+      logUnknownError(error, console.error);
       set({ processing: false });
       throw error;
     }
