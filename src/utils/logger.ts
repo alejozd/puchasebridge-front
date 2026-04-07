@@ -10,13 +10,6 @@
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
-interface LogEntry {
-  timestamp: string;
-  level: LogLevel;
-  module?: string;
-  data?: unknown;
-}
-
 class Logger {
   private static instance: Logger;
   private isDev: boolean;
@@ -94,29 +87,33 @@ class Logger {
   /**
    * Log de nivel DEBUG - Solo en desarrollo
    */
-  public debug(message: string, module?: string, data?: unknown): void {
-    this.writeLog('debug', message, module, data);
+  public debug(message: unknown, module?: string, data?: unknown): void {
+    const msg = typeof message === 'string' ? message : JSON.stringify(message);
+    this.writeLog('debug', msg, module, data);
   }
 
   /**
    * Log de nivel INFO - Solo en desarrollo
    */
-  public info(message: string, module?: string, data?: unknown): void {
-    this.writeLog('info', message, module, data);
+  public info(message: unknown, module?: string, data?: unknown): void {
+    const msg = typeof message === 'string' ? message : JSON.stringify(message);
+    this.writeLog('info', msg, module, data);
   }
 
   /**
    * Log de nivel WARN - Siempre visible
    */
-  public warn(message: string, module?: string, data?: unknown): void {
-    this.writeLog('warn', message, module, data);
+  public warn(message: unknown, module?: string, data?: unknown): void {
+    const msg = typeof message === 'string' ? message : JSON.stringify(message);
+    this.writeLog('warn', msg, module, data);
   }
 
   /**
    * Log de nivel ERROR - Siempre visible
    */
-  public error(message: string, module?: string, data?: unknown): void {
-    this.writeLog('error', message, module, data);
+  public error(message: unknown, module?: string, data?: unknown): void {
+    const msg = typeof message === 'string' ? message : JSON.stringify(message);
+    this.writeLog('error', msg, module, data);
   }
 
   /**
@@ -137,8 +134,9 @@ class Logger {
   /**
    * Método log genérico (alias de info) - Público para compatibilidad
    */
-  public log(message: string, module?: string, data?: unknown): void {
-    this.writeLog('info', message, module, data);
+  public log(message: unknown, module?: string, data?: unknown): void {
+    const msg = typeof message === 'string' ? message : JSON.stringify(message);
+    this.writeLog('info', msg, module, data);
   }
 }
 
@@ -146,9 +144,9 @@ class Logger {
 export const logger = Logger.getInstance();
 
 // Funciones helper para conveniencia
-export const debugLog = (msg: string, module?: string) => logger.debug(msg, module);
-export const infoLog = (msg: string, module?: string) => logger.info(msg, module);
-export const warnLog = (msg: string, module?: string) => logger.warn(msg, module);
-export const errorLog = (msg: string, module?: string) => logger.error(msg, module);
+export const debugLog = (msg: unknown, module?: string, data?: unknown) => logger.debug(msg, module, data);
+export const infoLog = (msg: unknown, module?: string, data?: unknown) => logger.info(msg, module, data);
+export const warnLog = (msg: unknown, module?: string, data?: unknown) => logger.warn(msg, module, data);
+export const errorLog = (msg: unknown, module?: string, data?: unknown) => logger.error(msg, module, data);
 export const logApiCall = (method: string, url: string, payload?: unknown) => logger.apiCall(method, url, payload);
 export const logStore = (action: string, data?: unknown) => logger.store(action, data);

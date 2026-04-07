@@ -13,7 +13,7 @@ export const useXmlDetail = () => {
     setLoading(true);
     try {
       const data = await getXMLFileDetail(id);
-      logger.log("DETAIL RESPONSE:", data);
+      logger.debug("DETAIL RESPONSE:", 'useXmlDetail', data);
 
       // Normalize mapping to ensure consistency with camelCase interface
       const normalizedDetail: XMLFileDetail = {
@@ -45,7 +45,7 @@ export const useXmlDetail = () => {
       } else {
         console.error("Error desconocido", err);
       }
-      logUnknownError(err, logger.error);
+      logUnknownError(err, (msg, module?, data?) => logger.error(msg, module, data));
       setDetail(null);
     } finally {
       setLoading(false);
@@ -65,7 +65,7 @@ export const useXmlDetail = () => {
       } else {
         console.error("Error desconocido", err);
       }
-      logUnknownError(err, logger.error);
+      logUnknownError(err, (msg, module?, data?) => logger.error(msg, module, data));
       return null;
     } finally {
       setProcessing(false);
