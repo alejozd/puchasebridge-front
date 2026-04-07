@@ -1,5 +1,5 @@
 import { handleResponse, BASE_URL, getHeaders } from "../utils/apiHandler";
-import { logger } from "../utils/logger";
+import { logApiCall } from "@/utils/logger";
 import type {
   XMLFile,
   XmlDetalle,
@@ -15,7 +15,7 @@ import type {
 } from "../types/xml";
 
 export const getDashboardMetrics = async (): Promise<DashboardMetrics> => {
-  logger.log("[API CALL]", { method: "GET", url: "/dashboard/metrics" });
+  logApiCall("GET", "/dashboard/metrics");
   const response = await fetch(`${BASE_URL}/dashboard/metrics`, {
     headers: getHeaders(),
   });
@@ -23,7 +23,7 @@ export const getDashboardMetrics = async (): Promise<DashboardMetrics> => {
 };
 
 export const getXMLList = async (): Promise<XMLFile[]> => {
-  logger.log("[API CALL]", { method: "GET", url: "/xml/list" });
+  logApiCall("GET", "/xml/list");
   const response = await fetch(`${BASE_URL}/xml/list`, {
     headers: getHeaders(),
   });
@@ -31,7 +31,7 @@ export const getXMLList = async (): Promise<XMLFile[]> => {
 };
 
 export const uploadXML = async (file: File): Promise<unknown> => {
-  logger.log("[API CALL]", { method: "POST", url: "/xml/upload" });
+  logApiCall("POST", "/xml/upload");
   const formData = new FormData();
   formData.append("file", file);
 
@@ -49,11 +49,7 @@ export const uploadXML = async (file: File): Promise<unknown> => {
 export const getProductosDocumento = async (
   fileName: string,
 ): Promise<DocumentoProductosResponse> => {
-  logger.log("[API CALL]", {
-    method: "GET",
-    url: "/xml/productos/documento",
-    params: { fileName },
-  });
+  logApiCall("GET", "/xml/productos/documento", { fileName });
   const response = await fetch(
     `${BASE_URL}/xml/productos/documento?fileName=${encodeURIComponent(fileName)}`,
     {
@@ -66,11 +62,7 @@ export const getProductosDocumento = async (
 export const getProductosPendientes = async (
   fileName: string,
 ): Promise<ProductoPendiente[]> => {
-  logger.log("[API CALL]", {
-    method: "GET",
-    url: "/xml/productos/pendientes",
-    params: { fileName },
-  });
+  logApiCall("GET", "/xml/productos/pendientes", { fileName });
   const response = await fetch(
     `${BASE_URL}/xml/productos/pendientes?fileName=${encodeURIComponent(fileName)}`,
     {
@@ -83,7 +75,7 @@ export const getProductosPendientes = async (
 export const homologarProducto = async (
   data: HomologarPayload,
 ): Promise<{ success: boolean; mensaje: string }> => {
-  logger.log("[API CALL]", { method: "POST", url: "/xml/homologar", data });
+  logApiCall("POST", "/xml/homologar", data);
   const response = await fetch(`${BASE_URL}/xml/homologar`, {
     method: "POST",
     headers: getHeaders(),
@@ -95,11 +87,7 @@ export const homologarProducto = async (
 export const procesarDocumentos = async (
   files: string[],
 ): Promise<XMLProcesarResponse> => {
-  logger.log("[API CALL]", {
-    method: "POST",
-    url: "/documentos/procesar",
-    data: { files },
-  });
+  logApiCall("POST", "/documentos/procesar", { files });
   const response = await fetch(`${BASE_URL}/documentos/procesar`, {
     method: "POST",
     headers: getHeaders(),
@@ -115,7 +103,7 @@ export const procesarArchivo = async (
 };
 
 export const parseXML = async (fileName: string): Promise<XmlDetalle> => {
-  logger.log("[API CALL]", { method: "POST", url: "/xml/parse", data: { fileName } });
+  logApiCall("POST", "/xml/parse", { fileName });
   const response = await fetch(`${BASE_URL}/xml/parse`, {
     method: "POST",
     headers: getHeaders(),
@@ -127,11 +115,7 @@ export const parseXML = async (fileName: string): Promise<XmlDetalle> => {
 export const validateXMLFile = async (
   fileName: string,
 ): Promise<BackendValidationResponse> => {
-  logger.log("[API CALL]", {
-    method: "POST",
-    url: "/xml/validate",
-    data: { fileName },
-  });
+  logApiCall("POST", "/xml/validate", { fileName });
   const response = await fetch(`${BASE_URL}/xml/validate`, {
     method: "POST",
     headers: getHeaders(),
@@ -142,7 +126,7 @@ export const validateXMLFile = async (
 
 // New services for Procesamiento de XML
 export const getXMLFiles = async (): Promise<XMLFileItem[]> => {
-  logger.log("[API CALL]", { method: "GET", url: "/xml/files" });
+  logApiCall("GET", "/xml/files");
   const response = await fetch(`${BASE_URL}/xml/files`, {
     headers: getHeaders(),
   });
@@ -150,7 +134,7 @@ export const getXMLFiles = async (): Promise<XMLFileItem[]> => {
 };
 
 export const getXMLFileDetail = async (id: number): Promise<XMLFileDetail> => {
-  logger.log("[API CALL]", { method: "GET", url: `/xml/files/${id}` });
+  logApiCall("GET", `/xml/files/${id}`);
   const response = await fetch(`${BASE_URL}/xml/files/${id}`, {
     headers: getHeaders(),
   });
@@ -160,11 +144,7 @@ export const getXMLFileDetail = async (id: number): Promise<XMLFileDetail> => {
 export const validateXML = async (
   fileName: string,
 ): Promise<XMLValidationResult> => {
-  logger.log("[API CALL]", {
-    method: "POST",
-    url: "/xml/validate",
-    data: { fileName },
-  });
+  logApiCall("POST", "/xml/validate", { fileName });
   const response = await fetch(`${BASE_URL}/xml/validate`, {
     method: "POST",
     headers: getHeaders(),
@@ -176,11 +156,7 @@ export const validateXML = async (
 export const procesarXML = async (
   files: string[],
 ): Promise<XMLProcesarResponse> => {
-  logger.log("[API CALL]", {
-    method: "POST",
-    url: "/documentos/procesar",
-    data: { files },
-  });
+  logApiCall("POST", "/documentos/procesar", { files });
   const response = await fetch(`${BASE_URL}/documentos/procesar`, {
     method: "POST",
     headers: getHeaders(),

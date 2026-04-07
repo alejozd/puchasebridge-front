@@ -5,52 +5,58 @@ node_modules/
 # Build artifacts
 dist/
 build/
+target/
 
 # Temporary files
 *.tmp
 node_modules/.tmp/
 
-# TypeScript/JavaScript build info
-*.tsbuildinfo
+# Package lock files
+package-lock.json
 
-# Logs
-*.log
-
-# Environment variables
+# Environment
 .env
 .env.local
 .env.*
 
-# Editor files
+# Logs
+*.log
+
+# Editors
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# Coverage reports
-coverage/
-htmlcov/
-*.coverage
-
-# Python cache
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Testing
-.pytest_cache/
-.mypy_cache/
+# Compiled files
+*.class
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
-# Java/Gradle
-target/
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Gradle
 .gradle/
 
-# Compression
+# MyPy
+.mypy_cache/
+
+# PyTest
+.pytest_cache/
+
+# Compressed files
 *.zip
 *.gz
 *.tar
@@ -69,4 +75,8 @@ target/
 *.Z
 *.lz
 *.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 ```
