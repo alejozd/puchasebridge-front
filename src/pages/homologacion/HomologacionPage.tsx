@@ -470,6 +470,8 @@ const HomologacionPage: React.FC = () => {
           productos={items}
           filteredProducts={filteredItems}
           loading={loading}
+          responsiveLayout="stack"
+          breakpoint="960px"
           unidades={unidades}
           updateRowState={(referenciaXML, newState) => {
             setItems((prev) =>

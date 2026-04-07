@@ -12,6 +12,7 @@ const MainLayout: React.FC = () => {
     const saved = localStorage.getItem('sidebar-collapsed');
     return saved ? JSON.parse(saved) : false;
   });
+  const [isMobileMenuActive, setIsMobileMenuActive] = useState(false);
   const logout = useAuthStore((state) => state.logout);
   const usuario = useAuthStore((state) => state.usuario);
   const licenciaEstado = useLicenciaStore((state) => state.licencia?.estado);
@@ -42,6 +43,10 @@ const MainLayout: React.FC = () => {
     localStorage.setItem('sidebar-collapsed', JSON.stringify(newState));
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuActive(!isMobileMenuActive);
+  };
+
   /**
    * Badge de estado de licencia para el menú lateral.
    * Si en el futuro cambian los estados de licencia, actualiza este mapeo.
@@ -60,8 +65,9 @@ const MainLayout: React.FC = () => {
   const licenciaBadge = getLicenciaBadgeConfig();
 
   return (
-    <div className={`layout-wrapper ${isCollapsed ? "collapsed" : ""}`}>
+    <div className={`layout-wrapper ${isCollapsed ? "collapsed" : ""} ${isMobileMenuActive ? "mobile-active" : ""}`}>
       <Tooltip target=".menu-item-tooltip" position="right" />
+      <div className="layout-mask" onClick={() => setIsMobileMenuActive(false)}></div>
       <aside className="layout-sidebar">
         <div className="sidebar-header">
           <button
@@ -87,6 +93,7 @@ const MainLayout: React.FC = () => {
               to={item.to}
               className={`menu-item ${isActive(item.to) ? "active" : ""} ${isCollapsed ? "menu-item-tooltip" : ""}`}
               data-pr-tooltip={isCollapsed ? item.label : ""}
+              onClick={() => setIsMobileMenuActive(false)}
             >
               <i className={item.icon}></i>
               <span className="menu-item-label">{item.label}</span>
@@ -118,6 +125,9 @@ const MainLayout: React.FC = () => {
       <div className="layout-main-container">
         <header className="layout-topbar">
           <div className="topbar-left">
+            <button className="btn-mobile-menu" onClick={toggleMobileMenu}>
+              <i className="pi pi-bars"></i>
+            </button>
           </div>
           <div className="topbar-right">
             <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

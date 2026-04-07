@@ -187,6 +187,25 @@
   }
 }
 
+@media (max-width: 767px) {
+  .login-card-container {
+    border-radius: var(--radius-xl);
+    margin: 1rem;
+  }
+
+  .form-side {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .form-title {
+    font-size: 1.75rem;
+  }
+
+  .form-subtitle {
+    font-size: 0.875rem;
+  }
+}
+
 .mobile-brand-header {
   display: flex;
   align-items: center;

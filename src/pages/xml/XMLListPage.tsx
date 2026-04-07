@@ -621,6 +621,8 @@ const XMLListPage: React.FC = () => {
           rowHover
           tableStyle={{ minWidth: "50rem" }}
           emptyMessage="No se encontraron archivos XML."
+          responsiveLayout="stack"
+          breakpoint="960px"
         >
           <Column
             selectionMode="multiple"
