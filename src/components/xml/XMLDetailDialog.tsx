@@ -192,6 +192,14 @@ const XMLDetailDialog: React.FC<XMLDetailDialogProps> = ({
                   {formatCurrency(xmlDetail.totales.impuestoTotal)}
                 </span>
               </div>
+              {xmlDetail.totales.retencion > 0 && (
+                <div className="total-line text-sm">
+                  <span className="label text-secondary">Retención</span>
+                  <span className="value">
+                    {formatCurrency(xmlDetail.totales.retencion)}
+                  </span>
+                </div>
+              )}
               <Divider className="my-2" />
               <div className="total-line final single-line">
                 <span className="label">TOTAL A PAGAR</span>

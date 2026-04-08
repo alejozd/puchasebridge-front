@@ -28,6 +28,7 @@ export interface TotalesDetalle {
   subtotal: number;
   taxInclusiveAmount: number;
   impuestoTotal: number;
+  retencion: number;
   total: number;
 }
 
